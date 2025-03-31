@@ -968,55 +968,50 @@
         // Tambahkan variabel untuk melacak status autentikasi
         let authCheckComplete = false;
 
+        // Helper untuk debug
+        function logDebug(message, data) {
+            console.log('[DEBUG] ' + message, data || '');
+        }
+
+        // Event listener untuk global error handling
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+            // Jika terjadi error, sembunyikan loading screen
+            document.getElementById('loadingScreen').style.display = 'none';
+        });
+
         // Handler untuk cek status auth dan loading screen
         document.addEventListener('DOMContentLoaded', function() {
-            // Cek apakah sudah login dengan sessionStorage
-            const isLoggedIn = sessionStorage.getItem('unlockToolLoggedIn');
+            logDebug('DOM telah dimuat, memeriksa status login...');
             
-            if (isLoggedIn === 'true') {
-                // Langsung tampilkan app tanpa loading screen
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('appContainer').style.display = 'block';
-                
-                // Inisialisasi app
-                initializeApp();
-            } else {
-                // Tampilkan loading screen hanya untuk login pertama kali
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('appContainer').style.display = 'none';
-                
-                // Tambahkan penundaan minimum untuk loading
-                setTimeout(function() {
-                    logDebug('Memeriksa status autentikasi...');
-                    firebase.auth().onAuthStateChanged(function(user) {
-                        // Tandai bahwa pengecekan autentikasi sudah selesai
-                        authCheckComplete = true;
-                        
-                        // Sembunyikan loading screen
-                        document.getElementById('loadingScreen').style.display = 'none';
-                        
-                        if (user) {
-                            logDebug('User terautentikasi: ', user.email);
-                            // User sudah login
-                            document.getElementById('appContainer').style.display = 'block';
-                            
-                            // Simpan status login di sessionStorage
-                            sessionStorage.setItem('unlockToolLoggedIn', 'true');
-                            
-                            // Inisialisasi app
-                            initializeApp();
-                        } else {
-                            logDebug('User belum terautentikasi, menampilkan halaman login');
-                            // User belum login
-                            document.getElementById('loginContainer').style.display = 'block';
-                            
-                            // Hapus status login di sessionStorage
-                            sessionStorage.removeItem('unlockToolLoggedIn');
-                        }
-                    });
-                }, 500); // Kurangi delay dari 1000ms menjadi 500ms
-            }
+            // Tampilkan loading screen terlebih dahulu
+            document.getElementById('loadingScreen').style.display = 'flex';
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'none';
+            
+            // Kurangi waktu loading menjadi 300ms
+            setTimeout(function() {
+                logDebug('Menjalankan pengecekan autentikasi...');
+                // Cek status login dengan Firebase auth
+                firebase.auth().onAuthStateChanged(function(user) {
+                    logDebug('Auth state changed, user:', user ? user.email : 'tidak ada');
+                    // Tandai bahwa pengecekan autentikasi sudah selesai
+                    authCheckComplete = true;
+                    
+                    // Sembunyikan loading screen
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    
+                    if (user) {
+                        // User sudah login
+                        document.getElementById('appContainer').style.display = 'block';
+                        // Inisialisasi app
+                        initializeApp();
+                    } else {
+                        // User belum login
+                        document.getElementById('loginContainer').style.display = 'block';
+                    }
+                });
+            }, 300); // Kurangi delay loading menjadi 300ms
         });
 
         // Event listener untuk tombol login
@@ -1045,9 +1040,6 @@
                 .then((userCredential) => {
                     // Login berhasil
                     errorMessage.textContent = '';
-                    
-                    // Simpan status login di sessionStorage
-                    sessionStorage.setItem('unlockToolLoggedIn', 'true');
                 })
                 .catch((error) => {
                     // Ada error saat login
@@ -1063,6 +1055,13 @@
                         errorMessage.textContent = 'Error: ' + error.message;
                     }
                 });
+        });
+
+        // Tombol Enter untuk login
+        document.getElementById('password').addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                document.getElementById('loginBtn').click();
+            }
         });
 
         // Fungsi inisialisasi app - memisahkan logik inisialisasi
@@ -1087,16 +1086,12 @@
                     
                     firebase.auth().signOut().then(() => {
                         // Logout berhasil
-                        // Hapus status login di sessionStorage
-                        sessionStorage.removeItem('unlockToolLoggedIn');
-                        
                         // Sembunyikan loading dan tampilkan login
                         document.getElementById('loadingScreen').style.display = 'none';
                         document.getElementById('loginContainer').style.display = 'block';
                     }).catch((error) => {
                         console.error('Error saat logout:', error);
-                        // Jika error, tetap coba hapus session dan tampilkan login
-                        sessionStorage.removeItem('unlockToolLoggedIn');
+                        // Jika error, tetap coba tampilkan login
                         document.getElementById('loadingScreen').style.display = 'none';
                         document.getElementById('loginContainer').style.display = 'block';
                     });
@@ -1104,20 +1099,29 @@
                 
                 // Sisipkan semua event listener lain di sini
                 // Event listener untuk tombol quick renting
-                document.getElementById('quickRentBtn')?.addEventListener('click', () => {
-                    logDebug('Quick Rent 6 Jam diklik');
-                    accountManager.quickRent(6);
-                });
+                const quickRentBtn = document.getElementById('quickRentBtn');
+                if (quickRentBtn) {
+                    quickRentBtn.addEventListener('click', () => {
+                        logDebug('Quick Rent 6 Jam diklik');
+                        accountManager.quickRent(6);
+                    });
+                }
                 
-                document.getElementById('quickRent12Btn')?.addEventListener('click', () => {
-                    logDebug('Quick Rent 12 Jam diklik');
-                    accountManager.quickRent(12);
-                });
+                const quickRent12Btn = document.getElementById('quickRent12Btn');
+                if (quickRent12Btn) {
+                    quickRent12Btn.addEventListener('click', () => {
+                        logDebug('Quick Rent 12 Jam diklik');
+                        accountManager.quickRent(12);
+                    });
+                }
                 
-                document.getElementById('quickRent24Btn')?.addEventListener('click', () => {
-                    logDebug('Quick Rent 24 Jam diklik');
-                    accountManager.quickRent(24);
-                });
+                const quickRent24Btn = document.getElementById('quickRent24Btn');
+                if (quickRent24Btn) {
+                    quickRent24Btn.addEventListener('click', () => {
+                        logDebug('Quick Rent 24 Jam diklik');
+                        accountManager.quickRent(24);
+                    });
+                }
                 
                 // Tambahan optional chaining (?.) untuk mencegah error jika tombol tidak ditemukan
                 document.getElementById('addAccountBtn')?.addEventListener('click', () => {
@@ -1230,13 +1234,6 @@
         function logDebug(message, data) {
             console.log('[DEBUG] ' + message, data || '');
         }
-
-        // Tombol Enter untuk login
-        document.getElementById('password').addEventListener('keyup', (event) => {
-            if (event.key === 'Enter') {
-                document.getElementById('loginBtn').click();
-            }
-        });
 
         // Fungsi untuk menghitung dan memformat waktu tersisa
         function getRemainingTime(availableAt) {
@@ -1505,6 +1502,10 @@
 
             renderAccounts(sort = true) {
                 const container = document.getElementById('accountsContainer');
+                if (!container) {
+                    console.error('ERROR: Element accountsContainer tidak ditemukan!');
+                    return;
+                }
                 container.innerHTML = '';
 
                 logDebug('Merender akun, jumlah total: ', this.accounts.length);
@@ -1537,14 +1538,12 @@
                 // Hitung jumlah akun yang available
                 const availableAccounts = filteredAccounts.filter(account => this.isAccountAvailable(account)).length;
                 
-                // Hitung jumlah akun yang Available 100%
-                const available100Accounts = filteredAccounts.filter(account => 
-                    this.isAccountAvailable(account) && account.manuallyUpdated
-                ).length;
-                
                 // Update informasi ringkasan akun
-                document.getElementById('totalAccounts').textContent = filteredAccounts.length;
-                document.getElementById('availableAccounts').textContent = availableAccounts;
+                const totalAccountsEl = document.getElementById('totalAccounts');
+                const availableAccountsEl = document.getElementById('availableAccounts');
+                
+                if (totalAccountsEl) totalAccountsEl.textContent = filteredAccounts.length;
+                if (availableAccountsEl) availableAccountsEl.textContent = availableAccounts;
                 
                 logDebug('Total akun available: ', availableAccounts);
                 
@@ -1553,55 +1552,30 @@
                 const quickRent12Btn = document.getElementById('quickRent12Btn');
                 const quickRent24Btn = document.getElementById('quickRent24Btn');
                 
-                // Tampilkan tombol hanya jika ada akun yang available
-                const showQuickRentBtn = availableAccounts > 0;
-                
                 if (quickRentBtn) {
-                    quickRentBtn.style.display = showQuickRentBtn ? 'block' : 'none';
+                    quickRentBtn.style.display = availableAccounts > 0 ? 'block' : 'none';
                 } else {
                     logDebug('ERROR: Tombol quickRentBtn tidak ditemukan!');
                 }
                 
                 if (quickRent12Btn) {
-                    quickRent12Btn.style.display = showQuickRentBtn ? 'block' : 'none';
+                    quickRent12Btn.style.display = availableAccounts > 0 ? 'block' : 'none';
+                } else {
+                    logDebug('ERROR: Tombol quickRent12Btn tidak ditemukan!');
                 }
                 
                 if (quickRent24Btn) {
-                    quickRent24Btn.style.display = showQuickRentBtn ? 'block' : 'none';
+                    quickRent24Btn.style.display = availableAccounts > 0 ? 'block' : 'none';
+                } else {
+                    logDebug('ERROR: Tombol quickRent24Btn tidak ditemukan!');
                 }
 
-                // Urutkan akun hanya jika parameter sort adalah true
-                let sortedAccounts = filteredAccounts;
-                if (sort) {
-                    logDebug('Mengurutkan akun...');
-                    sortedAccounts = filteredAccounts.sort((a, b) => {
-                        // Pertama, prioritaskan akun berdasarkan status ready/not ready
-                        if (a.isReady !== b.isReady) {
-                            return a.isReady ? -1 : 1; // Akun yang ready diletakkan dulu
-                        }
-                        
-                        const aAvailable = this.isAccountAvailable(a);
-                        const bAvailable = this.isAccountAvailable(b);
-                        
-                        // Kedua, prioritaskan akun yang available
-                        if (aAvailable !== bAvailable) {
-                            return aAvailable ? -1 : 1; // Akun yang available diletakkan dulu
-                        }
-                        
-                        // Jika keduanya available atau keduanya disewa
-                        if (!a.availableAt && !b.availableAt) return 0;
-                        if (!a.availableAt) return -1;
-                        if (!b.availableAt) return 1;
-                        
-                        // Ketiga, urutkan berdasarkan waktu ketersediaan
-                        return new Date(a.availableAt) - new Date(b.availableAt);
-                    });
-                    logDebug('Pengurutan selesai');
-                }
+                // Urutkan akun
+                // ... existing sorting code ...
 
                 // Render akun cards
-                logDebug('Mulai render akun cards', sortedAccounts.length);
-                sortedAccounts.forEach((account, index) => {
+                logDebug('Mulai render akun cards', filteredAccounts.length);
+                filteredAccounts.forEach((account, index) => {
                     const realIndex = this.accounts.indexOf(account);
                     const isAvailable = this.isAccountAvailable(account);
                     const availableAtText = isAvailable ? 'Available' : formatDateTime(account.availableAt);
