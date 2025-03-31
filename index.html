@@ -965,183 +965,58 @@
     <div id="notification" class="notification"></div>
 
     <script>
-        // Tambahkan logging untuk membantu debug
-        function logDebug(message, data) {
-            console.log('[DEBUG] ' + message, data || '');
-        }
+        // Tambahkan variabel untuk melacak status autentikasi
+        let authCheckComplete = false;
 
         // Handler untuk cek status auth dan loading screen
         document.addEventListener('DOMContentLoaded', function() {
-            // Sembunyikan konten utama
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'none';
+            // Cek apakah sudah login dengan sessionStorage
+            const isLoggedIn = sessionStorage.getItem('unlockToolLoggedIn');
             
-            // Tambahkan penundaan minimum untuk loading
-            setTimeout(function() {
-                logDebug('Memeriksa status autentikasi...');
-                firebase.auth().onAuthStateChanged(function(user) {
-                    // Sembunyikan loading screen
-                    document.getElementById('loadingScreen').style.display = 'none';
-                    
-                    if (user) {
-                        logDebug('User terautentikasi: ', user.email);
-                        // User sudah login
-                        document.getElementById('appContainer').style.display = 'block';
+            if (isLoggedIn === 'true') {
+                // Langsung tampilkan app tanpa loading screen
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                
+                // Inisialisasi app
+                initializeApp();
+            } else {
+                // Tampilkan loading screen hanya untuk login pertama kali
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'none';
+                
+                // Tambahkan penundaan minimum untuk loading
+                setTimeout(function() {
+                    logDebug('Memeriksa status autentikasi...');
+                    firebase.auth().onAuthStateChanged(function(user) {
+                        // Tandai bahwa pengecekan autentikasi sudah selesai
+                        authCheckComplete = true;
                         
-                        // Inisialisasi manager akun
-                        logDebug('Inisialisasi AccountManager');
-                        try {
-                            accountManager = new AccountManager();
-                            logDebug('AccountManager berhasil diinisialisasi');
+                        // Sembunyikan loading screen
+                        document.getElementById('loadingScreen').style.display = 'none';
+                        
+                        if (user) {
+                            logDebug('User terautentikasi: ', user.email);
+                            // User sudah login
+                            document.getElementById('appContainer').style.display = 'block';
                             
-                            // Set interval untuk memperbarui tampilan
-                            setInterval(() => {
-                                logDebug('Memperbarui tampilan dengan interval');
-                                accountManager.renderAccounts(true);
-                            }, 15000);
+                            // Simpan status login di sessionStorage
+                            sessionStorage.setItem('unlockToolLoggedIn', 'true');
                             
-                            // Event listener untuk tombol quick renting
-                            document.getElementById('quickRentBtn').addEventListener('click', () => {
-                                logDebug('Quick Rent 6 Jam diklik');
-                                accountManager.quickRent(6);
-                            });
+                            // Inisialisasi app
+                            initializeApp();
+                        } else {
+                            logDebug('User belum terautentikasi, menampilkan halaman login');
+                            // User belum login
+                            document.getElementById('loginContainer').style.display = 'block';
                             
-                            document.getElementById('quickRent12Btn').addEventListener('click', () => {
-                                logDebug('Quick Rent 12 Jam diklik');
-                                accountManager.quickRent(12);
-                            });
-                            
-                            document.getElementById('quickRent24Btn').addEventListener('click', () => {
-                                logDebug('Quick Rent 24 Jam diklik');
-                                accountManager.quickRent(24);
-                            });
-                        } catch (err) {
-                            console.error('Error saat inisialisasi: ', err);
+                            // Hapus status login di sessionStorage
+                            sessionStorage.removeItem('unlockToolLoggedIn');
                         }
-                        
-                        // Event listener untuk tombol tambah akun
-                        document.getElementById('addAccountBtn').addEventListener('click', () => {
-                            accountManager.addAccount();
-                        });
-                        
-                        // Event listener untuk tombol Quick Renting
-                        document.getElementById('quickRentBtn').addEventListener('click', () => {
-                            accountManager.quickRent();
-                        });
-                        
-                        // Event listener untuk tombol bulk add account
-                        document.getElementById('bulkAddBtn').addEventListener('click', openBulkModal);
-                        
-                        // Event listener untuk tombol setting iklan
-                        document.querySelector('.ads-btn').addEventListener('click', () => {
-                            window.open('https://seller.shopee.co.id/portal/marketing/pas/product/manual/315686975?from=1742317200&to=1742403599&group=today', '_blank');
-                        });
-                        
-                        // Event listener untuk tombol ekspor data
-                        document.getElementById('exportBtn').addEventListener('click', () => {
-                            accountManager.exportData();
-                        });
-                        
-                        // Event listener untuk input impor data
-                        document.getElementById('importFile').addEventListener('change', (event) => {
-                            if (event.target.files.length > 0) {
-                                const file = event.target.files[0];
-                                if (file.type === 'application/json' || file.name.endsWith('.json')) {
-                                    accountManager.importData(file);
-                                } else {
-                                    accountManager.showNotification("Format file tidak valid. Harap pilih file JSON.");
-                                }
-                                // Reset input file untuk memungkinkan impor file yang sama berulang kali
-                                event.target.value = '';
-                            }
-                        });
-                        
-                        // Event listener untuk logout
-                        document.getElementById('logoutBtn').addEventListener('click', () => {
-                            firebase.auth().signOut().then(() => {
-                                // Logout berhasil
-                                document.getElementById('loginContainer').style.display = 'block';
-                                document.getElementById('appContainer').style.display = 'none';
-                            }).catch((error) => {
-                                console.error('Error saat logout:', error);
-                            });
-                        });
-                        
-                        // Event listeners untuk modal input manual
-                        document.querySelector('.close').addEventListener('click', closeManualModal);
-                        document.getElementById('saveManualBtn').addEventListener('click', saveManualTime);
-                        
-                        // Event listener untuk proses data bulk add
-                        document.getElementById('processBulkBtn').addEventListener('click', processBulkAccounts);
-                        
-                        // Event listener untuk menutup modal bulk add
-                        document.getElementById('closeBulkModal').addEventListener('click', closeBulkModal);
-
-                        // Event listener untuk filter email
-                        document.getElementById('emailFilter').addEventListener('change', (event) => {
-                            accountManager.setEmailFilter(event.target.value);
-                        });
-
-                        // Event listener untuk filter pencarian username
-                        document.getElementById('usernameSearch').addEventListener('input', (event) => {
-                            accountManager.setSearchQuery(event.target.value);
-                            
-                            // Tampilkan tombol clear jika ada teks, sembunyikan jika kosong
-                            const clearButton = document.getElementById('clearSearch');
-                            if (event.target.value) {
-                                clearButton.style.display = 'block';
-                            } else {
-                                clearButton.style.display = 'none';
-                            }
-                        });
-                        
-                        // Event listener untuk tombol clear search
-                        document.getElementById('clearSearch').addEventListener('click', () => {
-                            const searchInput = document.getElementById('usernameSearch');
-                            searchInput.value = '';
-                            accountManager.setSearchQuery('');
-                            document.getElementById('clearSearch').style.display = 'none';
-                            searchInput.focus(); // Fokus kembali ke input pencarian
-                        });
-
-                        // Event listener untuk tombol scroll to top
-                        const scrollToTopBtn = document.getElementById('scrollToTop');
-                        
-                        window.addEventListener('scroll', () => {
-                            if (window.pageYOffset > 300) { // Tampilkan tombol setelah scroll 300px
-                                scrollToTopBtn.classList.add('show');
-                            } else {
-                                scrollToTopBtn.classList.remove('show');
-                            }
-                        });
-
-                        scrollToTopBtn.addEventListener('click', () => {
-                            window.scrollTo({
-                                top: 0,
-                                behavior: 'smooth'
-                            });
-                        });
-
-                        // Menutup modal jika user mengklik di luar modal
-                        window.addEventListener('click', (event) => {
-                            const manualModal = document.getElementById('manualModal');
-                            const bulkAddModal = document.getElementById('bulkAddModal');
-                            
-                            if (event.target == manualModal) {
-                                closeManualModal();
-                            }
-                            
-                            if (event.target == bulkAddModal) {
-                                closeBulkModal();
-                            }
-                        });
-                    } else {
-                        logDebug('User belum terautentikasi, menampilkan halaman login');
-                        // User belum login
-                        document.getElementById('loginContainer').style.display = 'block';
-                    }
-                });
-            }, 1000); // Delay minimal 1 detik untuk menghindari flash
+                    });
+                }, 500); // Kurangi delay dari 1000ms menjadi 500ms
+            }
         });
 
         // Event listener untuk tombol login
@@ -1156,6 +1031,10 @@
                 return;
             }
             
+            // Tampilkan loading screen saat login
+            document.getElementById('loadingScreen').style.display = 'flex';
+            document.getElementById('loginContainer').style.display = 'none';
+            
             // Set persistence berdasarkan pilihan "Remember Me"
             const persistenceType = rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
             
@@ -1166,10 +1045,18 @@
                 .then((userCredential) => {
                     // Login berhasil
                     errorMessage.textContent = '';
+                    
+                    // Simpan status login di sessionStorage
+                    sessionStorage.setItem('unlockToolLoggedIn', 'true');
                 })
                 .catch((error) => {
                     // Ada error saat login
                     console.error("Error:", error);
+                    
+                    // Sembunyikan loading screen dan tampilkan login lagi
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    document.getElementById('loginContainer').style.display = 'block';
+                    
                     if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
                         errorMessage.textContent = 'Email atau password salah';
                     } else {
@@ -1177,6 +1064,172 @@
                     }
                 });
         });
+
+        // Fungsi inisialisasi app - memisahkan logik inisialisasi
+        function initializeApp() {
+            logDebug('Inisialisasi app...');
+            try {
+                // Inisialisasi manager akun
+                accountManager = new AccountManager();
+                logDebug('AccountManager berhasil diinisialisasi');
+                
+                // Set interval untuk memperbarui tampilan, tapi interval lebih panjang (30 detik)
+                // untuk mengurangi beban pada Firebase
+                setInterval(() => {
+                    accountManager.renderAccounts(true);
+                }, 30000);
+                
+                // Logout handler - pindah ke sini agar tersedia hanya setelah login
+                document.getElementById('logoutBtn').addEventListener('click', () => {
+                    // Tampilkan loading screen saat logout
+                    document.getElementById('loadingScreen').style.display = 'flex';
+                    document.getElementById('appContainer').style.display = 'none';
+                    
+                    firebase.auth().signOut().then(() => {
+                        // Logout berhasil
+                        // Hapus status login di sessionStorage
+                        sessionStorage.removeItem('unlockToolLoggedIn');
+                        
+                        // Sembunyikan loading dan tampilkan login
+                        document.getElementById('loadingScreen').style.display = 'none';
+                        document.getElementById('loginContainer').style.display = 'block';
+                    }).catch((error) => {
+                        console.error('Error saat logout:', error);
+                        // Jika error, tetap coba hapus session dan tampilkan login
+                        sessionStorage.removeItem('unlockToolLoggedIn');
+                        document.getElementById('loadingScreen').style.display = 'none';
+                        document.getElementById('loginContainer').style.display = 'block';
+                    });
+                });
+                
+                // Sisipkan semua event listener lain di sini
+                // Event listener untuk tombol quick renting
+                document.getElementById('quickRentBtn')?.addEventListener('click', () => {
+                    logDebug('Quick Rent 6 Jam diklik');
+                    accountManager.quickRent(6);
+                });
+                
+                document.getElementById('quickRent12Btn')?.addEventListener('click', () => {
+                    logDebug('Quick Rent 12 Jam diklik');
+                    accountManager.quickRent(12);
+                });
+                
+                document.getElementById('quickRent24Btn')?.addEventListener('click', () => {
+                    logDebug('Quick Rent 24 Jam diklik');
+                    accountManager.quickRent(24);
+                });
+                
+                // Tambahan optional chaining (?.) untuk mencegah error jika tombol tidak ditemukan
+                document.getElementById('addAccountBtn')?.addEventListener('click', () => {
+                    accountManager.addAccount();
+                });
+                
+                document.getElementById('bulkAddBtn')?.addEventListener('click', openBulkModal);
+                
+                document.querySelector('.ads-btn')?.addEventListener('click', () => {
+                    window.open('https://seller.shopee.co.id/portal/marketing/pas/product/manual/315686975?from=1742317200&to=1742403599&group=today', '_blank');
+                });
+                
+                document.getElementById('exportBtn')?.addEventListener('click', () => {
+                    accountManager.exportData();
+                });
+                
+                document.getElementById('importFile')?.addEventListener('change', (event) => {
+                    if (event.target.files.length > 0) {
+                        const file = event.target.files[0];
+                        if (file.type === 'application/json' || file.name.endsWith('.json')) {
+                            accountManager.importData(file);
+                        } else {
+                            accountManager.showNotification("Format file tidak valid. Harap pilih file JSON.");
+                        }
+                        // Reset input file untuk memungkinkan impor file yang sama berulang kali
+                        event.target.value = '';
+                    }
+                });
+                
+                // Event listeners untuk modal input manual
+                document.querySelector('.close')?.addEventListener('click', closeManualModal);
+                document.getElementById('saveManualBtn')?.addEventListener('click', saveManualTime);
+                
+                // Event listener untuk proses data bulk add
+                document.getElementById('processBulkBtn')?.addEventListener('click', processBulkAccounts);
+                
+                // Event listener untuk menutup modal bulk add
+                document.getElementById('closeBulkModal')?.addEventListener('click', closeBulkModal);
+
+                // Event listener untuk filter email
+                document.getElementById('emailFilter')?.addEventListener('change', (event) => {
+                    accountManager.setEmailFilter(event.target.value);
+                });
+
+                // Event listener untuk filter pencarian username
+                document.getElementById('usernameSearch')?.addEventListener('input', (event) => {
+                    accountManager.setSearchQuery(event.target.value);
+                    
+                    // Tampilkan tombol clear jika ada teks, sembunyikan jika kosong
+                    const clearButton = document.getElementById('clearSearch');
+                    if (clearButton) {
+                        if (event.target.value) {
+                            clearButton.style.display = 'block';
+                        } else {
+                            clearButton.style.display = 'none';
+                        }
+                    }
+                });
+                
+                // Event listener untuk tombol clear search
+                document.getElementById('clearSearch')?.addEventListener('click', () => {
+                    const searchInput = document.getElementById('usernameSearch');
+                    if (searchInput) {
+                        searchInput.value = '';
+                        accountManager.setSearchQuery('');
+                        document.getElementById('clearSearch').style.display = 'none';
+                        searchInput.focus(); // Fokus kembali ke input pencarian
+                    }
+                });
+
+                // Event listener untuk tombol scroll to top
+                const scrollToTopBtn = document.getElementById('scrollToTop');
+                
+                if (scrollToTopBtn) {
+                    window.addEventListener('scroll', () => {
+                        if (window.pageYOffset > 300) { // Tampilkan tombol setelah scroll 300px
+                            scrollToTopBtn.classList.add('show');
+                        } else {
+                            scrollToTopBtn.classList.remove('show');
+                        }
+                    });
+
+                    scrollToTopBtn.addEventListener('click', () => {
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    });
+                }
+
+                // Menutup modal jika user mengklik di luar modal
+                window.addEventListener('click', (event) => {
+                    const manualModal = document.getElementById('manualModal');
+                    const bulkAddModal = document.getElementById('bulkAddModal');
+                    
+                    if (event.target == manualModal) {
+                        closeManualModal();
+                    }
+                    
+                    if (event.target == bulkAddModal) {
+                        closeBulkModal();
+                    }
+                });
+            } catch (err) {
+                console.error('Error saat inisialisasi app: ', err);
+            }
+        }
+
+        // Tambahkan logging untuk membantu debug
+        function logDebug(message, data) {
+            console.log('[DEBUG] ' + message, data || '');
+        }
 
         // Tombol Enter untuk login
         document.getElementById('password').addEventListener('keyup', (event) => {
@@ -1484,6 +1537,11 @@
                 // Hitung jumlah akun yang available
                 const availableAccounts = filteredAccounts.filter(account => this.isAccountAvailable(account)).length;
                 
+                // Hitung jumlah akun yang Available 100%
+                const available100Accounts = filteredAccounts.filter(account => 
+                    this.isAccountAvailable(account) && account.manuallyUpdated
+                ).length;
+                
                 // Update informasi ringkasan akun
                 document.getElementById('totalAccounts').textContent = filteredAccounts.length;
                 document.getElementById('availableAccounts').textContent = availableAccounts;
@@ -1495,26 +1553,55 @@
                 const quickRent12Btn = document.getElementById('quickRent12Btn');
                 const quickRent24Btn = document.getElementById('quickRent24Btn');
                 
+                // Tampilkan tombol hanya jika ada akun yang available
+                const showQuickRentBtn = availableAccounts > 0;
+                
                 if (quickRentBtn) {
-                    quickRentBtn.style.display = availableAccounts > 0 ? 'block' : 'none';
+                    quickRentBtn.style.display = showQuickRentBtn ? 'block' : 'none';
                 } else {
                     logDebug('ERROR: Tombol quickRentBtn tidak ditemukan!');
                 }
                 
                 if (quickRent12Btn) {
-                    quickRent12Btn.style.display = availableAccounts > 0 ? 'block' : 'none';
+                    quickRent12Btn.style.display = showQuickRentBtn ? 'block' : 'none';
                 }
                 
                 if (quickRent24Btn) {
-                    quickRent24Btn.style.display = availableAccounts > 0 ? 'block' : 'none';
+                    quickRent24Btn.style.display = showQuickRentBtn ? 'block' : 'none';
                 }
 
-                // Urutkan akun
-                // ... existing sorting code ...
+                // Urutkan akun hanya jika parameter sort adalah true
+                let sortedAccounts = filteredAccounts;
+                if (sort) {
+                    logDebug('Mengurutkan akun...');
+                    sortedAccounts = filteredAccounts.sort((a, b) => {
+                        // Pertama, prioritaskan akun berdasarkan status ready/not ready
+                        if (a.isReady !== b.isReady) {
+                            return a.isReady ? -1 : 1; // Akun yang ready diletakkan dulu
+                        }
+                        
+                        const aAvailable = this.isAccountAvailable(a);
+                        const bAvailable = this.isAccountAvailable(b);
+                        
+                        // Kedua, prioritaskan akun yang available
+                        if (aAvailable !== bAvailable) {
+                            return aAvailable ? -1 : 1; // Akun yang available diletakkan dulu
+                        }
+                        
+                        // Jika keduanya available atau keduanya disewa
+                        if (!a.availableAt && !b.availableAt) return 0;
+                        if (!a.availableAt) return -1;
+                        if (!b.availableAt) return 1;
+                        
+                        // Ketiga, urutkan berdasarkan waktu ketersediaan
+                        return new Date(a.availableAt) - new Date(b.availableAt);
+                    });
+                    logDebug('Pengurutan selesai');
+                }
 
                 // Render akun cards
-                logDebug('Mulai render akun cards', filteredAccounts.length);
-                filteredAccounts.forEach((account, index) => {
+                logDebug('Mulai render akun cards', sortedAccounts.length);
+                sortedAccounts.forEach((account, index) => {
                     const realIndex = this.accounts.indexOf(account);
                     const isAvailable = this.isAccountAvailable(account);
                     const availableAtText = isAvailable ? 'Available' : formatDateTime(account.availableAt);
