@@ -777,6 +777,10 @@
         <div id="errorMessage" class="error-message"></div>
         <input type="email" id="email" placeholder="Email" required>
         <input type="password" id="password" placeholder="Password" required>
+        <div style="display: flex; align-items: center; margin-bottom: 15px; justify-content: center;">
+            <input type="checkbox" id="rememberMe" checked style="width: auto; margin-right: 8px; cursor: pointer;">
+            <label for="rememberMe" style="margin-bottom: 0; cursor: pointer;">Ingat Saya</label>
+        </div>
         <button id="loginBtn" class="login-btn">Login</button>
     </div>
 
@@ -1039,6 +1043,7 @@
             document.getElementById('loginBtn').addEventListener('click', () => {
                 const email = document.getElementById('email').value;
                 const password = document.getElementById('password').value;
+                const rememberMe = document.getElementById('rememberMe').checked;
                 const errorMessage = document.getElementById('errorMessage');
                 
                 if (!email || !password) {
@@ -1046,13 +1051,20 @@
                     return;
                 }
                 
-                firebase.auth().signInWithEmailAndPassword(email, password)
+                // Set persistence berdasarkan pilihan "Remember Me"
+                const persistenceType = rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+                
+                firebase.auth().setPersistence(persistenceType)
+                    .then(() => {
+                        return firebase.auth().signInWithEmailAndPassword(email, password);
+                    })
                     .then((userCredential) => {
                         // Login berhasil
                         errorMessage.textContent = '';
                     })
                     .catch((error) => {
                         // Ada error saat login
+                        console.error("Error:", error);
                         if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
                             errorMessage.textContent = 'Email atau password salah';
                         } else {
