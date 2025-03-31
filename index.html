@@ -965,6 +965,11 @@
     <div id="notification" class="notification"></div>
 
     <script>
+        // Tambahkan logging untuk membantu debug
+        function logDebug(message, data) {
+            console.log('[DEBUG] ' + message, data || '');
+        }
+
         // Handler untuk cek status auth dan loading screen
         document.addEventListener('DOMContentLoaded', function() {
             // Sembunyikan konten utama
@@ -973,19 +978,46 @@
             
             // Tambahkan penundaan minimum untuk loading
             setTimeout(function() {
+                logDebug('Memeriksa status autentikasi...');
                 firebase.auth().onAuthStateChanged(function(user) {
                     // Sembunyikan loading screen
                     document.getElementById('loadingScreen').style.display = 'none';
                     
                     if (user) {
+                        logDebug('User terautentikasi: ', user.email);
                         // User sudah login
                         document.getElementById('appContainer').style.display = 'block';
                         
                         // Inisialisasi manager akun
-                        accountManager = new AccountManager();
-                        
-                        // Set interval untuk memperbarui tampilan setiap 15 detik dengan pengurutan
-                        setInterval(() => accountManager.renderAccounts(true), 15000);
+                        logDebug('Inisialisasi AccountManager');
+                        try {
+                            accountManager = new AccountManager();
+                            logDebug('AccountManager berhasil diinisialisasi');
+                            
+                            // Set interval untuk memperbarui tampilan
+                            setInterval(() => {
+                                logDebug('Memperbarui tampilan dengan interval');
+                                accountManager.renderAccounts(true);
+                            }, 15000);
+                            
+                            // Event listener untuk tombol quick renting
+                            document.getElementById('quickRentBtn').addEventListener('click', () => {
+                                logDebug('Quick Rent 6 Jam diklik');
+                                accountManager.quickRent(6);
+                            });
+                            
+                            document.getElementById('quickRent12Btn').addEventListener('click', () => {
+                                logDebug('Quick Rent 12 Jam diklik');
+                                accountManager.quickRent(12);
+                            });
+                            
+                            document.getElementById('quickRent24Btn').addEventListener('click', () => {
+                                logDebug('Quick Rent 24 Jam diklik');
+                                accountManager.quickRent(24);
+                            });
+                        } catch (err) {
+                            console.error('Error saat inisialisasi: ', err);
+                        }
                         
                         // Event listener untuk tombol tambah akun
                         document.getElementById('addAccountBtn').addEventListener('click', () => {
@@ -1104,6 +1136,7 @@
                             }
                         });
                     } else {
+                        logDebug('User belum terautentikasi, menampilkan halaman login');
                         // User belum login
                         document.getElementById('loginContainer').style.display = 'block';
                     }
@@ -1421,17 +1454,22 @@
                 const container = document.getElementById('accountsContainer');
                 container.innerHTML = '';
 
+                logDebug('Merender akun, jumlah total: ', this.accounts.length);
+
                 // Filter akun yang memiliki username dan password, lalu urutkan
                 let filteredAccounts = [...this.accounts].filter(account => 
                     account.username && account.username.trim() !== '' && 
                     account.password && account.password.trim() !== ''
                 );
                 
+                logDebug('Akun setelah filter username/password: ', filteredAccounts.length);
+                
                 // Tambahkan filter berdasarkan email jika ada email yang dipilih
                 if (this.selectedEmail) {
                     filteredAccounts = filteredAccounts.filter(account => 
                         account.email === this.selectedEmail
                     );
+                    logDebug('Akun setelah filter email: ', filteredAccounts.length);
                 }
                 
                 // Tambahkan filter berdasarkan pencarian username jika ada
@@ -1440,51 +1478,43 @@
                     filteredAccounts = filteredAccounts.filter(account => 
                         account.username.toLowerCase().includes(query)
                     );
+                    logDebug('Akun setelah filter pencarian: ', filteredAccounts.length);
                 }
                 
-                // Hitung jumlah akun yang available dari akun yang sudah difilter berdasarkan email dan pencarian
+                // Hitung jumlah akun yang available
                 const availableAccounts = filteredAccounts.filter(account => this.isAccountAvailable(account)).length;
-                
-                // Hitung jumlah akun yang Available 100%
-                const available100Accounts = filteredAccounts.filter(account => 
-                    this.isAccountAvailable(account) && account.manuallyUpdated
-                ).length;
                 
                 // Update informasi ringkasan akun
                 document.getElementById('totalAccounts').textContent = filteredAccounts.length;
                 document.getElementById('availableAccounts').textContent = availableAccounts;
                 
-                // Tampilkan/sembunyikan tombol Quick Renting:
-                // - Jika ada lebih dari 1 akun available 100%, atau 
-                // - Ada akun available biasa dan minimal 1 akun available 100% (untuk cadangan)
+                logDebug('Total akun available: ', availableAccounts);
+                
+                // Tampilkan/sembunyikan tombol Quick Renting
                 const quickRentBtn = document.getElementById('quickRentBtn');
-                const showQuickRentBtn = (available100Accounts > 1) || 
-                                         (availableAccounts > available100Accounts && available100Accounts > 0) ||
-                                         (availableAccounts > 0 && available100Accounts === 0);
-                quickRentBtn.style.display = showQuickRentBtn ? 'block' : 'none';
-
-                // Urutkan akun hanya jika parameter sort adalah true
-                let sortedAccounts = filteredAccounts;
-                if (sort) {
-                    sortedAccounts = filteredAccounts.sort((a, b) => {
-                        const aAvailable = this.isAccountAvailable(a);
-                        const bAvailable = this.isAccountAvailable(b);
-                        
-                        // Jika keduanya tersedia atau keduanya tidak tersedia, bandingkan availableAt
-                        if (aAvailable === bAvailable) {
-                            if (!a.availableAt && !b.availableAt) return 0;
-                            if (!a.availableAt) return -1;
-                            if (!b.availableAt) return 1;
-                            
-                            return new Date(a.availableAt) - new Date(b.availableAt);
-                        }
-                        
-                        // Akun yang tersedia diletakkan lebih dulu
-                        return aAvailable ? -1 : 1;
-                    });
+                const quickRent12Btn = document.getElementById('quickRent12Btn');
+                const quickRent24Btn = document.getElementById('quickRent24Btn');
+                
+                if (quickRentBtn) {
+                    quickRentBtn.style.display = availableAccounts > 0 ? 'block' : 'none';
+                } else {
+                    logDebug('ERROR: Tombol quickRentBtn tidak ditemukan!');
+                }
+                
+                if (quickRent12Btn) {
+                    quickRent12Btn.style.display = availableAccounts > 0 ? 'block' : 'none';
+                }
+                
+                if (quickRent24Btn) {
+                    quickRent24Btn.style.display = availableAccounts > 0 ? 'block' : 'none';
                 }
 
-                sortedAccounts.forEach((account, index) => {
+                // Urutkan akun
+                // ... existing sorting code ...
+
+                // Render akun cards
+                logDebug('Mulai render akun cards', filteredAccounts.length);
+                filteredAccounts.forEach((account, index) => {
                     const realIndex = this.accounts.indexOf(account);
                     const isAvailable = this.isAccountAvailable(account);
                     const availableAtText = isAvailable ? 'Available' : formatDateTime(account.availableAt);
@@ -1579,6 +1609,7 @@
                     `;
                     container.appendChild(accountCard);
                 });
+                logDebug('Selesai render akun cards');
             }
 
             copyInfoWithTime(accountIndex, buttonElement = null) {
