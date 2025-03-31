@@ -1575,26 +1575,59 @@
                 if (sort) {
                     logDebug('Mengurutkan akun...');
                     sortedAccounts = filteredAccounts.sort((a, b) => {
-                        // Pertama, prioritaskan akun berdasarkan status ready/not ready
+                        // Prioritaskan akun yang ready dulu
                         if (a.isReady !== b.isReady) {
-                            return a.isReady ? -1 : 1; // Akun yang ready diletakkan dulu
+                            return a.isReady ? -1 : 1;
                         }
                         
                         const aAvailable = this.isAccountAvailable(a);
                         const bAvailable = this.isAccountAvailable(b);
                         
-                        // Kedua, prioritaskan akun yang available
+                        // Prioritaskan akun yang available
                         if (aAvailable !== bAvailable) {
-                            return aAvailable ? -1 : 1; // Akun yang available diletakkan dulu
+                            return aAvailable ? -1 : 1;
                         }
                         
-                        // Jika keduanya available atau keduanya disewa
-                        if (!a.availableAt && !b.availableAt) return 0;
-                        if (!a.availableAt) return -1;
-                        if (!b.availableAt) return 1;
+                        // Untuk akun yang sama-sama available atau sama-sama tidak available
+                        if (aAvailable && bAvailable) {
+                            // Jika keduanya available, urutkan berdasarkan waktu lastRentedAt (jika ada)
+                            // atau availableAt (jika tidak ada lastRentedAt)
+                            
+                            // Jika keduanya punya availableAt
+                            if (a.availableAt && b.availableAt) {
+                                // Yang lebih lama available (waktu lama) ditampilkan lebih dulu
+                                return new Date(a.availableAt) - new Date(b.availableAt);
+                            }
+                            
+                            // Jika hanya salah satu yang punya availableAt
+                            if (a.availableAt) return -1;
+                            if (b.availableAt) return 1;
+                            
+                            // Jika keduanya tidak punya availableAt, bandingkan manual flag
+                            if (a.manuallyUpdated !== b.manuallyUpdated) {
+                                return a.manuallyUpdated ? -1 : 1;
+                            }
+                            
+                            // Fallback ke username
+                            return a.username.localeCompare(b.username);
+                        }
                         
-                        // Ketiga, urutkan berdasarkan waktu ketersediaan
-                        return new Date(a.availableAt) - new Date(b.availableAt);
+                        // Untuk akun yang sama-sama tidak available
+                        if (!aAvailable && !bAvailable) {
+                            // Urutkan berdasarkan waktu akan tersedia (yang paling cepat tersedia di depan)
+                            if (a.availableAt && b.availableAt) {
+                                return new Date(a.availableAt) - new Date(b.availableAt);
+                            }
+                            
+                            // Jika hanya salah satu yang punya availableAt
+                            if (a.availableAt) return -1;
+                            if (b.availableAt) return 1;
+                            
+                            // Fallback ke username
+                            return a.username.localeCompare(b.username);
+                        }
+                        
+                        return 0;
                     });
                     logDebug('Pengurutan selesai');
                 }
