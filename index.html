@@ -9,6 +9,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     
     <!-- Firebase Config -->
     <script>
@@ -693,47 +694,134 @@
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
         }
+
+        /* Style untuk Login Form */
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 25px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+        }
+        
+        .login-container h2 {
+            margin-bottom: 25px;
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+        
+        .login-container input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+        }
+        
+        .login-container input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
+        }
+        
+        .login-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: var(--transition);
+        }
+        
+        .login-btn:hover {
+            background-color: #4559b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .error-message {
+            color: var(--danger-color);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .logout-btn {
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: var(--transition);
+        }
+        
+        .logout-btn:hover {
+            background-color: #e9ecef;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="buttons-container">
-            <button id="addAccountBtn" class="action-btn add-btn">Tambah Akun Baru</button>
-            <button id="bulkAddBtn" class="action-btn add-btn">Bulk Add Account</button>
-            <button class="action-btn ads-btn">Setting Iklan</button>
-            <button id="exportBtn" class="action-btn export-btn">Ekspor Data</button>
-            <div class="action-btn import-btn">
-                Impor Data
-                <input type="file" id="importFile" accept=".json">
+    <!-- Login Container -->
+    <div id="loginContainer" class="login-container">
+        <h2>Login Unlock Tool</h2>
+        <div id="errorMessage" class="error-message"></div>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button id="loginBtn" class="login-btn">Login</button>
+    </div>
+
+    <!-- Main App Container (akan ditampilkan setelah login) -->
+    <div id="appContainer" style="display: none;">
+        <div class="container">
+            <div class="buttons-container">
+                <button id="addAccountBtn" class="action-btn add-btn">Tambah Akun Baru</button>
+                <button id="bulkAddBtn" class="action-btn add-btn">Bulk Add Account</button>
+                <button class="action-btn ads-btn">Setting Iklan</button>
+                <button id="exportBtn" class="action-btn export-btn">Ekspor Data</button>
+                <div class="action-btn import-btn">
+                    Impor Data
+                    <input type="file" id="importFile" accept=".json">
+                </div>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
             </div>
-        </div>
-        <div class="account-summary">
-            <div class="filter-container">
-                <label for="emailFilter"><strong>Filter Email:</strong></label>
-                <select id="emailFilter" class="email-filter">
-                    <option value="">Semua Email</option>
-                    <!-- Opsi email akan diisi secara dinamis -->
-                </select>
-                
-                <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
-                <div class="search-container">
-                    <input type="text" id="usernameSearch" class="search-input" placeholder="Ketik untuk mencari...">
-                    <button type="button" id="clearSearch" class="clear-search-btn">&times;</button>
+            <div class="account-summary">
+                <div class="filter-container">
+                    <label for="emailFilter"><strong>Filter Email:</strong></label>
+                    <select id="emailFilter" class="email-filter">
+                        <option value="">Semua Email</option>
+                        <!-- Opsi email akan diisi secara dinamis -->
+                    </select>
+                    
+                    <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
+                    <div class="search-container">
+                        <input type="text" id="usernameSearch" class="search-input" placeholder="Ketik untuk mencari...">
+                        <button type="button" id="clearSearch" class="clear-search-btn">&times;</button>
+                    </div>
+                    
+                    <div class="account-stats">
+                        <strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span>
+                    </div>
                 </div>
                 
-                <div class="account-stats">
-                    <strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span>
+                <div class="summary-row">
+                    <div class="summary-left">
+                        <button id="quickRentBtn" class="quick-rent-btn">Quick Renting 6 Jam</button>
+                    </div>
                 </div>
             </div>
-            
-            <div class="summary-row">
-                <div class="summary-left">
-                    <button id="quickRentBtn" class="quick-rent-btn">Quick Renting 6 Jam</button>
-                </div>
+            <div class="accounts-container" id="accountsContainer">
+                <!-- Akun akan dibuat secara dinamis dengan JavaScript -->
             </div>
-        </div>
-        <div class="accounts-container" id="accountsContainer">
-            <!-- Akun akan dibuat secara dinamis dengan JavaScript -->
         </div>
     </div>
 
@@ -808,6 +896,179 @@
     <div id="notification" class="notification"></div>
 
     <script>
+        // Cek status login saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                    // User sudah login
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('appContainer').style.display = 'block';
+                    
+                    // Inisialisasi manager akun
+                    const savedAccounts = localStorage.getItem('unlockToolAccounts');
+                    const accounts = savedAccounts ? JSON.parse(savedAccounts) : [];
+                    accountManager = new AccountManager();
+                    
+                    // Set interval untuk memperbarui tampilan setiap 15 detik dengan pengurutan
+                    setInterval(() => accountManager.renderAccounts(true), 15000);
+                    
+                    // Event listener untuk tombol tambah akun
+                    document.getElementById('addAccountBtn').addEventListener('click', () => {
+                        accountManager.addAccount();
+                    });
+                    
+                    // Event listener untuk tombol Quick Renting
+                    document.getElementById('quickRentBtn').addEventListener('click', () => {
+                        accountManager.quickRent();
+                    });
+                    
+                    // Event listener untuk tombol bulk add account
+                    document.getElementById('bulkAddBtn').addEventListener('click', openBulkModal);
+                    
+                    // Event listener untuk tombol setting iklan
+                    document.querySelector('.ads-btn').addEventListener('click', () => {
+                        window.open('https://seller.shopee.co.id/portal/marketing/pas/product/manual/315686975?from=1742317200&to=1742403599&group=today', '_blank');
+                    });
+                    
+                    // Event listener untuk tombol ekspor data
+                    document.getElementById('exportBtn').addEventListener('click', () => {
+                        accountManager.exportData();
+                    });
+                    
+                    // Event listener untuk input impor data
+                    document.getElementById('importFile').addEventListener('change', (event) => {
+                        if (event.target.files.length > 0) {
+                            const file = event.target.files[0];
+                            if (file.type === 'application/json' || file.name.endsWith('.json')) {
+                                accountManager.importData(file);
+                            } else {
+                                accountManager.showNotification("Format file tidak valid. Harap pilih file JSON.");
+                            }
+                            // Reset input file untuk memungkinkan impor file yang sama berulang kali
+                            event.target.value = '';
+                        }
+                    });
+                    
+                    // Event listener untuk logout
+                    document.getElementById('logoutBtn').addEventListener('click', () => {
+                        firebase.auth().signOut().then(() => {
+                            // Logout berhasil
+                            document.getElementById('loginContainer').style.display = 'block';
+                            document.getElementById('appContainer').style.display = 'none';
+                        }).catch((error) => {
+                            console.error('Error saat logout:', error);
+                        });
+                    });
+                    
+                    // Event listeners untuk modal input manual
+                    document.querySelector('.close').addEventListener('click', closeManualModal);
+                    document.getElementById('saveManualBtn').addEventListener('click', saveManualTime);
+                    
+                    // Event listener untuk proses data bulk add
+                    document.getElementById('processBulkBtn').addEventListener('click', processBulkAccounts);
+                    
+                    // Event listener untuk menutup modal bulk add
+                    document.getElementById('closeBulkModal').addEventListener('click', closeBulkModal);
+
+                    // Event listener untuk filter email
+                    document.getElementById('emailFilter').addEventListener('change', (event) => {
+                        accountManager.setEmailFilter(event.target.value);
+                    });
+
+                    // Event listener untuk filter pencarian username
+                    document.getElementById('usernameSearch').addEventListener('input', (event) => {
+                        accountManager.setSearchQuery(event.target.value);
+                        
+                        // Tampilkan tombol clear jika ada teks, sembunyikan jika kosong
+                        const clearButton = document.getElementById('clearSearch');
+                        if (event.target.value) {
+                            clearButton.style.display = 'block';
+                        } else {
+                            clearButton.style.display = 'none';
+                        }
+                    });
+                    
+                    // Event listener untuk tombol clear search
+                    document.getElementById('clearSearch').addEventListener('click', () => {
+                        const searchInput = document.getElementById('usernameSearch');
+                        searchInput.value = '';
+                        accountManager.setSearchQuery('');
+                        document.getElementById('clearSearch').style.display = 'none';
+                        searchInput.focus(); // Fokus kembali ke input pencarian
+                    });
+
+                    // Event listener untuk tombol scroll to top
+                    const scrollToTopBtn = document.getElementById('scrollToTop');
+                    
+                    window.addEventListener('scroll', () => {
+                        if (window.pageYOffset > 300) { // Tampilkan tombol setelah scroll 300px
+                            scrollToTopBtn.classList.add('show');
+                        } else {
+                            scrollToTopBtn.classList.remove('show');
+                        }
+                    });
+
+                    scrollToTopBtn.addEventListener('click', () => {
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                    });
+
+                    // Menutup modal jika user mengklik di luar modal
+                    window.addEventListener('click', (event) => {
+                        const manualModal = document.getElementById('manualModal');
+                        const bulkAddModal = document.getElementById('bulkAddModal');
+                        
+                        if (event.target == manualModal) {
+                            closeManualModal();
+                        }
+                        
+                        if (event.target == bulkAddModal) {
+                            closeBulkModal();
+                        }
+                    });
+                } else {
+                    // User belum login
+                    document.getElementById('loginContainer').style.display = 'block';
+                    document.getElementById('appContainer').style.display = 'none';
+                }
+            });
+            
+            // Event listener untuk tombol login
+            document.getElementById('loginBtn').addEventListener('click', () => {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const errorMessage = document.getElementById('errorMessage');
+                
+                if (!email || !password) {
+                    errorMessage.textContent = 'Mohon isi email dan password';
+                    return;
+                }
+                
+                firebase.auth().signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        // Login berhasil
+                        errorMessage.textContent = '';
+                    })
+                    .catch((error) => {
+                        // Ada error saat login
+                        if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                            errorMessage.textContent = 'Email atau password salah';
+                        } else {
+                            errorMessage.textContent = 'Error: ' + error.message;
+                        }
+                    });
+            });
+            
+            // Tombol Enter untuk login
+            document.getElementById('password').addEventListener('keyup', (event) => {
+                if (event.key === 'Enter') {
+                    document.getElementById('loginBtn').click();
+                }
+            });
+        });
+
         // Fungsi untuk menghitung dan memformat waktu tersisa
         function getRemainingTime(availableAt) {
             if (!availableAt) return null;
@@ -1690,120 +1951,6 @@
             const modal = document.getElementById('bulkAddModal');
             modal.style.display = 'none';
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Inisialisasi manager akun setelah Firebase siap
-            accountManager = new AccountManager();
-            
-            // Set interval untuk memperbarui tampilan setiap 15 detik dengan pengurutan
-            setInterval(() => accountManager.renderAccounts(true), 15000);
-            
-            // Event listener untuk tombol tambah akun
-            document.getElementById('addAccountBtn').addEventListener('click', () => {
-                accountManager.addAccount();
-            });
-            
-            // Event listener untuk tombol Quick Renting
-            document.getElementById('quickRentBtn').addEventListener('click', () => {
-                accountManager.quickRent();
-            });
-            
-            // Event listener untuk tombol bulk add account
-            document.getElementById('bulkAddBtn').addEventListener('click', openBulkModal);
-            
-            // Event listener untuk tombol setting iklan
-            document.querySelector('.ads-btn').addEventListener('click', () => {
-                window.open('https://seller.shopee.co.id/portal/marketing/pas/product/manual/315686975?from=1742317200&to=1742403599&group=today', '_blank');
-            });
-            
-            // Event listener untuk tombol ekspor data
-            document.getElementById('exportBtn').addEventListener('click', () => {
-                accountManager.exportData();
-            });
-            
-            // Event listener untuk input impor data
-            document.getElementById('importFile').addEventListener('change', (event) => {
-                if (event.target.files.length > 0) {
-                    const file = event.target.files[0];
-                    if (file.type === 'application/json' || file.name.endsWith('.json')) {
-                        accountManager.importData(file);
-                    } else {
-                        accountManager.showNotification("Format file tidak valid. Harap pilih file JSON.");
-                    }
-                    // Reset input file untuk memungkinkan impor file yang sama berulang kali
-                    event.target.value = '';
-                }
-            });
-            
-            // Event listeners untuk modal input manual
-            document.querySelector('.close').addEventListener('click', closeManualModal);
-            document.getElementById('saveManualBtn').addEventListener('click', saveManualTime);
-            
-            // Event listener untuk proses data bulk add
-            document.getElementById('processBulkBtn').addEventListener('click', processBulkAccounts);
-            
-            // Event listener untuk menutup modal bulk add
-            document.getElementById('closeBulkModal').addEventListener('click', closeBulkModal);
-
-            // Event listener untuk filter email
-            document.getElementById('emailFilter').addEventListener('change', (event) => {
-                accountManager.setEmailFilter(event.target.value);
-            });
-
-            // Event listener untuk filter pencarian username
-            document.getElementById('usernameSearch').addEventListener('input', (event) => {
-                accountManager.setSearchQuery(event.target.value);
-                
-                // Tampilkan tombol clear jika ada teks, sembunyikan jika kosong
-                const clearButton = document.getElementById('clearSearch');
-                if (event.target.value) {
-                    clearButton.style.display = 'block';
-                } else {
-                    clearButton.style.display = 'none';
-                }
-            });
-            
-            // Event listener untuk tombol clear search
-            document.getElementById('clearSearch').addEventListener('click', () => {
-                const searchInput = document.getElementById('usernameSearch');
-                searchInput.value = '';
-                accountManager.setSearchQuery('');
-                document.getElementById('clearSearch').style.display = 'none';
-                searchInput.focus(); // Fokus kembali ke input pencarian
-            });
-
-            // Event listener untuk tombol scroll to top
-            const scrollToTopBtn = document.getElementById('scrollToTop');
-            
-            window.addEventListener('scroll', () => {
-                if (window.pageYOffset > 300) { // Tampilkan tombol setelah scroll 300px
-                    scrollToTopBtn.classList.add('show');
-                } else {
-                    scrollToTopBtn.classList.remove('show');
-                }
-            });
-
-            scrollToTopBtn.addEventListener('click', () => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            });
-
-            // Menutup modal jika user mengklik di luar modal
-            window.addEventListener('click', (event) => {
-                const manualModal = document.getElementById('manualModal');
-                const bulkAddModal = document.getElementById('bulkAddModal');
-                
-                if (event.target == manualModal) {
-                    closeManualModal();
-                }
-                
-                if (event.target == bulkAddModal) {
-                    closeBulkModal();
-                }
-            });
-        });
     </script>
 </body>
 </html> 
