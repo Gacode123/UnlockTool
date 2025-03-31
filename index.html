@@ -1537,6 +1537,11 @@
                 // Hitung jumlah akun yang available
                 const availableAccounts = filteredAccounts.filter(account => this.isAccountAvailable(account)).length;
                 
+                // Hitung jumlah akun yang Available 100%
+                const available100Accounts = filteredAccounts.filter(account => 
+                    this.isAccountAvailable(account) && account.manuallyUpdated
+                ).length;
+                
                 // Update informasi ringkasan akun
                 document.getElementById('totalAccounts').textContent = filteredAccounts.length;
                 document.getElementById('availableAccounts').textContent = availableAccounts;
@@ -1548,26 +1553,55 @@
                 const quickRent12Btn = document.getElementById('quickRent12Btn');
                 const quickRent24Btn = document.getElementById('quickRent24Btn');
                 
+                // Tampilkan tombol hanya jika ada akun yang available
+                const showQuickRentBtn = availableAccounts > 0;
+                
                 if (quickRentBtn) {
-                    quickRentBtn.style.display = availableAccounts > 0 ? 'block' : 'none';
+                    quickRentBtn.style.display = showQuickRentBtn ? 'block' : 'none';
                 } else {
                     logDebug('ERROR: Tombol quickRentBtn tidak ditemukan!');
                 }
                 
                 if (quickRent12Btn) {
-                    quickRent12Btn.style.display = availableAccounts > 0 ? 'block' : 'none';
+                    quickRent12Btn.style.display = showQuickRentBtn ? 'block' : 'none';
                 }
                 
                 if (quickRent24Btn) {
-                    quickRent24Btn.style.display = availableAccounts > 0 ? 'block' : 'none';
+                    quickRent24Btn.style.display = showQuickRentBtn ? 'block' : 'none';
                 }
 
-                // Urutkan akun
-                // ... existing sorting code ...
+                // Urutkan akun hanya jika parameter sort adalah true
+                let sortedAccounts = filteredAccounts;
+                if (sort) {
+                    logDebug('Mengurutkan akun...');
+                    sortedAccounts = filteredAccounts.sort((a, b) => {
+                        // Pertama, prioritaskan akun berdasarkan status ready/not ready
+                        if (a.isReady !== b.isReady) {
+                            return a.isReady ? -1 : 1; // Akun yang ready diletakkan dulu
+                        }
+                        
+                        const aAvailable = this.isAccountAvailable(a);
+                        const bAvailable = this.isAccountAvailable(b);
+                        
+                        // Kedua, prioritaskan akun yang available
+                        if (aAvailable !== bAvailable) {
+                            return aAvailable ? -1 : 1; // Akun yang available diletakkan dulu
+                        }
+                        
+                        // Jika keduanya available atau keduanya disewa
+                        if (!a.availableAt && !b.availableAt) return 0;
+                        if (!a.availableAt) return -1;
+                        if (!b.availableAt) return 1;
+                        
+                        // Ketiga, urutkan berdasarkan waktu ketersediaan
+                        return new Date(a.availableAt) - new Date(b.availableAt);
+                    });
+                    logDebug('Pengurutan selesai');
+                }
 
                 // Render akun cards
-                logDebug('Mulai render akun cards', filteredAccounts.length);
-                filteredAccounts.forEach((account, index) => {
+                logDebug('Mulai render akun cards', sortedAccounts.length);
+                sortedAccounts.forEach((account, index) => {
                     const realIndex = this.accounts.indexOf(account);
                     const isAvailable = this.isAccountAvailable(account);
                     const availableAtText = isAvailable ? 'Available' : formatDateTime(account.availableAt);
