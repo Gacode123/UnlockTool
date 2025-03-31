@@ -642,6 +642,46 @@
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
 
+        .quick-rent-btn-12 {
+            background-color: var(--warning-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+            margin-right: 15px;
+        }
+        
+        .quick-rent-btn-12:hover {
+            background-color: #e69500;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .quick-rent-btn-24 {
+            background-color: var(--purple-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+            margin-right: 15px;
+        }
+        
+        .quick-rent-btn-24:hover {
+            background-color: #845ef7;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
         /* Style untuk tombol scroll to top */
         .scroll-to-top {
             position: fixed;
@@ -820,6 +860,8 @@
                 <div class="summary-row">
                     <div class="summary-left">
                         <button id="quickRentBtn" class="quick-rent-btn">Quick Renting 6 Jam</button>
+                        <button id="quickRent12Btn" class="quick-rent-btn-12">Quick Renting 12 Jam</button>
+                        <button id="quickRent24Btn" class="quick-rent-btn-24">Quick Renting 24 Jam</button>
                     </div>
                 </div>
             </div>
@@ -1702,10 +1744,11 @@
             }
             
             // Metode untuk quick renting (otomatis menyewa akun yang tersedia)
-            quickRent() {
+            quickRent(hours = 6) {
                 // Cek apakah tombol sedang dalam masa cooldown
-                const quickRentBtn = document.getElementById('quickRentBtn');
-                if (quickRentBtn.disabled) {
+                const rentBtnId = hours === 6 ? 'quickRentBtn' : (hours === 12 ? 'quickRent12Btn' : 'quickRent24Btn');
+                const rentBtn = document.getElementById(rentBtnId);
+                if (rentBtn.disabled) {
                     return;
                 }
                 
@@ -1730,31 +1773,31 @@
                 if (available100Accounts.length > 1) {
                     // Jika ada lebih dari 1 akun available 100%, gunakan salah satu dan sisakan 1
                     accountToRent = available100Accounts[0]; // Ambil yang pertama
-                    this.showNotification("Menyewa akun Available 100%: " + accountToRent.username);
+                    this.showNotification(`Menyewa akun Available 100% untuk ${hours} jam: ${accountToRent.username}`);
                 } else if (available100Accounts.length === 1 && availableAccounts.length > 1) {
                     // Jika hanya ada 1 akun available 100% dan ada akun lain tersedia, gunakan akun biasa
                     // Cari akun available biasa (yang bukan available 100%)
                     accountToRent = availableAccounts.find(account => !account.manuallyUpdated);
-                    this.showNotification("Menyewa akun available biasa: " + accountToRent.username + " (menyisakan 1 akun Available 100%)");
+                    this.showNotification(`Menyewa akun available biasa untuk ${hours} jam: ${accountToRent.username} (menyisakan 1 akun Available 100%)`);
                 } else {
                     // Tidak ada akun available 100% atau hanya ada 1 akun tersedia (yang bukan 100%)
                     accountToRent = availableAccounts[0];
-                    this.showNotification("Menyewa akun available: " + accountToRent.username);
+                    this.showNotification(`Menyewa akun available untuk ${hours} jam: ${accountToRent.username}`);
                 }
                 
-                // Dapatkan index akun di array utama dan sewa selama 6 jam
+                // Dapatkan index akun di array utama dan sewa sesuai durasi
                 const accountIndex = this.accounts.indexOf(accountToRent);
                 if (accountIndex !== -1) {
-                    this.rentAccount(accountIndex, 6);
+                    this.rentAccount(accountIndex, hours);
                     
                     // Aktifkan proteksi double click
-                    this.enableClickProtection();
+                    this.enableClickProtection(rentBtnId);
                 }
             }
             
             // Metode untuk mengaktifkan proteksi double click
-            enableClickProtection() {
-                const quickRentBtn = document.getElementById('quickRentBtn');
+            enableClickProtection(buttonId = 'quickRentBtn') {
+                const quickRentBtn = document.getElementById(buttonId);
                 const originalText = quickRentBtn.textContent;
                 const cooldownTime = 3; // 3 detik cooldown
                 
@@ -1963,6 +2006,16 @@
             const modal = document.getElementById('bulkAddModal');
             modal.style.display = 'none';
         }
+
+        // Event listener untuk tombol Quick Renting 12 Jam
+        document.getElementById('quickRent12Btn').addEventListener('click', () => {
+            accountManager.quickRent(12); // Panggil dengan parameter 12 jam
+        });
+
+        // Event listener untuk tombol Quick Renting 24 Jam
+        document.getElementById('quickRent24Btn').addEventListener('click', () => {
+            accountManager.quickRent(24); // Panggil dengan parameter 24 jam
+        });
     </script>
 </body>
 </html> 
