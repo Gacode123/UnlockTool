@@ -65,7 +65,7 @@
         .account-summary {
             text-align: left;
             background-color: white;
-            padding: 10px 15px;
+            padding: 20px;
             border-radius: var(--border-radius);
             margin-bottom: 20px;
             box-shadow: var(--box-shadow);
@@ -530,7 +530,7 @@
         .filter-container {
             display: flex;
             align-items: center;
-            margin-top: 8px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
             gap: 10px;
         }
@@ -619,23 +619,71 @@
             display: flex;
             width: 100%;
             justify-content: space-between;
-            margin-bottom: 15px;
+            margin-top: 15px;
         }
         
         .summary-left {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             width: 100%;
         }
         
-        .quick-rent-btn, 
-        .quick-rent-btn-12, 
+        .quick-rent-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .quick-rent-btn:hover {
+            background-color: #099268;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .quick-rent-btn-12 {
+            background-color: var(--warning-color);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .quick-rent-btn-12:hover {
+            background-color: #e69500;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
         .quick-rent-btn-24 {
-            margin: 0;
-            width: 100%;
-            text-align: center;
-            justify-self: stretch;
+            background-color: var(--purple-color);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+        }
+        
+        .quick-rent-btn-24:hover {
+            background-color: #845ef7;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
         
         @media (max-width: 768px) {
