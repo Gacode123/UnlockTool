@@ -1570,8 +1570,35 @@
                     logDebug('ERROR: Tombol quickRent24Btn tidak ditemukan!');
                 }
 
-                // Urutkan akun
-                // ... existing sorting code ...
+                // Implementasikan pengurutan akun jika diminta
+                if (sort) {
+                    logDebug('Mengurutkan akun berdasarkan status dan waktu tersisa');
+                    filteredAccounts.sort((a, b) => {
+                        // Status available
+                        const aAvailable = this.isAccountAvailable(a);
+                        const bAvailable = this.isAccountAvailable(b);
+                        
+                        // Akun available selalu tampil lebih dahulu
+                        if (aAvailable && !bAvailable) return -1;
+                        if (!aAvailable && bAvailable) return 1;
+                        
+                        // Jika keduanya available atau keduanya tidak available
+                        if (aAvailable && bAvailable) {
+                            // Akun ready manual ditampilkan terlebih dahulu
+                            if (a.manuallyUpdated && !b.manuallyUpdated) return -1;
+                            if (!a.manuallyUpdated && b.manuallyUpdated) return 1;
+                            
+                            // Jika keduanya available, urutkan berdasarkan username
+                            return a.username.localeCompare(b.username);
+                        } else {
+                            // Keduanya tidak available, urutkan berdasarkan waktu tersisa (paling kecil dahulu)
+                            const aTime = new Date(a.availableAt).getTime();
+                            const bTime = new Date(b.availableAt).getTime();
+                            return aTime - bTime; // Urutan naik (waktu tersisa paling kecil dahulu)
+                        }
+                    });
+                    logDebug('Pengurutan selesai');
+                }
 
                 // Render akun cards
                 logDebug('Mulai render akun cards', filteredAccounts.length);
