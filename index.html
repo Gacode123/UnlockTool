@@ -1491,6 +1491,20 @@
                 
                 // Auto copy info
                 this.copyInfoWithTime(index);
+
+                // Reset pencarian username
+                this.searchQuery = '';
+                const searchInput = document.getElementById('usernameSearch');
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+                // Sembunyikan tombol clear search
+                const clearButton = document.getElementById('clearSearch');
+                if (clearButton) {
+                    clearButton.style.display = 'none';
+                }
+                // Render ulang dengan reset pencarian
+                this.renderAccounts();
             }
 
             resetAccount(index) {
