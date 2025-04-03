@@ -1543,7 +1543,10 @@
             }
 
             markAccountAsReady(index) {
-                this.updateAccount(index, { isReady: true });
+                this.updateAccount(index, { 
+                    isReady: true,
+                    manuallyUpdated: true // Tandai sebagai available 100% karena baru pertama kali
+                });
                 this.showNotification("Akun telah siap digunakan");
             }
 
