@@ -1446,7 +1446,13 @@
                 
                 // Tandai akun yang baru disewa
                 this.lastRentedIndex = index;
-                this.renderAccounts(true); // Render dengan mengurutkan untuk konsistensi
+                
+                // Render ulang dengan sorting yang benar
+                setTimeout(() => {
+                    this.renderAccounts(true);
+                    // Reset lastRentedIndex setelah render
+                    this.lastRentedIndex = -1;
+                }, 100);
             }
 
             updateRentTime(index) {
