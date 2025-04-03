@@ -1006,6 +1006,28 @@
                         document.getElementById('appContainer').style.display = 'block';
                         // Inisialisasi app
                         initializeApp();
+                        
+                        // Tambahkan event listener untuk refresh
+                        window.addEventListener('beforeunload', function() {
+                            // Simpan status sorting terakhir
+                            localStorage.setItem('lastSortTime', new Date().getTime());
+                        });
+                        
+                        // Cek apakah perlu perbaikan sorting
+                        const lastSortTime = localStorage.getItem('lastSortTime');
+                        if (lastSortTime) {
+                            const timeSinceLastSort = new Date().getTime() - parseInt(lastSortTime);
+                            // Jika lebih dari 1 menit sejak sort terakhir, lakukan perbaikan
+                            if (timeSinceLastSort > 60000) {
+                                logDebug('Melakukan perbaikan sorting setelah refresh...');
+                                // Tunggu sebentar untuk memastikan data sudah dimuat
+                                setTimeout(() => {
+                                    if (accountManager) {
+                                        accountManager.renderAccounts(true);
+                                    }
+                                }, 1000);
+                            }
+                        }
                     } else {
                         // User belum login
                         document.getElementById('loginContainer').style.display = 'block';
