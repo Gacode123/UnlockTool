@@ -849,47 +849,47 @@
 
     <!-- Main App Container - sembunyikan secara default -->
     <div id="appContainer" style="display: none;">
-        <div class="container">
-            <div class="buttons-container">
-                <button id="addAccountBtn" class="action-btn add-btn">Tambah Akun Baru</button>
-                <button id="bulkAddBtn" class="action-btn add-btn">Bulk Add Account</button>
-                <button class="action-btn ads-btn">Setting Iklan</button>
-                <button id="exportBtn" class="action-btn export-btn">Ekspor Data</button>
-                <div class="action-btn import-btn">
-                    Impor Data
-                    <input type="file" id="importFile" accept=".json">
-                </div>
-                <button id="logoutBtn" class="logout-btn">Logout</button>
+    <div class="container">
+        <div class="buttons-container">
+            <button id="addAccountBtn" class="action-btn add-btn">Tambah Akun Baru</button>
+            <button id="bulkAddBtn" class="action-btn add-btn">Bulk Add Account</button>
+            <button class="action-btn ads-btn">Setting Iklan</button>
+            <button id="exportBtn" class="action-btn export-btn">Ekspor Data</button>
+            <div class="action-btn import-btn">
+                Impor Data
+                <input type="file" id="importFile" accept=".json">
             </div>
-            <div class="account-summary">
-                <div class="filter-container">
-                    <label for="emailFilter"><strong>Filter Email:</strong></label>
-                    <select id="emailFilter" class="email-filter">
-                        <option value="">Semua Email</option>
-                        <!-- Opsi email akan diisi secara dinamis -->
-                    </select>
-                    
-                    <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
-                    <div class="search-container">
-                        <input type="text" id="usernameSearch" class="search-input" placeholder="Ketik untuk mencari...">
-                        <button type="button" id="clearSearch" class="clear-search-btn">&times;</button>
-                    </div>
-                    
-                    <div class="account-stats">
-                        <strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span>
-                    </div>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
+        <div class="account-summary">
+            <div class="filter-container">
+                <label for="emailFilter"><strong>Filter Email:</strong></label>
+                <select id="emailFilter" class="email-filter">
+                    <option value="">Semua Email</option>
+                    <!-- Opsi email akan diisi secara dinamis -->
+                </select>
+                
+                <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
+                <div class="search-container">
+                    <input type="text" id="usernameSearch" class="search-input" placeholder="Ketik untuk mencari...">
+                    <button type="button" id="clearSearch" class="clear-search-btn">&times;</button>
                 </div>
                 
-                <div class="summary-row">
-                    <div class="summary-left">
-                        <button id="quickRentBtn" class="quick-rent-btn">Quick Renting 6 Jam</button>
-                        <button id="quickRent12Btn" class="quick-rent-btn-12">Quick Renting 12 Jam</button>
-                        <button id="quickRent24Btn" class="quick-rent-btn-24">Quick Renting 24 Jam</button>
-                    </div>
+                <div class="account-stats">
+                    <strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span>
                 </div>
             </div>
-            <div class="accounts-container" id="accountsContainer">
-                <!-- Akun akan dibuat secara dinamis dengan JavaScript -->
+            
+            <div class="summary-row">
+                <div class="summary-left">
+                    <button id="quickRentBtn" class="quick-rent-btn">Quick Renting 6 Jam</button>
+                        <button id="quickRent12Btn" class="quick-rent-btn-12">Quick Renting 12 Jam</button>
+                        <button id="quickRent24Btn" class="quick-rent-btn-24">Quick Renting 24 Jam</button>
+                </div>
+            </div>
+        </div>
+        <div class="accounts-container" id="accountsContainer">
+            <!-- Akun akan dibuat secara dinamis dengan JavaScript -->
             </div>
         </div>
     </div>
@@ -1337,8 +1337,8 @@
                     const savedAccounts = snapshot.val();
                     if (savedAccounts) {
                         this.accounts = savedAccounts;
-                        this.renderAccounts();
-                        this.populateEmailFilter();
+                this.renderAccounts();
+                this.populateEmailFilter();
                     }
                 });
                 
@@ -1403,7 +1403,7 @@
                     .catch((error) => {
                         console.error('Error saving data to Firebase:', error);
                         // Fallback ke localStorage jika Firebase gagal
-                        localStorage.setItem('unlockToolAccounts', JSON.stringify(this.accounts));
+                localStorage.setItem('unlockToolAccounts', JSON.stringify(this.accounts));
                     });
             }
 
@@ -1431,9 +1431,9 @@
                     .catch((error) => {
                         console.error('Error loading data from Firebase:', error);
                         // Fallback ke localStorage jika Firebase gagal
-                        const savedAccounts = localStorage.getItem('unlockToolAccounts');
-                        this.accounts = savedAccounts ? JSON.parse(savedAccounts) : this.createDefaultAccounts();
-                        this.renderAccounts();
+                const savedAccounts = localStorage.getItem('unlockToolAccounts');
+                this.accounts = savedAccounts ? JSON.parse(savedAccounts) : this.createDefaultAccounts();
+                this.renderAccounts();
                         this.populateEmailFilter();
                     });
             }
