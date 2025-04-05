@@ -67,7 +67,7 @@
             left: 10px;
             background-color: var(--primary-color);
             color: white;
-            padding: 5px 10px;
+            padding: 8px 15px; /* Tambah padding untuk hitbox lebih besar */
             border-radius: 15px;
             font-size: 0.8rem;
             font-weight: 500;
@@ -75,6 +75,9 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             cursor: pointer;
             transition: var(--transition);
+            display: inline-block; /* Pastikan badge mengambil ruang yang cukup */
+            min-width: 60px; /* Lebar minimum untuk badge */
+            text-align: center; /* Teks di tengah */
         }
 
         .version-badge:hover {
@@ -854,8 +857,8 @@
 </head>
 <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
-    <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none;">
-        <div class="version-badge">v1.0.1</div>
+    <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block;">
+        <div class="version-badge">v1.0.2</div>
     </a>
 
     <!-- Loading Screen -->
