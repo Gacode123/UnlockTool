@@ -853,6 +853,24 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .bulk-password-btn {
+            background-color: var(--warning-color);
+            color: white;
+            padding: 5px 15px;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-left: 10px;
+        }
+        
+        .bulk-password-btn:hover {
+            background-color: #e69500;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -903,6 +921,8 @@
                     <option value="">Semua Email</option>
                     <!-- Opsi email akan diisi secara dinamis -->
                 </select>
+                
+                <button id="bulkPasswordBtn" class="bulk-password-btn">Bulk Update Password</button>
                 
                 <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
                 <div class="search-container">
@@ -998,6 +1018,25 @@
     
     <!-- Notifikasi -->
     <div id="notification" class="notification"></div>
+
+    <!-- Modal Dialog untuk Bulk Update Password -->
+    <div id="bulkPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeBulkPasswordModal">&times;</span>
+            <h3>Bulk Update Password</h3>
+            
+            <div class="form-group">
+                <label for="newPassword">Password Baru:</label>
+                <input type="text" id="newPassword" placeholder="Masukkan password baru" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+            </div>
+            
+            <div id="affectedAccounts" style="margin: 15px 0; font-size: 0.9rem;">
+                <!-- Daftar akun yang akan diupdate akan ditampilkan di sini -->
+            </div>
+            
+            <button id="confirmBulkPasswordBtn" class="rent-btn" style="width: 100%;">Update Password</button>
+        </div>
+    </div>
 
     <script>
         // Tambahkan variabel untuk melacak status autentikasi
@@ -2258,6 +2297,82 @@
         document.getElementById('quickRent24Btn').addEventListener('click', () => {
             accountManager.quickRent(24); // Panggil dengan parameter 24 jam
         });
+
+        // Fungsi untuk membuka modal bulk update password
+        function openBulkPasswordModal() {
+            const selectedEmail = document.getElementById('emailFilter').value;
+            if (!selectedEmail) {
+                accountManager.showNotification("Pilih email terlebih dahulu!");
+                return;
+            }
+            
+            const modal = document.getElementById('bulkPasswordModal');
+            const affectedAccounts = document.getElementById('affectedAccounts');
+            
+            // Filter akun yang available untuk email yang dipilih
+            const availableAccounts = accountManager.accounts.filter(account => 
+                account.email === selectedEmail && 
+                accountManager.isAccountAvailable(account)
+            );
+            
+            if (availableAccounts.length === 0) {
+                accountManager.showNotification("Tidak ada akun available untuk email ini!");
+                return;
+            }
+            
+            // Tampilkan daftar akun yang akan diupdate
+            affectedAccounts.innerHTML = `
+                <strong>Akun yang akan diupdate (${availableAccounts.length}):</strong><br>
+                ${availableAccounts.map(account => `- ${account.username}`).join('<br>')}
+            `;
+            
+            // Reset input password
+            document.getElementById('newPassword').value = '';
+            
+            // Tampilkan modal
+            modal.style.display = 'block';
+        }
+        
+        // Fungsi untuk menutup modal bulk update password
+        function closeBulkPasswordModal() {
+            const modal = document.getElementById('bulkPasswordModal');
+            modal.style.display = 'none';
+        }
+        
+        // Fungsi untuk mengupdate password secara bulk
+        function updateBulkPassword() {
+            const selectedEmail = document.getElementById('emailFilter').value;
+            const newPassword = document.getElementById('newPassword').value;
+            
+            if (!newPassword) {
+                accountManager.showNotification("Masukkan password baru!");
+                return;
+            }
+            
+            // Filter akun yang available untuk email yang dipilih
+            const availableAccounts = accountManager.accounts.filter(account => 
+                account.email === selectedEmail && 
+                accountManager.isAccountAvailable(account)
+            );
+            
+            // Update password untuk semua akun yang available
+            availableAccounts.forEach(account => {
+                const index = accountManager.accounts.indexOf(account);
+                accountManager.updateAccount(index, { password: newPassword });
+            });
+            
+            accountManager.showNotification(`Password berhasil diupdate untuk ${availableAccounts.length} akun!`);
+            closeBulkPasswordModal();
+        }
+
+        // Event listener untuk tombol bulk update password
+        document.getElementById('bulkPasswordBtn')?.addEventListener('click', openBulkPasswordModal);
+        
+        // Event listener untuk tombol close modal bulk update password
+        document.getElementById('closeBulkPasswordModal')?.addEventListener('click', closeBulkPasswordModal);
+        
+        // Event listener untuk tombol confirm bulk update password
+        document.getElementById('confirmBulkPasswordBtn')?.addEventListener('click', updateBulkPassword);
     </script>
 </body>
 </html> 
