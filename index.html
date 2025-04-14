@@ -1,932 +1,934 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pengelola Akun Unlock Tool</title>
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-    
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" />
+
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    
+
     <!-- Firebase Config -->
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBzoi1KKiiXXC5kXQHoTHA8OXBq5mCM1vw",
-            authDomain: "unlocktool-5ae45.firebaseapp.com",
-            databaseURL: "https://unlocktool-5ae45-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "unlocktool-5ae45",
-            storageBucket: "unlocktool-5ae45.firebasestorage.app",
-            messagingSenderId: "321966892442",
-            appId: "1:321966892442:web:145de4877c642feac30623",
-            measurementId: "G-38Y0D6LEF7"
-        };
+      const firebaseConfig = {
+        apiKey: "AIzaSyBzoi1KKiiXXC5kXQHoTHA8OXBq5mCM1vw",
+        authDomain: "unlocktool-5ae45.firebaseapp.com",
+        databaseURL: "https://unlocktool-5ae45-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "unlocktool-5ae45",
+        storageBucket: "unlocktool-5ae45.firebasestorage.app",
+        messagingSenderId: "321966892442",
+        appId: "1:321966892442:web:145de4877c642feac30623",
+        measurementId: "G-38Y0D6LEF7",
+      };
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
     </script>
-    
+
     <style>
-        :root {
-            --primary-color: #5469d4;
-            --success-color: #0ca678;
-            --danger-color: #e03131;
-            --warning-color: #f59f00;
-            --purple-color: #9775fa;
-            --dark-color: #343a40;
-            --light-color: #f8f9fa;
-            --border-radius: 10px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
+      :root {
+        --primary-color: #5469d4;
+        --success-color: #0ca678;
+        --danger-color: #e03131;
+        --warning-color: #f59f00;
+        --purple-color: #9775fa;
+        --dark-color: #343a40;
+        --light-color: #f8f9fa;
+        --border-radius: 10px;
+        --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s ease;
+      }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f5f7fb;
-            color: #333;
-            padding: 10px;
-            line-height: 1.6;
-            position: relative; /* Tambahkan ini untuk positioning versi */
-        }
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f5f7fb;
+        color: #333;
+        padding: 10px;
+        line-height: 1.6;
+        position: relative; /* Tambahkan ini untuk positioning versi */
+      }
 
-        /* Tambahkan style untuk versi */
-        .version-badge {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 8px 15px; /* Tambah padding untuk hitbox lebih besar */
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-block; /* Pastikan badge mengambil ruang yang cukup */
-            min-width: 60px; /* Lebar minimum untuk badge */
-            text-align: center; /* Teks di tengah */
-        }
+      /* Tambahkan style untuk versi */
+      .version-badge {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background-color: var(--primary-color);
+        color: white;
+        padding: 8px 15px; /* Tambah padding untuk hitbox lebih besar */
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        z-index: 1000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-block; /* Pastikan badge mengambil ruang yang cukup */
+        min-width: 60px; /* Lebar minimum untuk badge */
+        text-align: center; /* Teks di tengah */
+      }
 
-        .version-badge:hover {
-            background-color: #4559b3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
+      .version-badge:hover {
+        background-color: #4559b3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 15px;
-        }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 15px;
+      }
 
-        .account-summary {
-            text-align: left;
-            background-color: white;
-            padding: 20px;
-            border-radius: var(--border-radius);
-            margin-bottom: 20px;
-            box-shadow: var(--box-shadow);
-            font-size: 1rem;
-        }
-        
-        .account-summary p {
-            margin: 0;
-            margin-bottom: 10px;
-        }
+      .account-summary {
+        text-align: left;
+        background-color: white;
+        padding: 20px;
+        border-radius: var(--border-radius);
+        margin-bottom: 20px;
+        box-shadow: var(--box-shadow);
+        font-size: 1rem;
+      }
 
-        h1 {
-            text-align: center;
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 30px;
-            font-size: 2.2rem;
-        }
+      .account-summary p {
+        margin: 0;
+        margin-bottom: 10px;
+      }
 
-        .add-account-btn {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: var(--border-radius);
-            font-weight: 500;
-            font-size: 1rem;
-            cursor: pointer;
-            display: block;
-            margin: 0 auto 30px auto;
-            transition: var(--transition);
-            box-shadow: var(--box-shadow);
-        }
+      h1 {
+        text-align: center;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 30px;
+        font-size: 2.2rem;
+      }
 
-        .add-account-btn:hover {
-            background-color: #4559b3;
-            transform: translateY(-2px);
-        }
+      .add-account-btn {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        font-size: 1rem;
+        cursor: pointer;
+        display: block;
+        margin: 0 auto 30px auto;
+        transition: var(--transition);
+        box-shadow: var(--box-shadow);
+      }
 
-        .buttons-container {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: nowrap;
-        }
+      .add-account-btn:hover {
+        background-color: #4559b3;
+        transform: translateY(-2px);
+      }
 
-        .action-btn {
-            flex: 1;
-            padding: 12px 15px;
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            font-weight: 500;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--box-shadow);
-            text-align: center;
-        }
-        
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .add-btn {
-            background-color: var(--success-color);
-        }
-        
-        .add-btn:hover {
-            background-color: #099268;
-        }
-        
-        .ads-btn {
-            background-color: var(--warning-color);
-        }
-        
-        .ads-btn:hover {
-            background-color: #e69500;
-        }
-        
-        .export-btn {
-            background-color: var(--primary-color);
-        }
-        
-        .export-btn:hover {
-            background-color: #4559b3;
-        }
-        
-        .import-btn {
-            background-color: var(--dark-color);
-            position: relative;
-        }
-        
-        .import-btn:hover {
-            background-color: #212529;
-        }
+      .buttons-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        flex-wrap: nowrap;
+      }
 
-        .import-btn input[type="file"] {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
+      .action-btn {
+        flex: 1;
+        padding: 12px 15px;
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: var(--box-shadow);
+        text-align: center;
+      }
 
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .add-btn {
+        background-color: var(--success-color);
+      }
+
+      .add-btn:hover {
+        background-color: #099268;
+      }
+
+      .ads-btn {
+        background-color: var(--warning-color);
+      }
+
+      .ads-btn:hover {
+        background-color: #e69500;
+      }
+
+      .export-btn {
+        background-color: var(--primary-color);
+      }
+
+      .export-btn:hover {
+        background-color: #4559b3;
+      }
+
+      .import-btn {
+        background-color: var(--dark-color);
+        position: relative;
+      }
+
+      .import-btn:hover {
+        background-color: #212529;
+      }
+
+      .import-btn input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .accounts-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+      }
+
+      .account-card {
+        background-color: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        border-top: 4px solid var(--primary-color);
+      }
+
+      .account-card.highlight {
+        border: 2px solid var(--success-color);
+        border-top: 4px solid var(--success-color);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(12, 166, 120, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(12, 166, 120, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(12, 166, 120, 0);
+        }
+      }
+
+      .account-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .account-header {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .account-header h2 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--dark-color);
+      }
+
+      .copy-info-container {
+        padding: 8px 16px;
+        background-color: rgba(84, 105, 212, 0.08);
+        border-bottom: 1px solid #eee;
+        text-align: center;
+      }
+
+      .primary-copy-btn {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 10px 15px;
+        font-size: 1rem;
+        border-radius: 6px;
+        width: 100%;
+        font-weight: 500;
+        transition: var(--transition);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .primary-copy-btn:hover {
+        background-color: #4559b3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .status {
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 20px;
+      }
+
+      .status.available {
+        background-color: rgba(12, 166, 120, 0.15);
+        color: var(--success-color);
+      }
+
+      .status.rented {
+        background-color: rgba(224, 49, 49, 0.15);
+        color: var(--danger-color);
+      }
+
+      .status.not-ready {
+        background-color: rgba(245, 159, 0, 0.15);
+        color: var(--warning-color);
+      }
+
+      .account-body {
+        padding: 16px;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: #555;
+      }
+
+      input[type="text"],
+      input[type="password"],
+      textarea.note-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-family: "Poppins", sans-serif;
+        font-size: 0.9rem;
+        transition: var(--transition);
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus,
+      textarea.note-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
+      }
+
+      textarea.note-input {
+        resize: vertical;
+        min-height: 60px;
+      }
+
+      .time-info {
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 0.85rem;
+      }
+
+      .time-info strong {
+        color: var(--dark-color);
+        font-weight: 600;
+      }
+
+      .btn-container {
+        margin-top: 20px;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+
+      .btn-group.duration-buttons {
+        margin-bottom: 10px;
+      }
+
+      .btn-group.control-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      }
+
+      button {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.85rem;
+        transition: var(--transition);
+      }
+
+      .rent-btn {
+        background-color: var(--success-color);
+        color: white;
+        flex: 1;
+        min-width: 80px;
+      }
+
+      .rent-btn:hover {
+        background-color: #099268;
+      }
+
+      .copy-btn {
+        background-color: var(--primary-color);
+        color: white;
+        flex: 1;
+      }
+
+      .copy-btn:hover {
+        background-color: #4559b3;
+      }
+
+      .reset-btn {
+        background-color: var(--danger-color);
+        color: white;
+      }
+
+      .reset-btn:hover {
+        background-color: #c92a2a;
+      }
+
+      .update-btn {
+        background-color: var(--warning-color);
+        color: white;
+      }
+
+      .update-btn:hover {
+        background-color: #e69500;
+      }
+
+      .manual-btn {
+        background-color: var(--purple-color);
+        color: white;
+      }
+
+      .manual-btn:hover {
+        background-color: #845ef7;
+      }
+
+      .ready-btn {
+        background-color: var(--warning-color);
+        color: white;
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+        font-weight: 500;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: var(--box-shadow);
+      }
+
+      .ready-btn:hover {
+        background-color: #e69500;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 100;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+      }
+
+      .modal-content {
+        background-color: white;
+        margin: 10% auto;
+        padding: 25px;
+        border-radius: var(--border-radius);
+        width: 350px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        animation: modalFadeIn 0.3s;
+      }
+
+      @keyframes modalFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .modal h3 {
+        margin-bottom: 20px;
+        font-weight: 600;
+        color: var(--dark-color);
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        line-height: 0.8;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .close:hover {
+        color: var(--dark-color);
+      }
+
+      .modal input[type="date"],
+      .modal input[type="time"] {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-family: "Poppins", sans-serif;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+      }
+
+      .modal button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        font-size: 0.95rem;
+      }
+
+      .notification {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        background-color: var(--success-color);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 6px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        opacity: 0;
+        transform: translateY(-20px);
+        transition: opacity 0.3s, transform 0.3s;
+      }
+
+      .notification.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 768px) {
         .accounts-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+          grid-template-columns: 1fr;
         }
+      }
 
-        .account-card {
-            background-color: white;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--box-shadow);
-            transition: var(--transition);
-            border-top: 4px solid var(--primary-color);
-        }
+      .filter-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
 
-        .account-card.highlight {
-            border: 2px solid var(--success-color);
-            border-top: 4px solid var(--success-color);
-            animation: pulse 2s infinite;
-        }
+      .filter-container label {
+        margin-right: 10px;
+        margin-bottom: 0;
+      }
 
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(12, 166, 120, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(12, 166, 120, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(12, 166, 120, 0);
-            }
-        }
+      .email-filter {
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        font-family: "Poppins", sans-serif;
+        font-size: 0.9rem;
+        flex-grow: 1;
+        max-width: 250px;
+        cursor: pointer;
+      }
 
-        .account-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
+      .email-filter:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
+      }
 
-        .account-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+      .account-stats {
+        margin-left: auto;
+        white-space: nowrap;
+        font-size: 0.9rem;
+      }
 
-        .account-header h2 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin: 0;
-            color: var(--dark-color);
-        }
-        
-        .copy-info-container {
-            padding: 8px 16px;
-            background-color: rgba(84, 105, 212, 0.08);
-            border-bottom: 1px solid #eee;
-            text-align: center;
-        }
+      .search-label {
+        margin-left: 10px;
+      }
 
-        .primary-copy-btn {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 10px 15px;
-            font-size: 1rem;
-            border-radius: 6px;
-            width: 100%;
-            font-weight: 500;
-            transition: var(--transition);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+      .search-container {
+        position: relative;
+        flex-grow: 1;
+        max-width: 300px;
+      }
 
-        .primary-copy-btn:hover {
-            background-color: #4559b3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+      .clear-search-btn {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #999;
+        font-size: 20px;
+        font-weight: bold;
+        cursor: pointer;
+        display: none;
+        padding: 8px 10px;
+        line-height: 1;
+        border-radius: 50%;
+        min-width: 36px;
+        min-height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-        .status {
-            font-size: 0.8rem;
-            font-weight: 500;
-            padding: 5px 10px;
-            border-radius: 20px;
-        }
+      .clear-search-btn:hover {
+        color: var(--danger-color);
+        background-color: rgba(224, 49, 49, 0.1);
+      }
 
-        .status.available {
-            background-color: rgba(12, 166, 120, 0.15);
-            color: var(--success-color);
-        }
+      .search-input {
+        width: 100%;
+        padding: 5px 30px 5px 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        font-family: "Poppins", sans-serif;
+        font-size: 0.9rem;
+      }
 
-        .status.rented {
-            background-color: rgba(224, 49, 49, 0.15);
-            color: var(--danger-color);
-        }
+      .search-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
+      }
 
-        .status.not-ready {
-            background-color: rgba(245, 159, 0, 0.15);
-            color: var(--warning-color);
-        }
+      .summary-row {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 15px;
+      }
 
-        .account-body {
-            padding: 16px;
-        }
+      .summary-left {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        width: 100%;
+      }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+      .quick-rent-btn {
+        background-color: var(--success-color);
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: var(--box-shadow);
+      }
 
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            color: #555;
-        }
+      .quick-rent-btn:hover {
+        background-color: #099268;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
 
-        input[type="text"],
-        input[type="password"],
-        textarea.note-input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
+      .quick-rent-btn-12 {
+        background-color: var(--warning-color);
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: var(--box-shadow);
+      }
 
-        input[type="text"]:focus,
-        input[type="password"]:focus,
-        textarea.note-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
-        }
+      .quick-rent-btn-12:hover {
+        background-color: #e69500;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
 
-        textarea.note-input {
-            resize: vertical;
-            min-height: 60px;
-        }
+      .quick-rent-btn-24 {
+        background-color: var(--purple-color);
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: var(--box-shadow);
+      }
 
-        .time-info {
-            background-color: #f8f9fa;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
-        }
-        
-        .time-info strong {
-            color: var(--dark-color);
-            font-weight: 600;
-        }
+      .quick-rent-btn-24:hover {
+        background-color: #845ef7;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
 
-        .btn-container {
-            margin-top: 20px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-        }
-
-        .btn-group.duration-buttons {
-            margin-bottom: 10px;
-        }
-
-        .btn-group.control-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-        }
-
-        button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 0.85rem;
-            transition: var(--transition);
-        }
-
-        .rent-btn {
-            background-color: var(--success-color);
-            color: white;
-            flex: 1;
-            min-width: 80px;
-        }
-
-        .rent-btn:hover {
-            background-color: #099268;
-        }
-
-        .copy-btn {
-            background-color: var(--primary-color);
-            color: white;
-            flex: 1;
-        }
-
-        .copy-btn:hover {
-            background-color: #4559b3;
-        }
-
-        .reset-btn {
-            background-color: var(--danger-color);
-            color: white;
-        }
-
-        .reset-btn:hover {
-            background-color: #c92a2a;
-        }
-
-        .update-btn {
-            background-color: var(--warning-color);
-            color: white;
-        }
-
-        .update-btn:hover {
-            background-color: #e69500;
-        }
-
-        .manual-btn {
-            background-color: var(--purple-color);
-            color: white;
-        }
-
-        .manual-btn:hover {
-            background-color: #845ef7;
-        }
-
-        .ready-btn {
-            background-color: var(--warning-color);
-            color: white;
-            width: 100%;
-            padding: 12px;
-            font-size: 1rem;
-            font-weight: 500;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--box-shadow);
-        }
-
-        .ready-btn:hover {
-            background-color: #e69500;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 10% auto;
-            padding: 25px;
-            border-radius: var(--border-radius);
-            width: 350px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            animation: modalFadeIn 0.3s;
-        }
-
-        @keyframes modalFadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal h3 {
-            margin-bottom: 20px;
-            font-weight: 600;
-            color: var(--dark-color);
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            line-height: 0.8;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .close:hover {
-            color: var(--dark-color);
-        }
-
-        .modal input[type="date"],
-        .modal input[type="time"] {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-family: 'Poppins', sans-serif;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-        }
-
-        .modal button {
-            width: 100%;
-            padding: 12px;
-            margin-top: 10px;
-            font-size: 0.95rem;
-        }
-
-        .notification {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background-color: var(--success-color);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 6px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            z-index: 1000;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 0.3s, transform 0.3s;
-        }
-
-        .notification.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        @media (max-width: 768px) {
-            .accounts-container {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .filter-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .filter-container label {
-            margin-right: 10px;
-            margin-bottom: 0;
-        }
-        
-        .email-filter {
-            padding: 5px 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.9rem;
-            flex-grow: 1;
-            max-width: 250px;
-            cursor: pointer;
-        }
-        
-        .email-filter:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
-        }
-        
-        .account-stats {
-            margin-left: auto;
-            white-space: nowrap;
-            font-size: 0.9rem;
-        }
-        
-        .search-label {
-            margin-left: 10px;
-        }
-        
-        .search-container {
-            position: relative;
-            flex-grow: 1;
-            max-width: 300px;
-        }
-        
-        .clear-search-btn {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #999;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            display: none;
-            padding: 8px 10px;
-            line-height: 1;
-            border-radius: 50%;
-            min-width: 36px;
-            min-height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .clear-search-btn:hover {
-            color: var(--danger-color);
-            background-color: rgba(224, 49, 49, 0.1);
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 5px 30px 5px 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.9rem;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
-        }
-
-        .summary-row {
-            display: flex;
-            width: 100%;
-            justify-content: space-between;
-            margin-top: 15px;
-        }
-        
+      @media (max-width: 768px) {
         .summary-left {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            width: 100%;
+          grid-template-columns: 1fr;
         }
-        
-        .quick-rent-btn {
-            background-color: var(--success-color);
-            color: white;
-            border: none;
-            padding: 15px 20px;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--box-shadow);
-        }
-        
-        .quick-rent-btn:hover {
-            background-color: #099268;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .quick-rent-btn-12 {
-            background-color: var(--warning-color);
-            color: white;
-            border: none;
-            padding: 15px 20px;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--box-shadow);
-        }
-        
-        .quick-rent-btn-12:hover {
-            background-color: #e69500;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .quick-rent-btn-24 {
-            background-color: var(--purple-color);
-            color: white;
-            border: none;
-            padding: 15px 20px;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: var(--box-shadow);
-        }
-        
-        .quick-rent-btn-24:hover {
-            background-color: #845ef7;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        @media (max-width: 768px) {
-            .summary-left {
-                grid-template-columns: 1fr;
-            }
-        }
+      }
 
-        /* Style untuk tombol scroll to top */
-        .scroll-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: var(--primary-color);
-            color: white;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: var(--transition);
-            z-index: 1000;
-            font-size: 20px;
-        }
+      /* Style untuk tombol scroll to top */
+      .scroll-to-top {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: var(--primary-color);
+        color: white;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        transition: var(--transition);
+        z-index: 1000;
+        font-size: 20px;
+      }
 
-        .scroll-to-top:hover {
-            background-color: #4559b3;
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
+      .scroll-to-top:hover {
+        background-color: #4559b3;
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
 
-        .scroll-to-top.show {
-            display: flex;
-        }
+      .scroll-to-top.show {
+        display: flex;
+      }
 
-        /* Style untuk modal bulk add account */
-        .modal-content.bulk-add {
-            width: 500px;
-            max-width: 90%;
-        }
+      /* Style untuk modal bulk add account */
+      .modal-content.bulk-add {
+        width: 500px;
+        max-width: 90%;
+      }
 
-        .bulk-textarea {
-            width: 100%;
-            height: 300px;
-            padding: 12px;
-            font-family: 'Poppins', sans-serif;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            resize: vertical;
-            margin-bottom: 15px;
-        }
+      .bulk-textarea {
+        width: 100%;
+        height: 300px;
+        padding: 12px;
+        font-family: "Poppins", sans-serif;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        resize: vertical;
+        margin-bottom: 15px;
+      }
 
-        .bulk-textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
-        }
+      .bulk-textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
+      }
 
-        /* Style untuk Login Form */
-        .login-container {
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 25px;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            text-align: center;
-        }
-        
-        .login-container h2 {
-            margin-bottom: 25px;
-            color: var(--dark-color);
-            font-weight: 600;
-        }
-        
-        .login-container input {
-            width: 100%;
-            padding: 12px 15px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.95rem;
-        }
-        
-        .login-container input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
-        }
-        
-        .login-btn {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: var(--border-radius);
-            font-weight: 500;
-            font-size: 1rem;
-            cursor: pointer;
-            width: 100%;
-            transition: var(--transition);
-        }
-        
-        .login-btn:hover {
-            background-color: #4559b3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .error-message {
-            color: var(--danger-color);
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-        }
-        
-        .logout-btn {
-            background-color: #f8f9fa;
-            color: var(--dark-color);
-            border: 1px solid #ddd;
-            padding: 8px 15px;
-            border-radius: var(--border-radius);
-            font-size: 0.9rem;
-            cursor: pointer;
-            margin-left: 10px;
-            transition: var(--transition);
-        }
-        
-        .logout-btn:hover {
-            background-color: #e9ecef;
-        }
+      /* Style untuk Login Form */
+      .login-container {
+        max-width: 400px;
+        margin: 100px auto;
+        padding: 25px;
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        text-align: center;
+      }
 
-        @keyframes loadingSpin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+      .login-container h2 {
+        margin-bottom: 25px;
+        color: var(--dark-color);
+        font-weight: 600;
+      }
+
+      .login-container input {
+        width: 100%;
+        padding: 12px 15px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: var(--border-radius);
+        font-family: "Poppins", sans-serif;
+        font-size: 0.95rem;
+      }
+
+      .login-container input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
+      }
+
+      .login-btn {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        font-size: 1rem;
+        cursor: pointer;
+        width: 100%;
+        transition: var(--transition);
+      }
+
+      .login-btn:hover {
+        background-color: #4559b3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .error-message {
+        color: var(--danger-color);
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+      }
+
+      .logout-btn {
+        background-color: #f8f9fa;
+        color: var(--dark-color);
+        border: 1px solid #ddd;
+        padding: 8px 15px;
+        border-radius: var(--border-radius);
+        font-size: 0.9rem;
+        cursor: pointer;
+        margin-left: 10px;
+        transition: var(--transition);
+      }
+
+      .logout-btn:hover {
+        background-color: #e9ecef;
+      }
+
+      @keyframes loadingSpin {
+        0% {
+          transform: rotate(0deg);
         }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
-    <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block;">
-        <div class="version-badge">v1.0.2</div>
+    <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
+      <div class="version-badge">v1.0.2</div>
     </a>
 
     <!-- Loading Screen -->
-    <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: white; display: flex; justify-content: center; align-items: center; z-index: 9999;">
-        <div style="text-align: center;">
-            <div style="border: 4px solid #f3f3f3; border-top: 4px solid #5469d4; border-radius: 50%; width: 40px; height: 40px; margin: 0 auto 20px; animation: loadingSpin 1s linear infinite;"></div>
-            <p style="font-family: 'Poppins', sans-serif; color: #333; font-weight: 500;">Loading...</p>
-        </div>
+    <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: white; display: flex; justify-content: center; align-items: center; z-index: 9999">
+      <div style="text-align: center">
+        <div style="border: 4px solid #f3f3f3; border-top: 4px solid #5469d4; border-radius: 50%; width: 40px; height: 40px; margin: 0 auto 20px; animation: loadingSpin 1s linear infinite"></div>
+        <p style="font-family: 'Poppins', sans-serif; color: #333; font-weight: 500">Loading...</p>
+      </div>
     </div>
 
     <!-- Login Container - sembunyikan secara default -->
-    <div id="loginContainer" class="login-container" style="display: none;">
-        <h2>Login Unlock Tool</h2>
-        <div id="errorMessage" class="error-message"></div>
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Password" required>
-        <div style="display: flex; align-items: center; margin-bottom: 15px; justify-content: center;">
-            <input type="checkbox" id="rememberMe" checked style="width: auto; margin-right: 8px; cursor: pointer;">
-            <label for="rememberMe" style="margin-bottom: 0; cursor: pointer;">Ingat Saya</label>
-        </div>
-        <button id="loginBtn" class="login-btn">Login</button>
+    <div id="loginContainer" class="login-container" style="display: none">
+      <h2>Login Unlock Tool</h2>
+      <div id="errorMessage" class="error-message"></div>
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <div style="display: flex; align-items: center; margin-bottom: 15px; justify-content: center">
+        <input type="checkbox" id="rememberMe" checked style="width: auto; margin-right: 8px; cursor: pointer" />
+        <label for="rememberMe" style="margin-bottom: 0; cursor: pointer">Ingat Saya</label>
+      </div>
+      <button id="loginBtn" class="login-btn">Login</button>
     </div>
 
     <!-- Main App Container - sembunyikan secara default -->
-    <div id="appContainer" style="display: none;">
-    <div class="container">
+    <div id="appContainer" style="display: none">
+      <div class="container">
         <div class="buttons-container">
-            <button id="addAccountBtn" class="action-btn add-btn">Tambah Akun Baru</button>
-            <button id="bulkAddBtn" class="action-btn add-btn">Bulk Add Account</button>
-            <button class="action-btn ads-btn">Setting Iklan</button>
-            <button id="exportBtn" class="action-btn export-btn">Ekspor Data</button>
-            <div class="action-btn import-btn">
-                Impor Data
-                <input type="file" id="importFile" accept=".json">
-            </div>
-                <button id="logoutBtn" class="logout-btn">Logout</button>
+          <button id="addAccountBtn" class="action-btn add-btn">Tambah Akun Baru</button>
+          <button id="bulkAddBtn" class="action-btn add-btn">Bulk Add Account</button>
+          <button class="action-btn ads-btn">Setting Iklan</button>
+          <button id="exportBtn" class="action-btn export-btn">Ekspor Data</button>
+          <div class="action-btn import-btn">
+            Impor Data
+            <input type="file" id="importFile" accept=".json" />
+          </div>
+          <button id="logoutBtn" class="logout-btn">Logout</button>
         </div>
         <div class="account-summary">
-            <div class="filter-container">
-                <label for="emailFilter"><strong>Filter Email:</strong></label>
-                <select id="emailFilter" class="email-filter">
-                    <option value="">Semua Email</option>
-                    <!-- Opsi email akan diisi secara dinamis -->
-                </select>
-                
-                <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
-                <div class="search-container">
-                    <input type="text" id="usernameSearch" class="search-input" placeholder="Ketik untuk mencari...">
-                    <button type="button" id="clearSearch" class="clear-search-btn">&times;</button>
-                </div>
-                
-                <div class="account-stats">
-                    <strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span>
-                </div>
+          <div class="filter-container">
+            <label for="emailFilter"><strong>Filter Email:</strong></label>
+            <select id="emailFilter" class="email-filter">
+              <option value="">Semua Email</option>
+              <!-- Opsi email akan diisi secara dinamis -->
+            </select>
+
+            <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
+            <div class="search-container">
+              <input type="text" id="usernameSearch" class="search-input" placeholder="Ketik untuk mencari..." />
+              <button type="button" id="clearSearch" class="clear-search-btn">&times;</button>
             </div>
-            
-            <div class="summary-row">
-                <div class="summary-left">
-                    <button id="quickRentBtn" class="quick-rent-btn">Quick Renting 6 Jam</button>
-                        <button id="quickRent12Btn" class="quick-rent-btn-12">Quick Renting 12 Jam</button>
-                        <button id="quickRent24Btn" class="quick-rent-btn-24">Quick Renting 24 Jam</button>
-                </div>
+
+            <div class="account-stats"><strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span></div>
+          </div>
+
+          <div class="summary-row">
+            <div class="summary-left">
+              <button id="quickRentBtn" class="quick-rent-btn">Quick Renting 6 Jam</button>
+              <button id="quickRent12Btn" class="quick-rent-btn-12">Quick Renting 12 Jam</button>
+              <button id="quickRent24Btn" class="quick-rent-btn-24">Quick Renting 24 Jam</button>
             </div>
+          </div>
         </div>
         <div class="accounts-container" id="accountsContainer">
-            <!-- Akun akan dibuat secara dinamis dengan JavaScript -->
-            </div>
+          <!-- Akun akan dibuat secara dinamis dengan JavaScript -->
         </div>
+      </div>
     </div>
 
     <!-- Tombol Scroll to Top -->
@@ -934,800 +936,802 @@
 
     <!-- Modal Dialog untuk Input Manual -->
     <div id="manualModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Input Manual Waktu Berakhir</h3>
-            
-            <div class="form-group">
-                <div style="margin-bottom: 10px;">
-                    <label style="display: inline-flex; align-items: center; margin-right: 20px;">
-                        <input type="radio" name="timeInputType" value="exact" onchange="toggleTimeInputType()"> 
-                        <span style="margin-left: 5px;">Waktu Exact</span>
-                    </label>
-                    <label style="display: inline-flex; align-items: center;">
-                        <input type="radio" name="timeInputType" value="duration" checked onchange="toggleTimeInputType()"> 
-                        <span style="margin-left: 5px;">Durasi</span>
-                    </label>
-                </div>
-            </div>
-            
-            <!-- Input Waktu Exact -->
-            <div id="exactTimeInputs" style="display: none;">
-                <div class="form-group">
-                    <label for="manualDate">Tanggal:</label>
-                    <input type="date" id="manualDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="manualTime">Jam:</label>
-                    <input type="time" id="manualTime" required>
-                </div>
-            </div>
-            
-            <!-- Input Durasi -->
-            <div id="durationInputs">
-                <div class="form-group">
-                    <label for="durationHours">Jam:</label>
-                    <input type="number" id="durationHours" min="0" max="72" value="0" required style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
-                </div>
-                <div class="form-group">
-                    <label for="durationMinutes">Menit:</label>
-                    <input type="number" id="durationMinutes" min="0" max="59" value="0" required style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
-                </div>
-            </div>
-            
-            <button id="saveManualBtn" class="rent-btn">Simpan</button>
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Input Manual Waktu Berakhir</h3>
+
+        <div class="form-group">
+          <div style="margin-bottom: 10px">
+            <label style="display: inline-flex; align-items: center; margin-right: 20px">
+              <input type="radio" name="timeInputType" value="exact" onchange="toggleTimeInputType()" />
+              <span style="margin-left: 5px">Waktu Exact</span>
+            </label>
+            <label style="display: inline-flex; align-items: center">
+              <input type="radio" name="timeInputType" value="duration" checked onchange="toggleTimeInputType()" />
+              <span style="margin-left: 5px">Durasi</span>
+            </label>
+          </div>
         </div>
+
+        <!-- Input Waktu Exact -->
+        <div id="exactTimeInputs" style="display: none">
+          <div class="form-group">
+            <label for="manualDate">Tanggal:</label>
+            <input type="date" id="manualDate" required />
+          </div>
+          <div class="form-group">
+            <label for="manualTime">Jam:</label>
+            <input type="time" id="manualTime" required />
+          </div>
+        </div>
+
+        <!-- Input Durasi -->
+        <div id="durationInputs">
+          <div class="form-group">
+            <label for="durationHours">Jam:</label>
+            <input type="number" id="durationHours" min="0" max="72" value="0" required style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.9rem" />
+          </div>
+          <div class="form-group">
+            <label for="durationMinutes">Menit:</label>
+            <input type="number" id="durationMinutes" min="0" max="59" value="0" required style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.9rem" />
+          </div>
+        </div>
+
+        <button id="saveManualBtn" class="rent-btn">Simpan</button>
+      </div>
     </div>
-    
+
     <!-- Modal Dialog untuk Bulk Add Account -->
     <div id="bulkAddModal" class="modal">
-        <div class="modal-content bulk-add">
-            <span class="close" id="closeBulkModal">&times;</span>
-            <h3>Bulk Add Account</h3>
-            
-            <div class="form-group">
-                <label for="bulkInput">Format: Username diikuti Email, pisahkan tiap akun dengan baris kosong</label>
-                <textarea id="bulkInput" class="bulk-textarea" placeholder="username&#10;email@domain.com&#10;&#10;username2&#10;email2@domain.com"></textarea>
-            </div>
-            
-            <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666;">Password default: wawawa666</p>
-            
-            <button id="processBulkBtn" class="add-btn" style="width: 100%;">Tambahkan Akun</button>
+      <div class="modal-content bulk-add">
+        <span class="close" id="closeBulkModal">&times;</span>
+        <h3>Bulk Add Account</h3>
+
+        <div class="form-group">
+          <label for="bulkInput">Format: Username diikuti Email, pisahkan tiap akun dengan baris kosong</label>
+          <textarea id="bulkInput" class="bulk-textarea" placeholder="username&#10;email@domain.com&#10;&#10;username2&#10;email2@domain.com"></textarea>
         </div>
+
+        <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666">Password default: wawawa666</p>
+
+        <button id="processBulkBtn" class="add-btn" style="width: 100%">Tambahkan Akun</button>
+      </div>
     </div>
-    
+
     <!-- Notifikasi -->
     <div id="notification" class="notification"></div>
 
     <script>
-        // Tambahkan variabel untuk melacak status autentikasi
-        let authCheckComplete = false;
+      // Tambahkan variabel untuk melacak status autentikasi
+      let authCheckComplete = false;
 
-        // Helper untuk debug
-        function logDebug(message, data) {
-            console.log('[DEBUG] ' + message, data || '');
-        }
+      // Helper untuk debug
+      function logDebug(message, data) {
+        console.log("[DEBUG] " + message, data || "");
+      }
 
-        // Event listener untuk global error handling
-        window.addEventListener('error', function(event) {
-            console.error('Global error:', event.error);
-            // Jika terjadi error, sembunyikan loading screen
-            document.getElementById('loadingScreen').style.display = 'none';
-        });
+      // Event listener untuk global error handling
+      window.addEventListener("error", function (event) {
+        console.error("Global error:", event.error);
+        // Jika terjadi error, sembunyikan loading screen
+        document.getElementById("loadingScreen").style.display = "none";
+      });
 
-        // Handler untuk cek status auth dan loading screen
-        document.addEventListener('DOMContentLoaded', function() {
-            logDebug('DOM telah dimuat, memeriksa status login...');
-            
-            // Tampilkan loading screen terlebih dahulu
-            document.getElementById('loadingScreen').style.display = 'flex';
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('appContainer').style.display = 'none';
-            
-            // Kurangi waktu loading menjadi 300ms
-            setTimeout(function() {
-                logDebug('Menjalankan pengecekan autentikasi...');
-                // Cek status login dengan Firebase auth
-                firebase.auth().onAuthStateChanged(function(user) {
-                    logDebug('Auth state changed, user:', user ? user.email : 'tidak ada');
-                    // Tandai bahwa pengecekan autentikasi sudah selesai
-                    authCheckComplete = true;
-                    
-                    // Sembunyikan loading screen
-                    document.getElementById('loadingScreen').style.display = 'none';
-                    
-                    if (user) {
-                        // User sudah login
-                        document.getElementById('appContainer').style.display = 'block';
-                        // Inisialisasi app
-                        initializeApp();
-                        
-                        // Tambahkan event listener untuk refresh
-                        window.addEventListener('beforeunload', function() {
-                            // Simpan status sorting terakhir
-                            localStorage.setItem('lastSortTime', new Date().getTime());
-                        });
-                        
-                        // Cek apakah perlu perbaikan sorting
-                        const lastSortTime = localStorage.getItem('lastSortTime');
-                        if (lastSortTime) {
-                            const timeSinceLastSort = new Date().getTime() - parseInt(lastSortTime);
-                            // Jika lebih dari 1 menit sejak sort terakhir, lakukan perbaikan
-                            if (timeSinceLastSort > 60000) {
-                                logDebug('Melakukan perbaikan sorting setelah refresh...');
-                                // Tunggu sebentar untuk memastikan data sudah dimuat
-                                setTimeout(() => {
-                                    if (accountManager) {
-                                        accountManager.renderAccounts(true);
-                                    }
-                                }, 1000);
-                            }
-                        }
-                    } else {
-                        // User belum login
-                        document.getElementById('loginContainer').style.display = 'block';
+      // Handler untuk cek status auth dan loading screen
+      document.addEventListener("DOMContentLoaded", function () {
+        logDebug("DOM telah dimuat, memeriksa status login...");
+
+        // Tampilkan loading screen terlebih dahulu
+        document.getElementById("loadingScreen").style.display = "flex";
+        document.getElementById("loginContainer").style.display = "none";
+        document.getElementById("appContainer").style.display = "none";
+
+        // Kurangi waktu loading menjadi 300ms
+        setTimeout(function () {
+          logDebug("Menjalankan pengecekan autentikasi...");
+          // Cek status login dengan Firebase auth
+          firebase.auth().onAuthStateChanged(function (user) {
+            logDebug("Auth state changed, user:", user ? user.email : "tidak ada");
+            // Tandai bahwa pengecekan autentikasi sudah selesai
+            authCheckComplete = true;
+
+            // Sembunyikan loading screen
+            document.getElementById("loadingScreen").style.display = "none";
+
+            if (user) {
+              // User sudah login
+              document.getElementById("appContainer").style.display = "block";
+              // Inisialisasi app
+              initializeApp();
+
+              // Tambahkan event listener untuk refresh
+              window.addEventListener("beforeunload", function () {
+                // Simpan status sorting terakhir
+                localStorage.setItem("lastSortTime", new Date().getTime());
+              });
+
+              // Cek apakah perlu perbaikan sorting
+              const lastSortTime = localStorage.getItem("lastSortTime");
+              if (lastSortTime) {
+                const timeSinceLastSort = new Date().getTime() - parseInt(lastSortTime);
+                // Jika lebih dari 1 menit sejak sort terakhir, lakukan perbaikan
+                if (timeSinceLastSort > 60000) {
+                  logDebug("Melakukan perbaikan sorting setelah refresh...");
+                  // Tunggu sebentar untuk memastikan data sudah dimuat
+                  setTimeout(() => {
+                    if (accountManager) {
+                      accountManager.renderAccounts(true);
                     }
-                });
-            }, 300); // Kurangi delay loading menjadi 300ms
-        });
-
-        // Event listener untuk tombol login
-        document.getElementById('loginBtn').addEventListener('click', () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
-            const errorMessage = document.getElementById('errorMessage');
-            
-            if (!email || !password) {
-                errorMessage.textContent = 'Mohon isi email dan password';
-                return;
-            }
-            
-            // Tampilkan loading screen saat login
-            document.getElementById('loadingScreen').style.display = 'flex';
-            document.getElementById('loginContainer').style.display = 'none';
-            
-            // Set persistence berdasarkan pilihan "Remember Me"
-            const persistenceType = rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
-            
-            firebase.auth().setPersistence(persistenceType)
-                .then(() => {
-                    return firebase.auth().signInWithEmailAndPassword(email, password);
-                })
-                .then((userCredential) => {
-                    // Login berhasil
-                    errorMessage.textContent = '';
-                })
-                .catch((error) => {
-                    // Ada error saat login
-                    console.error("Error:", error);
-                    
-                    // Sembunyikan loading screen dan tampilkan login lagi
-                    document.getElementById('loadingScreen').style.display = 'none';
-                    document.getElementById('loginContainer').style.display = 'block';
-                    
-                    if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                        errorMessage.textContent = 'Email atau password salah';
-                    } else {
-                        errorMessage.textContent = 'Error: ' + error.message;
-                    }
-                });
-        });
-
-        // Tombol Enter untuk login
-        document.getElementById('password').addEventListener('keyup', (event) => {
-            if (event.key === 'Enter') {
-                document.getElementById('loginBtn').click();
-            }
-        });
-
-        // Fungsi inisialisasi app - memisahkan logik inisialisasi
-        function initializeApp() {
-            logDebug('Inisialisasi app...');
-            try {
-                // Inisialisasi manager akun
-                accountManager = new AccountManager();
-                logDebug('AccountManager berhasil diinisialisasi');
-                
-                // Set interval untuk memperbarui tampilan, tapi interval lebih panjang (30 detik)
-                // untuk mengurangi beban pada Firebase
-                setInterval(() => {
-                    accountManager.renderAccounts(true);
-                }, 30000);
-                
-                // Logout handler - pindah ke sini agar tersedia hanya setelah login
-                document.getElementById('logoutBtn').addEventListener('click', () => {
-                    // Tampilkan loading screen saat logout
-                    document.getElementById('loadingScreen').style.display = 'flex';
-                    document.getElementById('appContainer').style.display = 'none';
-                    
-                    firebase.auth().signOut().then(() => {
-                        // Logout berhasil
-                        // Sembunyikan loading dan tampilkan login
-                        document.getElementById('loadingScreen').style.display = 'none';
-                        document.getElementById('loginContainer').style.display = 'block';
-                    }).catch((error) => {
-                        console.error('Error saat logout:', error);
-                        // Jika error, tetap coba tampilkan login
-                        document.getElementById('loadingScreen').style.display = 'none';
-                        document.getElementById('loginContainer').style.display = 'block';
-                    });
-                });
-                
-                // Sisipkan semua event listener lain di sini
-                // Event listener untuk tombol quick renting
-                const quickRentBtn = document.getElementById('quickRentBtn');
-                if (quickRentBtn) {
-                    quickRentBtn.addEventListener('click', () => {
-                        logDebug('Quick Rent 6 Jam diklik');
-                        accountManager.quickRent(6);
-                    });
+                  }, 1000);
                 }
-                
-                const quickRent12Btn = document.getElementById('quickRent12Btn');
-                if (quickRent12Btn) {
-                    quickRent12Btn.addEventListener('click', () => {
-                        logDebug('Quick Rent 12 Jam diklik');
-                        accountManager.quickRent(12);
-                    });
-                }
-                
-                const quickRent24Btn = document.getElementById('quickRent24Btn');
-                if (quickRent24Btn) {
-                    quickRent24Btn.addEventListener('click', () => {
-                        logDebug('Quick Rent 24 Jam diklik');
-                        accountManager.quickRent(24);
-                    });
-                }
-                
-                // Tambahan optional chaining (?.) untuk mencegah error jika tombol tidak ditemukan
-                document.getElementById('addAccountBtn')?.addEventListener('click', () => {
-                    accountManager.addAccount();
-                });
-                
-                document.getElementById('bulkAddBtn')?.addEventListener('click', openBulkModal);
-                
-                document.querySelector('.ads-btn')?.addEventListener('click', () => {
-                    window.open('https://seller.shopee.co.id/portal/marketing/pas/product/manual/315686975?from=1742317200&to=1742403599&group=today', '_blank');
-                });
-                
-                document.getElementById('exportBtn')?.addEventListener('click', () => {
-                    accountManager.exportData();
-                });
-                
-                document.getElementById('importFile')?.addEventListener('change', (event) => {
-                    if (event.target.files.length > 0) {
-                        const file = event.target.files[0];
-                        if (file.type === 'application/json' || file.name.endsWith('.json')) {
-                            accountManager.importData(file);
-                        } else {
-                            accountManager.showNotification("Format file tidak valid. Harap pilih file JSON.");
-                        }
-                        // Reset input file untuk memungkinkan impor file yang sama berulang kali
-                        event.target.value = '';
-                    }
-                });
-                
-                // Event listeners untuk modal input manual
-                document.querySelector('.close')?.addEventListener('click', closeManualModal);
-                document.getElementById('saveManualBtn')?.addEventListener('click', saveManualTime);
-                
-                // Event listener untuk proses data bulk add
-                document.getElementById('processBulkBtn')?.addEventListener('click', processBulkAccounts);
-                
-                // Event listener untuk menutup modal bulk add
-                document.getElementById('closeBulkModal')?.addEventListener('click', closeBulkModal);
-
-                // Event listener untuk filter email
-                document.getElementById('emailFilter')?.addEventListener('change', (event) => {
-                    accountManager.setEmailFilter(event.target.value);
-                });
-
-                // Event listener untuk filter pencarian username
-                document.getElementById('usernameSearch')?.addEventListener('input', (event) => {
-                    accountManager.setSearchQuery(event.target.value);
-                    
-                    // Tampilkan tombol clear jika ada teks, sembunyikan jika kosong
-                    const clearButton = document.getElementById('clearSearch');
-                    if (clearButton) {
-                        if (event.target.value) {
-                            clearButton.style.display = 'block';
-                        } else {
-                            clearButton.style.display = 'none';
-                        }
-                    }
-                });
-                
-                // Event listener untuk tombol clear search
-                document.getElementById('clearSearch')?.addEventListener('click', () => {
-                    const searchInput = document.getElementById('usernameSearch');
-                    if (searchInput) {
-                        searchInput.value = '';
-                        accountManager.setSearchQuery('');
-                        document.getElementById('clearSearch').style.display = 'none';
-                        searchInput.focus(); // Fokus kembali ke input pencarian
-                    }
-                });
-
-                // Event listener untuk tombol scroll to top
-                const scrollToTopBtn = document.getElementById('scrollToTop');
-                
-                if (scrollToTopBtn) {
-                    window.addEventListener('scroll', () => {
-                        if (window.pageYOffset > 300) { // Tampilkan tombol setelah scroll 300px
-                            scrollToTopBtn.classList.add('show');
-                        } else {
-                            scrollToTopBtn.classList.remove('show');
-                        }
-                    });
-
-                    scrollToTopBtn.addEventListener('click', () => {
-                        window.scrollTo({
-                            top: 0,
-                            behavior: 'smooth'
-                        });
-                    });
-                }
-
-                // Menutup modal jika user mengklik di luar modal
-                window.addEventListener('click', (event) => {
-                    const manualModal = document.getElementById('manualModal');
-                    const bulkAddModal = document.getElementById('bulkAddModal');
-                    
-                    if (event.target == manualModal) {
-                        closeManualModal();
-                    }
-                    
-                    if (event.target == bulkAddModal) {
-                        closeBulkModal();
-                    }
-                });
-            } catch (err) {
-                console.error('Error saat inisialisasi app: ', err);
-            }
-        }
-
-        // Tambahkan logging untuk membantu debug
-        function logDebug(message, data) {
-            console.log('[DEBUG] ' + message, data || '');
-        }
-
-        // Fungsi untuk menghitung dan memformat waktu tersisa
-        function getRemainingTime(availableAt) {
-            if (!availableAt) return null;
-            
-            const now = new Date();
-            const availableDate = new Date(availableAt);
-            const diffMs = availableDate - now;
-            
-            if (diffMs <= 0) return "Available";
-            
-            const diffMinutes = Math.floor(diffMs / (1000 * 60));
-            const diffHours = Math.floor(diffMinutes / 60);
-            const remainingMinutes = diffMinutes % 60;
-            
-            if (diffHours > 0) {
-                return `${diffHours} jam ${remainingMinutes} menit lagi`;
+              }
             } else {
-                return `${remainingMinutes} menit lagi`;
+              // User belum login
+              document.getElementById("loginContainer").style.display = "block";
             }
+          });
+        }, 300); // Kurangi delay loading menjadi 300ms
+      });
+
+      // Event listener untuk tombol login
+      document.getElementById("loginBtn").addEventListener("click", () => {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const rememberMe = document.getElementById("rememberMe").checked;
+        const errorMessage = document.getElementById("errorMessage");
+
+        if (!email || !password) {
+          errorMessage.textContent = "Mohon isi email dan password";
+          return;
         }
 
-        // Fungsi untuk format tanggal dan waktu lebih mudah dibaca
-        function formatDateTime(date) {
-            if (!date) return "Available";
-            
-            const options = { 
-                day: '2-digit', 
-                month: '2-digit', 
-                year: 'numeric', 
-                hour: '2-digit', 
-                minute: '2-digit',
-                hour12: false 
-            };
-            return new Date(date).toLocaleString('id-ID', options);
-        }
+        // Tampilkan loading screen saat login
+        document.getElementById("loadingScreen").style.display = "flex";
+        document.getElementById("loginContainer").style.display = "none";
 
-        // Fungsi untuk menyalin teks ke clipboard
-        function copyToClipboard(text, buttonElement) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            
-            // Memberikan efek visual saat tombol diklik
-            const originalText = buttonElement.textContent;
-            buttonElement.textContent = "Tersalin!";
-            
-            // Cek kelas tombol untuk menentukan warna efek
-            if (buttonElement.classList.contains('primary-copy-btn')) {
-                buttonElement.style.backgroundColor = "#099268";
-                
-                setTimeout(() => {
-                    buttonElement.textContent = originalText;
-                    buttonElement.style.backgroundColor = "#5469d4";
-                }, 1000);
+        // Set persistence berdasarkan pilihan "Remember Me"
+        const persistenceType = rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+
+        firebase
+          .auth()
+          .setPersistence(persistenceType)
+          .then(() => {
+            return firebase.auth().signInWithEmailAndPassword(email, password);
+          })
+          .then((userCredential) => {
+            // Login berhasil
+            errorMessage.textContent = "";
+          })
+          .catch((error) => {
+            // Ada error saat login
+            console.error("Error:", error);
+
+            // Sembunyikan loading screen dan tampilkan login lagi
+            document.getElementById("loadingScreen").style.display = "none";
+            document.getElementById("loginContainer").style.display = "block";
+
+            if (error.code === "auth/wrong-password" || error.code === "auth/user-not-found") {
+              errorMessage.textContent = "Email atau password salah";
             } else {
-                buttonElement.style.backgroundColor = "#099268";
-                
-                setTimeout(() => {
-                    buttonElement.textContent = originalText;
-                    buttonElement.style.backgroundColor = "#5469d4";
-                }, 1000);
+              errorMessage.textContent = "Error: " + error.message;
             }
-        }
+          });
+      });
 
-        // Kelas untuk mengelola setiap akun
-        class AccountManager {
-            constructor(accounts = []) {
-                this.accounts = accounts.length ? accounts : this.createDefaultAccounts();
-                this.lastRentedIndex = -1; // Menambahkan properti untuk melacak akun yang baru disewa
-                this.selectedEmail = ''; // Menyimpan email yang dipilih untuk filter
-                this.searchQuery = ''; // Menyimpan kata kunci pencarian username
-                
-                // Tambahkan listener Firebase untuk real-time updates
-                firebase.database().ref('accounts').on('value', (snapshot) => {
-                    const savedAccounts = snapshot.val();
-                    if (savedAccounts) {
-                        this.accounts = savedAccounts;
+      // Tombol Enter untuk login
+      document.getElementById("password").addEventListener("keyup", (event) => {
+        if (event.key === "Enter") {
+          document.getElementById("loginBtn").click();
+        }
+      });
+
+      // Fungsi inisialisasi app - memisahkan logik inisialisasi
+      function initializeApp() {
+        logDebug("Inisialisasi app...");
+        try {
+          // Inisialisasi manager akun
+          accountManager = new AccountManager();
+          logDebug("AccountManager berhasil diinisialisasi");
+
+          // Set interval untuk memperbarui tampilan, tapi interval lebih panjang (30 detik)
+          // untuk mengurangi beban pada Firebase
+          setInterval(() => {
+            accountManager.renderAccounts(true);
+          }, 30000);
+
+          // Logout handler - pindah ke sini agar tersedia hanya setelah login
+          document.getElementById("logoutBtn").addEventListener("click", () => {
+            // Tampilkan loading screen saat logout
+            document.getElementById("loadingScreen").style.display = "flex";
+            document.getElementById("appContainer").style.display = "none";
+
+            firebase
+              .auth()
+              .signOut()
+              .then(() => {
+                // Logout berhasil
+                // Sembunyikan loading dan tampilkan login
+                document.getElementById("loadingScreen").style.display = "none";
+                document.getElementById("loginContainer").style.display = "block";
+              })
+              .catch((error) => {
+                console.error("Error saat logout:", error);
+                // Jika error, tetap coba tampilkan login
+                document.getElementById("loadingScreen").style.display = "none";
+                document.getElementById("loginContainer").style.display = "block";
+              });
+          });
+
+          // Sisipkan semua event listener lain di sini
+          // Event listener untuk tombol quick renting
+          const quickRentBtn = document.getElementById("quickRentBtn");
+          if (quickRentBtn) {
+            quickRentBtn.addEventListener("click", () => {
+              logDebug("Quick Rent 6 Jam diklik");
+              accountManager.quickRent(6);
+            });
+          }
+
+          const quickRent12Btn = document.getElementById("quickRent12Btn");
+          if (quickRent12Btn) {
+            quickRent12Btn.addEventListener("click", () => {
+              logDebug("Quick Rent 12 Jam diklik");
+              accountManager.quickRent(12);
+            });
+          }
+
+          const quickRent24Btn = document.getElementById("quickRent24Btn");
+          if (quickRent24Btn) {
+            quickRent24Btn.addEventListener("click", () => {
+              logDebug("Quick Rent 24 Jam diklik");
+              accountManager.quickRent(24);
+            });
+          }
+
+          // Tambahan optional chaining (?.) untuk mencegah error jika tombol tidak ditemukan
+          document.getElementById("addAccountBtn")?.addEventListener("click", () => {
+            accountManager.addAccount();
+          });
+
+          document.getElementById("bulkAddBtn")?.addEventListener("click", openBulkModal);
+
+          document.querySelector(".ads-btn")?.addEventListener("click", () => {
+            window.open("https://seller.shopee.co.id/portal/marketing/pas/product/manual/315686975?from=1742317200&to=1742403599&group=today", "_blank");
+          });
+
+          document.getElementById("exportBtn")?.addEventListener("click", () => {
+            accountManager.exportData();
+          });
+
+          document.getElementById("importFile")?.addEventListener("change", (event) => {
+            if (event.target.files.length > 0) {
+              const file = event.target.files[0];
+              if (file.type === "application/json" || file.name.endsWith(".json")) {
+                accountManager.importData(file);
+              } else {
+                accountManager.showNotification("Format file tidak valid. Harap pilih file JSON.");
+              }
+              // Reset input file untuk memungkinkan impor file yang sama berulang kali
+              event.target.value = "";
+            }
+          });
+
+          // Event listeners untuk modal input manual
+          document.querySelector(".close")?.addEventListener("click", closeManualModal);
+          document.getElementById("saveManualBtn")?.addEventListener("click", saveManualTime);
+
+          // Event listener untuk proses data bulk add
+          document.getElementById("processBulkBtn")?.addEventListener("click", processBulkAccounts);
+
+          // Event listener untuk menutup modal bulk add
+          document.getElementById("closeBulkModal")?.addEventListener("click", closeBulkModal);
+
+          // Event listener untuk filter email
+          document.getElementById("emailFilter")?.addEventListener("change", (event) => {
+            accountManager.setEmailFilter(event.target.value);
+          });
+
+          // Event listener untuk filter pencarian username
+          document.getElementById("usernameSearch")?.addEventListener("input", (event) => {
+            accountManager.setSearchQuery(event.target.value);
+
+            // Tampilkan tombol clear jika ada teks, sembunyikan jika kosong
+            const clearButton = document.getElementById("clearSearch");
+            if (clearButton) {
+              if (event.target.value) {
+                clearButton.style.display = "block";
+              } else {
+                clearButton.style.display = "none";
+              }
+            }
+          });
+
+          // Event listener untuk tombol clear search
+          document.getElementById("clearSearch")?.addEventListener("click", () => {
+            const searchInput = document.getElementById("usernameSearch");
+            if (searchInput) {
+              searchInput.value = "";
+              accountManager.setSearchQuery("");
+              document.getElementById("clearSearch").style.display = "none";
+              searchInput.focus(); // Fokus kembali ke input pencarian
+            }
+          });
+
+          // Event listener untuk tombol scroll to top
+          const scrollToTopBtn = document.getElementById("scrollToTop");
+
+          if (scrollToTopBtn) {
+            window.addEventListener("scroll", () => {
+              if (window.pageYOffset > 300) {
+                // Tampilkan tombol setelah scroll 300px
+                scrollToTopBtn.classList.add("show");
+              } else {
+                scrollToTopBtn.classList.remove("show");
+              }
+            });
+
+            scrollToTopBtn.addEventListener("click", () => {
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              });
+            });
+          }
+
+          // Menutup modal jika user mengklik di luar modal
+          window.addEventListener("click", (event) => {
+            const manualModal = document.getElementById("manualModal");
+            const bulkAddModal = document.getElementById("bulkAddModal");
+
+            if (event.target == manualModal) {
+              closeManualModal();
+            }
+
+            if (event.target == bulkAddModal) {
+              closeBulkModal();
+            }
+          });
+        } catch (err) {
+          console.error("Error saat inisialisasi app: ", err);
+        }
+      }
+
+      // Tambahkan logging untuk membantu debug
+      function logDebug(message, data) {
+        console.log("[DEBUG] " + message, data || "");
+      }
+
+      // Fungsi untuk menghitung dan memformat waktu tersisa
+      function getRemainingTime(availableAt) {
+        if (!availableAt) return null;
+
+        const now = new Date();
+        const availableDate = new Date(availableAt);
+        const diffMs = availableDate - now;
+
+        if (diffMs <= 0) return "Available";
+
+        const diffMinutes = Math.floor(diffMs / (1000 * 60));
+        const diffHours = Math.floor(diffMinutes / 60);
+        const remainingMinutes = diffMinutes % 60;
+
+        if (diffHours > 0) {
+          return `${diffHours} jam ${remainingMinutes} menit lagi`;
+        } else {
+          return `${remainingMinutes} menit lagi`;
+        }
+      }
+
+      // Fungsi untuk format tanggal dan waktu lebih mudah dibaca
+      function formatDateTime(date) {
+        if (!date) return "Available";
+
+        const options = {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        };
+        return new Date(date).toLocaleString("id-ID", options);
+      }
+
+      // Fungsi untuk menyalin teks ke clipboard
+      function copyToClipboard(text, buttonElement) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+
+        // Memberikan efek visual saat tombol diklik
+        const originalText = buttonElement.textContent;
+        buttonElement.textContent = "Tersalin!";
+
+        // Cek kelas tombol untuk menentukan warna efek
+        if (buttonElement.classList.contains("primary-copy-btn")) {
+          buttonElement.style.backgroundColor = "#099268";
+
+          setTimeout(() => {
+            buttonElement.textContent = originalText;
+            buttonElement.style.backgroundColor = "#5469d4";
+          }, 1000);
+        } else {
+          buttonElement.style.backgroundColor = "#099268";
+
+          setTimeout(() => {
+            buttonElement.textContent = originalText;
+            buttonElement.style.backgroundColor = "#5469d4";
+          }, 1000);
+        }
+      }
+
+      // Kelas untuk mengelola setiap akun
+      class AccountManager {
+        constructor(accounts = []) {
+          this.accounts = accounts.length ? accounts : this.createDefaultAccounts();
+          this.lastRentedIndex = -1; // Menambahkan properti untuk melacak akun yang baru disewa
+          this.selectedEmail = ""; // Menyimpan email yang dipilih untuk filter
+          this.searchQuery = ""; // Menyimpan kata kunci pencarian username
+
+          // Tambahkan listener Firebase untuk real-time updates
+          firebase
+            .database()
+            .ref("accounts")
+            .on("value", (snapshot) => {
+              const savedAccounts = snapshot.val();
+              if (savedAccounts) {
+                this.accounts = savedAccounts;
                 this.renderAccounts();
                 this.populateEmailFilter();
-                    }
-                });
-                
-                this.loadAccounts();
-            }
+              }
+            });
 
-            createDefaultAccounts() {
-                const defaultAccounts = [];
-                for (let i = 1; i <= 6; i++) {
-                    defaultAccounts.push({
-                        id: i,
-                        name: `Akun ${i}`,
-                        username: '',
-                        password: 'wawawa666',
-                        email: '',
-                        availableAt: null,
-                        note: '',
-                        isReady: true // Akun default sudah ready
-                    });
-                }
-                return defaultAccounts;
-            }
+          this.loadAccounts();
+        }
 
-            addAccount() {
-                const newId = this.accounts.length > 0 
-                    ? Math.max(...this.accounts.map(account => account.id)) + 1 
-                    : 1;
-                
-                const newAccount = {
-                    id: newId,
-                    name: `Akun ${newId}`,
-                    username: `akun${newId}`,
-                    password: 'wawawa666',
-                    email: '',
-                    availableAt: null,
-                    note: '',
-                    isReady: false // Akun baru belum ready
-                };
-                
-                // Tambahkan akun baru ke awal array
-                this.accounts.unshift(newAccount);
-                this.saveAccounts();
-                this.populateEmailFilter();
-                this.renderAccounts();
-                
-                // Scroll ke atas halaman
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-                
-                // Tampilkan notifikasi akun baru ditambahkan
-                this.showNotification(`Akun baru (Akun ${newId}) telah ditambahkan`);
-            }
+        createDefaultAccounts() {
+          const defaultAccounts = [];
+          for (let i = 1; i <= 6; i++) {
+            defaultAccounts.push({
+              id: i,
+              name: `Akun ${i}`,
+              username: "",
+              password: "wawawa666",
+              email: "",
+              availableAt: null,
+              note: "",
+              isReady: true, // Akun default sudah ready
+            });
+          }
+          return defaultAccounts;
+        }
 
-            saveAccounts() {
-                // Firebase: Simpan data ke Realtime Database
-                firebase.database().ref('accounts').set(this.accounts)
-                    .then(() => {
-                        console.log('Data saved successfully to Firebase');
-                    })
-                    .catch((error) => {
-                        console.error('Error saving data to Firebase:', error);
-                        // Fallback ke localStorage jika Firebase gagal
-                localStorage.setItem('unlockToolAccounts', JSON.stringify(this.accounts));
-                    });
-            }
+        addAccount() {
+          const newId = this.accounts.length > 0 ? Math.max(...this.accounts.map((account) => account.id)) + 1 : 1;
 
-            loadAccounts() {
-                // Firebase: Ambil data dari Realtime Database
-                firebase.database().ref('accounts').once('value')
-                    .then((snapshot) => {
-                        const savedAccounts = snapshot.val();
-                        if (savedAccounts) {
-                            this.accounts = savedAccounts;
-                        } else {
-                            // Jika tidak ada data di Firebase, coba ambil dari localStorage
-                            const localAccounts = localStorage.getItem('unlockToolAccounts');
-                            if (localAccounts) {
-                                this.accounts = JSON.parse(localAccounts);
-                                // Simpan data localStorage ke Firebase
-                                this.saveAccounts();
-                            } else {
-                                this.accounts = this.createDefaultAccounts();
-                            }
-                        }
-                        this.renderAccounts();
-                        this.populateEmailFilter();
-                    })
-                    .catch((error) => {
-                        console.error('Error loading data from Firebase:', error);
-                        // Fallback ke localStorage jika Firebase gagal
-                const savedAccounts = localStorage.getItem('unlockToolAccounts');
-                this.accounts = savedAccounts ? JSON.parse(savedAccounts) : this.createDefaultAccounts();
-                this.renderAccounts();
-                        this.populateEmailFilter();
-                    });
-            }
+          const newAccount = {
+            id: newId,
+            name: `Akun ${newId}`,
+            username: `akun${newId}`,
+            password: "wawawa666",
+            email: "",
+            availableAt: null,
+            note: "",
+            isReady: false, // Akun baru belum ready
+          };
 
-            updateAccount(index, data) {
-                this.accounts[index] = {...this.accounts[index], ...data};
-                this.saveAccounts();
-                // Perbarui filter email jika ada perubahan pada properti email
-                if ('email' in data) {
-                    this.populateEmailFilter();
-                }
-                this.renderAccounts();
-            }
+          // Tambahkan akun baru ke awal array
+          this.accounts.unshift(newAccount);
+          this.saveAccounts();
+          this.populateEmailFilter();
+          this.renderAccounts();
 
-            rentAccount(index, hours) {
-                const now = new Date();
-                // Tambahkan 15 menit buffer hanya untuk sewa 6 jam
-                let additionalBuffer = 0;
-                if (hours === 6) {
-                    additionalBuffer = 15 * 60 * 1000; // 15 menit dalam milidetik
-                }
-                
-                const availableAt = new Date(now.getTime() + (hours * 60 * 60 * 1000) + additionalBuffer);
-                this.updateAccount(index, { 
-                    availableAt: availableAt.toISOString(),
-                    lastRentedHours: hours, // Tetap menyimpan durasi asli
-                    manuallyUpdated: false // Bukan update manual
-                });
-                
-                // Auto copy info
-                this.copyInfoWithTime(index);
-                
-                // Tandai akun yang baru disewa
-                this.lastRentedIndex = index;
-                
-                // Render ulang dengan sorting yang benar
-                setTimeout(() => {
-                    this.renderAccounts(true);
-                    // Reset lastRentedIndex setelah render
-                    this.lastRentedIndex = -1;
-                }, 100);
-            }
+          // Scroll ke atas halaman
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
 
-            updateRentTime(index) {
-                const account = this.accounts[index];
-                if (!account.lastRentedHours) return; // Tidak ada info durasi sewa sebelumnya
-                
-                const now = new Date();
-                const hours = account.lastRentedHours;
-                // Tidak ada buffer 15 menit untuk update karena pembeli sudah dikonfirmasi login
-                const availableAt = new Date(now.getTime() + hours * 60 * 60 * 1000);
-                
-                this.updateAccount(index, { 
-                    availableAt: availableAt.toISOString(),
-                    manuallyUpdated: true // Tandai bahwa akun diupdate secara manual
-                });
-                
-                // Auto copy info
-                this.copyInfoWithTime(index);
+          // Tampilkan notifikasi akun baru ditambahkan
+          this.showNotification(`Akun baru (Akun ${newId}) telah ditambahkan`);
+        }
 
-                // Reset pencarian username
-                this.searchQuery = '';
-                const searchInput = document.getElementById('usernameSearch');
-                if (searchInput) {
-                    searchInput.value = '';
-                }
-                // Sembunyikan tombol clear search
-                const clearButton = document.getElementById('clearSearch');
-                if (clearButton) {
-                    clearButton.style.display = 'none';
-                }
-                // Render ulang dengan reset pencarian
-                this.renderAccounts();
-            }
+        saveAccounts() {
+          // Firebase: Simpan data ke Realtime Database
+          firebase
+            .database()
+            .ref("accounts")
+            .set(this.accounts)
+            .then(() => {
+              console.log("Data saved successfully to Firebase");
+              this.syncWithDatabase();
+            })
+            .catch((error) => {
+              console.error("Error saving data to Firebase:", error);
+              // Fallback ke localStorage jika Firebase gagal
+              localStorage.setItem("unlockToolAccounts", JSON.stringify(this.accounts));
+            });
+        }
 
-            setManualRentTime(index, dateTime) {
-                // Tidak ada buffer 15 menit untuk input manual karena ini sudah dikonfirmasi login
-                this.updateAccount(index, { 
-                    availableAt: dateTime.toISOString(),
-                    lastRentedHours: Math.round((dateTime - new Date()) / (1000 * 60 * 60)), // Default 6 jam jika tanggal yang dimasukkan sudah lewat
-                    manuallyUpdated: true // Tandai bahwa akun diupdate secara manual
-                });
-                
-                // Auto copy info
-                this.copyInfoWithTime(index);
-
-                // Reset pencarian username
-                this.searchQuery = '';
-                const searchInput = document.getElementById('usernameSearch');
-                if (searchInput) {
-                    searchInput.value = '';
-                }
-                // Sembunyikan tombol clear search
-                const clearButton = document.getElementById('clearSearch');
-                if (clearButton) {
-                    clearButton.style.display = 'none';
-                }
-                // Render ulang dengan reset pencarian
-                this.renderAccounts();
-            }
-
-            resetAccount(index) {
-                this.updateAccount(index, { 
-                    availableAt: null,
-                    manuallyUpdated: false // Reset penanda manual update
-                });
-            }
-
-            markAccountAsReady(index) {
-                this.updateAccount(index, { 
-                    isReady: true,
-                    manuallyUpdated: true // Tandai sebagai available 100% karena baru pertama kali
-                });
-                this.showNotification("Akun telah siap digunakan");
-            }
-
-            isAccountAvailable(account) {
-                if (!account.isReady) return false; // Akun yang belum ready tidak bisa digunakan
-                if (!account.availableAt) return true;
-                
-                const now = new Date();
-                const availableAt = new Date(account.availableAt);
-                return now >= availableAt;
-            }
-
-            renderAccounts(sort = true) {
-                const container = document.getElementById('accountsContainer');
-                if (!container) {
-                    console.error('ERROR: Element accountsContainer tidak ditemukan!');
-                    return;
-                }
-                container.innerHTML = '';
-
-                logDebug('Merender akun, jumlah total: ', this.accounts.length);
-
-                // Filter akun yang memiliki username dan password, lalu urutkan
-                let filteredAccounts = [...this.accounts].filter(account => 
-                    account.username && account.username.trim() !== '' && 
-                    account.password && account.password.trim() !== ''
-                );
-                
-                logDebug('Akun setelah filter username/password: ', filteredAccounts.length);
-                
-                // Tambahkan filter berdasarkan email jika ada email yang dipilih
-                if (this.selectedEmail) {
-                    filteredAccounts = filteredAccounts.filter(account => 
-                        account.email === this.selectedEmail
-                    );
-                    logDebug('Akun setelah filter email: ', filteredAccounts.length);
-                }
-                
-                // Tambahkan filter berdasarkan pencarian username jika ada
-                if (this.searchQuery) {
-                    const query = this.searchQuery.toLowerCase();
-                    filteredAccounts = filteredAccounts.filter(account => 
-                        account.username.toLowerCase().includes(query)
-                    );
-                    logDebug('Akun setelah filter pencarian: ', filteredAccounts.length);
-                }
-                
-                // Hitung jumlah akun yang available
-                const availableAccounts = filteredAccounts.filter(account => this.isAccountAvailable(account)).length;
-                
-                // Update informasi ringkasan akun
-                const totalAccountsEl = document.getElementById('totalAccounts');
-                const availableAccountsEl = document.getElementById('availableAccounts');
-                
-                if (totalAccountsEl) totalAccountsEl.textContent = filteredAccounts.length;
-                if (availableAccountsEl) availableAccountsEl.textContent = availableAccounts;
-                
-                logDebug('Total akun available: ', availableAccounts);
-                
-                // Tampilkan/sembunyikan tombol Quick Renting
-                const quickRentBtn = document.getElementById('quickRentBtn');
-                const quickRent12Btn = document.getElementById('quickRent12Btn');
-                const quickRent24Btn = document.getElementById('quickRent24Btn');
-                
-                if (quickRentBtn) {
-                    quickRentBtn.style.display = availableAccounts > 0 ? 'block' : 'none';
+        loadAccounts() {
+          // Firebase: Ambil data dari Realtime Database
+          firebase
+            .database()
+            .ref("accounts")
+            .once("value")
+            .then((snapshot) => {
+              const savedAccounts = snapshot.val();
+              if (savedAccounts) {
+                this.accounts = savedAccounts;
+              } else {
+                // Jika tidak ada data di Firebase, coba ambil dari localStorage
+                const localAccounts = localStorage.getItem("unlockToolAccounts");
+                if (localAccounts) {
+                  this.accounts = JSON.parse(localAccounts);
+                  // Simpan data localStorage ke Firebase
+                  this.saveAccounts();
                 } else {
-                    logDebug('ERROR: Tombol quickRentBtn tidak ditemukan!');
+                  this.accounts = this.createDefaultAccounts();
                 }
-                
-                if (quickRent12Btn) {
-                    quickRent12Btn.style.display = availableAccounts > 0 ? 'block' : 'none';
-                } else {
-                    logDebug('ERROR: Tombol quickRent12Btn tidak ditemukan!');
-                }
-                
-                if (quickRent24Btn) {
-                    quickRent24Btn.style.display = availableAccounts > 0 ? 'block' : 'none';
-                } else {
-                    logDebug('ERROR: Tombol quickRent24Btn tidak ditemukan!');
-                }
+              }
+              this.renderAccounts();
+              this.populateEmailFilter();
+            })
+            .catch((error) => {
+              console.error("Error loading data from Firebase:", error);
+              // Fallback ke localStorage jika Firebase gagal
+              const savedAccounts = localStorage.getItem("unlockToolAccounts");
+              this.accounts = savedAccounts ? JSON.parse(savedAccounts) : this.createDefaultAccounts();
+              this.renderAccounts();
+              this.populateEmailFilter();
+            });
+        }
 
-                // Implementasikan pengurutan akun jika diminta
-                if (sort) {
-                    logDebug('Mengurutkan akun berdasarkan status dan waktu tersisa');
-                    filteredAccounts.sort((a, b) => {
-                        // Status available
-                        const aAvailable = this.isAccountAvailable(a);
-                        const bAvailable = this.isAccountAvailable(b);
-                        
-                        // Akun available selalu tampil lebih dahulu
-                        if (aAvailable && !bAvailable) return -1;
-                        if (!aAvailable && bAvailable) return 1;
-                        
-                        // Jika keduanya available atau keduanya tidak available
-                        if (aAvailable && bAvailable) {
-                            // Akun ready manual ditampilkan terlebih dahulu
-                            if (a.manuallyUpdated && !b.manuallyUpdated) return -1;
-                            if (!a.manuallyUpdated && b.manuallyUpdated) return 1;
-                            
-                            // Jika keduanya available, urutkan berdasarkan username
-                            return a.username.localeCompare(b.username);
-                        } else {
-                            // Keduanya tidak available, urutkan berdasarkan waktu tersisa (paling kecil dahulu)
-                            const aTime = new Date(a.availableAt).getTime();
-                            const bTime = new Date(b.availableAt).getTime();
-                            return aTime - bTime; // Urutan naik (waktu tersisa paling kecil dahulu)
-                        }
-                    });
-                    logDebug('Pengurutan selesai');
-                }
+        updateAccount(index, data) {
+          this.accounts[index] = { ...this.accounts[index], ...data };
+          this.saveAccounts();
+          // Perbarui filter email jika ada perubahan pada properti email
+          if ("email" in data) {
+            this.populateEmailFilter();
+          }
+          this.renderAccounts();
+        }
 
-                // Render akun cards
-                logDebug('Mulai render akun cards', filteredAccounts.length);
-                filteredAccounts.forEach((account, index) => {
-                    const realIndex = this.accounts.indexOf(account);
-                    const isAvailable = this.isAccountAvailable(account);
-                    const availableAtText = isAvailable ? 'Available' : formatDateTime(account.availableAt);
-                    
-                    // Mendapatkan waktu tersisa
-                    const remainingTime = !isAvailable ? getRemainingTime(account.availableAt) : null;
-                    
-                    // Text status berbeda untuk akun yang belum ready
-                    const statusText = !account.isReady ? 'Not Ready' :
-                        (isAvailable ? 
-                            (account.manuallyUpdated ? 'Available 100%' : 'Available') : 
-                            (account.manuallyUpdated ? 'Rented 100%' : 'Rented'));
-                    
-                    // Text status untuk info detail juga berbeda
-                    const detailStatusText = !account.isReady ? 'Akun belum siap digunakan' :
-                        (isAvailable ? 
-                            (account.manuallyUpdated ? 'Available 100%' : 'Available') : 
-                            (account.manuallyUpdated ? 'Rented 100% until ' : 'Rented until ') + availableAtText);
-                    
-                    const accountCard = document.createElement('div');
-                    accountCard.className = 'account-card';
-                    
-                    // Tambahkan class highlight jika ini adalah akun yang baru disewa
-                    if (realIndex === this.lastRentedIndex) {
-                        accountCard.classList.add('highlight');
-                    }
-                    
-                    accountCard.innerHTML = `
+        rentAccount(index, hours) {
+          const now = new Date();
+          // Tambahkan 15 menit buffer hanya untuk sewa 6 jam
+          let additionalBuffer = 0;
+          if (hours === 6) {
+            additionalBuffer = 15 * 60 * 1000; // 15 menit dalam milidetik
+          }
+
+          const availableAt = new Date(now.getTime() + hours * 60 * 60 * 1000 + additionalBuffer);
+          this.updateAccount(index, {
+            availableAt: availableAt.toISOString(),
+            lastRentedHours: hours, // Tetap menyimpan durasi asli
+            manuallyUpdated: false, // Bukan update manual
+          });
+
+          // Auto copy info
+          this.copyInfoWithTime(index);
+
+          // Tandai akun yang baru disewa
+          this.lastRentedIndex = index;
+
+          // Render ulang dengan sorting yang benar
+          setTimeout(() => {
+            this.renderAccounts(true);
+            // Reset lastRentedIndex setelah render
+            this.lastRentedIndex = -1;
+          }, 100);
+        }
+
+        updateRentTime(index) {
+          const account = this.accounts[index];
+          if (!account.lastRentedHours) return; // Tidak ada info durasi sewa sebelumnya
+
+          const now = new Date();
+          const hours = account.lastRentedHours;
+          // Tidak ada buffer 15 menit untuk update karena pembeli sudah dikonfirmasi login
+          const availableAt = new Date(now.getTime() + hours * 60 * 60 * 1000);
+
+          this.updateAccount(index, {
+            availableAt: availableAt.toISOString(),
+            manuallyUpdated: true, // Tandai bahwa akun diupdate secara manual
+          });
+
+          // Auto copy info
+          this.copyInfoWithTime(index);
+
+          // Reset pencarian username
+          this.searchQuery = "";
+          const searchInput = document.getElementById("usernameSearch");
+          if (searchInput) {
+            searchInput.value = "";
+          }
+          // Sembunyikan tombol clear search
+          const clearButton = document.getElementById("clearSearch");
+          if (clearButton) {
+            clearButton.style.display = "none";
+          }
+          // Render ulang dengan reset pencarian
+          this.renderAccounts();
+        }
+
+        setManualRentTime(index, dateTime) {
+          // Tidak ada buffer 15 menit untuk input manual karena ini sudah dikonfirmasi login
+          this.updateAccount(index, {
+            availableAt: dateTime.toISOString(),
+            lastRentedHours: Math.round((dateTime - new Date()) / (1000 * 60 * 60)), // Default 6 jam jika tanggal yang dimasukkan sudah lewat
+            manuallyUpdated: true, // Tandai bahwa akun diupdate secara manual
+          });
+
+          // Auto copy info
+          this.copyInfoWithTime(index);
+
+          // Reset pencarian username
+          this.searchQuery = "";
+          const searchInput = document.getElementById("usernameSearch");
+          if (searchInput) {
+            searchInput.value = "";
+          }
+          // Sembunyikan tombol clear search
+          const clearButton = document.getElementById("clearSearch");
+          if (clearButton) {
+            clearButton.style.display = "none";
+          }
+          // Render ulang dengan reset pencarian
+          this.renderAccounts();
+        }
+
+        resetAccount(index) {
+          this.updateAccount(index, {
+            availableAt: null,
+            manuallyUpdated: false, // Reset penanda manual update
+          });
+        }
+
+        markAccountAsReady(index) {
+          this.updateAccount(index, {
+            isReady: true,
+            manuallyUpdated: true, // Tandai sebagai available 100% karena baru pertama kali
+          });
+          this.showNotification("Akun telah siap digunakan");
+        }
+
+        isAccountAvailable(account) {
+          if (!account.isReady) return false; // Akun yang belum ready tidak bisa digunakan
+          if (!account.availableAt) return true;
+
+          const now = new Date();
+          const availableAt = new Date(account.availableAt);
+          return now >= availableAt;
+        }
+
+        renderAccounts(sort = true) {
+          const container = document.getElementById("accountsContainer");
+          if (!container) {
+            console.error("ERROR: Element accountsContainer tidak ditemukan!");
+            return;
+          }
+          container.innerHTML = "";
+
+          logDebug("Merender akun, jumlah total: ", this.accounts.length);
+
+          // Filter akun yang memiliki username dan password, lalu urutkan
+          let filteredAccounts = [...this.accounts].filter((account) => account.username && account.username.trim() !== "" && account.password && account.password.trim() !== "");
+
+          logDebug("Akun setelah filter username/password: ", filteredAccounts.length);
+
+          // Tambahkan filter berdasarkan email jika ada email yang dipilih
+          if (this.selectedEmail) {
+            filteredAccounts = filteredAccounts.filter((account) => account.email === this.selectedEmail);
+            logDebug("Akun setelah filter email: ", filteredAccounts.length);
+          }
+
+          // Tambahkan filter berdasarkan pencarian username jika ada
+          if (this.searchQuery) {
+            const query = this.searchQuery.toLowerCase();
+            filteredAccounts = filteredAccounts.filter((account) => account.username.toLowerCase().includes(query));
+            logDebug("Akun setelah filter pencarian: ", filteredAccounts.length);
+          }
+
+          // Hitung jumlah akun yang available
+          const availableAccounts = filteredAccounts.filter((account) => this.isAccountAvailable(account)).length;
+
+          // Update informasi ringkasan akun
+          const totalAccountsEl = document.getElementById("totalAccounts");
+          const availableAccountsEl = document.getElementById("availableAccounts");
+
+          if (totalAccountsEl) totalAccountsEl.textContent = filteredAccounts.length;
+          if (availableAccountsEl) availableAccountsEl.textContent = availableAccounts;
+
+          logDebug("Total akun available: ", availableAccounts);
+
+          // Tampilkan/sembunyikan tombol Quick Renting
+          const quickRentBtn = document.getElementById("quickRentBtn");
+          const quickRent12Btn = document.getElementById("quickRent12Btn");
+          const quickRent24Btn = document.getElementById("quickRent24Btn");
+
+          if (quickRentBtn) {
+            quickRentBtn.style.display = availableAccounts > 0 ? "block" : "none";
+          } else {
+            logDebug("ERROR: Tombol quickRentBtn tidak ditemukan!");
+          }
+
+          if (quickRent12Btn) {
+            quickRent12Btn.style.display = availableAccounts > 0 ? "block" : "none";
+          } else {
+            logDebug("ERROR: Tombol quickRent12Btn tidak ditemukan!");
+          }
+
+          if (quickRent24Btn) {
+            quickRent24Btn.style.display = availableAccounts > 0 ? "block" : "none";
+          } else {
+            logDebug("ERROR: Tombol quickRent24Btn tidak ditemukan!");
+          }
+
+          // Implementasikan pengurutan akun jika diminta
+          if (sort) {
+            logDebug("Mengurutkan akun berdasarkan status dan waktu tersisa");
+            filteredAccounts.sort((a, b) => {
+              // Status available
+              const aAvailable = this.isAccountAvailable(a);
+              const bAvailable = this.isAccountAvailable(b);
+
+              // Akun available selalu tampil lebih dahulu
+              if (aAvailable && !bAvailable) return -1;
+              if (!aAvailable && bAvailable) return 1;
+
+              // Jika keduanya available atau keduanya tidak available
+              if (aAvailable && bAvailable) {
+                // Akun ready manual ditampilkan terlebih dahulu
+                if (a.manuallyUpdated && !b.manuallyUpdated) return -1;
+                if (!a.manuallyUpdated && b.manuallyUpdated) return 1;
+
+                // Jika keduanya available, urutkan berdasarkan username
+                return a.username.localeCompare(b.username);
+              } else {
+                // Keduanya tidak available, urutkan berdasarkan waktu tersisa (paling kecil dahulu)
+                const aTime = new Date(a.availableAt).getTime();
+                const bTime = new Date(b.availableAt).getTime();
+                return aTime - bTime; // Urutan naik (waktu tersisa paling kecil dahulu)
+              }
+            });
+            logDebug("Pengurutan selesai");
+          }
+
+          // Render akun cards
+          logDebug("Mulai render akun cards", filteredAccounts.length);
+          filteredAccounts.forEach((account, index) => {
+            const realIndex = this.accounts.indexOf(account);
+            const isAvailable = this.isAccountAvailable(account);
+            const availableAtText = isAvailable ? "Available" : formatDateTime(account.availableAt);
+
+            // Mendapatkan waktu tersisa
+            const remainingTime = !isAvailable ? getRemainingTime(account.availableAt) : null;
+
+            // Text status berbeda untuk akun yang belum ready
+            const statusText = !account.isReady ? "Not Ready" : isAvailable ? (account.manuallyUpdated ? "Available 100%" : "Available") : account.manuallyUpdated ? "Rented 100%" : "Rented";
+
+            // Text status untuk info detail juga berbeda
+            const detailStatusText = !account.isReady ? "Akun belum siap digunakan" : isAvailable ? (account.manuallyUpdated ? "Available 100%" : "Available") : (account.manuallyUpdated ? "Rented 100% until " : "Rented until ") + availableAtText;
+
+            const accountCard = document.createElement("div");
+            accountCard.className = "account-card";
+
+            // Tambahkan class highlight jika ini adalah akun yang baru disewa
+            if (realIndex === this.lastRentedIndex) {
+              accountCard.classList.add("highlight");
+            }
+
+            accountCard.innerHTML = `
                         <div class="account-header">
                             <h2>${account.username ? account.username : account.name}</h2>
-                            <span class="status ${!account.isReady ? 'not-ready' : (isAvailable ? 'available' : 'rented')}">
+                            <span class="status ${!account.isReady ? "not-ready" : isAvailable ? "available" : "rented"}">
                                 ${statusText}
                             </span>
                         </div>
@@ -1744,20 +1748,22 @@
                             </div>
                             <div class="form-group">
                                 <label for="email-${realIndex}">Email:</label>
-                                <input type="text" id="email-${realIndex}" value="${account.email || ''}" 
+                                <input type="text" id="email-${realIndex}" value="${account.email || ""}" 
                                     onchange="accountManager.updateAccount(${realIndex}, {email: this.value})">
                             </div>
                             <div class="form-group">
                                 <label for="note-${realIndex}">Catatan:</label>
                                 <textarea class="note-input" id="note-${realIndex}" 
-                                    onchange="accountManager.updateAccount(${realIndex}, {note: this.value})">${account.note || ''}</textarea>
+                                    onchange="accountManager.updateAccount(${realIndex}, {note: this.value})">${account.note || ""}</textarea>
                             </div>
                             <div class="time-info">
                                 <strong>Status:</strong> ${detailStatusText}
-                                ${remainingTime ? `<div><strong>Remaining:</strong> ${remainingTime}</div>` : ''}
+                                ${remainingTime ? `<div><strong>Remaining:</strong> ${remainingTime}</div>` : ""}
                             </div>
                             <div class="btn-container">
-                                ${!account.isReady ? `
+                                ${
+                                  !account.isReady
+                                    ? `
                                     <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                                         <button class="ready-btn" style="flex: 1;" onclick="accountManager.markAccountAsReady(${realIndex})">
                                             Account is Ready
@@ -1766,7 +1772,8 @@
                                             DELETE ACCOUNT
                                         </button>
                                     </div>
-                                ` : `
+                                `
+                                    : `
                                     <label>Durasi Sewa:</label>
                                     <div class="btn-group duration-buttons">
                                         <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 6)">6 Jam</button>
@@ -1779,485 +1786,506 @@
                                         <button class="reset-btn" onclick="accountManager.resetAccount(${realIndex})">
                                             Reset
                                         </button>
-                                        ${!isAvailable ? `
+                                        ${
+                                          !isAvailable
+                                            ? `
                                         <button class="update-btn" onclick="accountManager.updateRentTime(${realIndex})">
                                             Update Waktu
                                         </button>
-                                        ` : ''}
+                                        `
+                                            : ""
+                                        }
                                     </div>
-                                `}
+                                `
+                                }
                             </div>
                         </div>
                     `;
-                    container.appendChild(accountCard);
-                });
-                logDebug('Selesai render akun cards');
-            }
-
-            copyInfoWithTime(accountIndex, buttonElement = null) {
-                const account = this.accounts[accountIndex];
-                const isAvailable = this.isAccountAvailable(account);
-                
-                // Format teks yang akan disalin
-                let infoText = `Username: ${account.username}\nPassword: ${account.password}`;
-                
-                // Menambahkan informasi waktu sewa jika akun sedang disewa
-                if (!isAvailable && account.availableAt) {
-                    // Hitung waktu berdasarkan durasi asli (tanpa buffer 15 menit)
-                    const now = new Date();
-                    const hours = account.lastRentedHours || 6;
-                    const actualEndTime = new Date(now.getTime() + (hours * 60 * 60 * 1000)); // Tanpa buffer 15 menit
-                    
-                    // Format jam dan menit untuk waktu berakhir
-                    let endHours = actualEndTime.getHours();
-                    let endMinutes = String(actualEndTime.getMinutes()).padStart(2, '0');
-                    
-                    // Antisipasi pemblokiran oleh Shopee untuk angka yang mirip nomor handphone Indonesia (08xx)
-                    // Jika menit berakhir dengan '08', ubah menjadi '09' untuk teks yang disalin
-                    if (endMinutes === '08') {
-                        endMinutes = '09';
-                    }
-                    
-                    // Format waktu yang baru sesuai permintaan dengan menambahkan WIB
-                    infoText += `\nWaktu sewa sampai jam ${endHours}:${endMinutes} WIB (${hours} jam dari sekarang)`;
-                }
-                
-                // Menambahkan informasi tambahan
-                infoText += `\n\n- Wajib login dalam kurun waktu 1 jam`;
-                
-                // Hanya tambahkan pesan untuk mengabari jika durasi sewa adalah 6 jam
-                const hours = account.lastRentedHours || 6;
-                if (hours === 6) {
-                    infoText += `\n- Mohon di-infokan kepada kami jika sudah berhasil login`;
-                }
-                
-                // Salin informasi ke clipboard
-                const textarea = document.createElement('textarea');
-                textarea.value = infoText;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                
-                // Tampilkan notifikasi
-                this.showNotification("Informasi akun telah disalin ke clipboard");
-                
-                // Jika ini adalah akun yang baru disewa, hapus highlight
-                if (accountIndex === this.lastRentedIndex) {
-                    this.lastRentedIndex = -1;
-                    // Render ulang setelah info disalin untuk mengupdate urutan
-                    setTimeout(() => this.renderAccounts(), 1500);
-                }
-            }
-
-            showNotification(message) {
-                const notification = document.getElementById('notification');
-                notification.textContent = message;
-                notification.classList.add('show');
-                
-                // Hilangkan notifikasi setelah 3 detik
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 3000);
-            }
-
-            // Metode untuk mengekspor data akun ke file JSON
-            exportData() {
-                // Membuat objek blob dari data JSON
-                const dataStr = JSON.stringify(this.accounts);
-                const blob = new Blob([dataStr], { type: 'application/json' });
-                
-                // Membuat URL untuk blob
-                const url = URL.createObjectURL(blob);
-                
-                // Membuat elemen anchor untuk download
-                const a = document.createElement('a');
-                a.href = url;
-                
-                // Nama file dengan tanggal dan waktu saat ini
-                const date = new Date();
-                const timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}_${String(date.getHours()).padStart(2, '0')}${String(date.getMinutes()).padStart(2, '0')}`;
-                a.download = `unlock-tool-accounts-${timestamp}.json`;
-                
-                // Klik secara otomatis untuk memulai download
-                document.body.appendChild(a);
-                a.click();
-                
-                // Membersihkan
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                this.showNotification("Data akun berhasil diekspor ke file JSON");
-            }
-            
-            // Metode untuk mengimpor data akun dari file JSON
-            importData(file) {
-                const reader = new FileReader();
-                
-                reader.onload = (event) => {
-                    try {
-                        const importedAccounts = JSON.parse(event.target.result);
-                        
-                        // Validasi data
-                        if (!Array.isArray(importedAccounts)) {
-                            throw new Error("Format data tidak valid");
-                        }
-                        
-                        // Impor data
-                        this.accounts = importedAccounts;
-                        this.saveAccounts();
-                        // Perbarui filter email setelah impor data
-                        this.populateEmailFilter();
-                        this.renderAccounts();
-                        
-                        this.showNotification("Data akun berhasil diimpor");
-                    } catch (error) {
-                        this.showNotification("Gagal mengimpor data: " + error.message);
-                        console.error("Error importing data:", error);
-                    }
-                };
-                
-                reader.readAsText(file);
-            }
-
-            // Metode untuk mengisi dropdown filter email
-            populateEmailFilter() {
-                const emailFilter = document.getElementById('emailFilter');
-                
-                // Hapus semua opsi kecuali opsi default
-                while (emailFilter.options.length > 1) {
-                    emailFilter.remove(1);
-                }
-                
-                // Ambil semua email yang tidak kosong
-                const emails = this.accounts
-                    .filter(account => account.email && account.email.trim() !== '')
-                    .map(account => account.email);
-                
-                // Kelompokkan email berdasarkan domain
-                const emailsByDomain = {};
-                emails.forEach(email => {
-                    const parts = email.split('@');
-                    if (parts.length === 2) {
-                        const domain = parts[1]; // Bagian domain (setelah @)
-                        if (!emailsByDomain[domain]) {
-                            emailsByDomain[domain] = [];
-                        }
-                        if (!emailsByDomain[domain].includes(email)) {
-                            emailsByDomain[domain].push(email);
-                        }
-                    }
-                });
-                
-                // Urutkan domain secara alfabetis
-                const sortedDomains = Object.keys(emailsByDomain).sort();
-                
-                // Untuk setiap domain, urutkan emailnya dan tambahkan ke dropdown
-                sortedDomains.forEach(domain => {
-                    // Urutkan email dalam domain yang sama
-                    const sortedEmails = emailsByDomain[domain].sort();
-                    
-                    sortedEmails.forEach(email => {
-                        const option = document.createElement('option');
-                        option.value = email;
-                        option.textContent = email;
-                        emailFilter.appendChild(option);
-                    });
-                });
-                
-                // Set nilai dropdown ke email yang dipilih saat ini
-                emailFilter.value = this.selectedEmail;
-            }
-            
-            // Metode untuk mengatur filter email
-            setEmailFilter(email) {
-                this.selectedEmail = email;
-                this.renderAccounts();
-                
-                // Perbarui dropdown
-                const emailFilter = document.getElementById('emailFilter');
-                emailFilter.value = email;
-            }
-
-            // Metode untuk mengatur filter pencarian username
-            setSearchQuery(query) {
-                this.searchQuery = query;
-                this.renderAccounts();
-            }
-            
-            // Metode untuk quick renting (otomatis menyewa akun yang tersedia)
-            quickRent(hours = 6) {
-                // Cek apakah tombol sedang dalam masa cooldown
-                const rentBtnId = hours === 6 ? 'quickRentBtn' : (hours === 12 ? 'quickRent12Btn' : 'quickRent24Btn');
-                const rentBtn = document.getElementById(rentBtnId);
-                if (rentBtn.disabled) {
-                    return;
-                }
-                
-                // Filter untuk mendapatkan daftar akun yang tersedia
-                const availableAccounts = this.accounts.filter(account => 
-                    this.isAccountAvailable(account) && 
-                    account.username && account.username.trim() !== '' && 
-                    account.password && account.password.trim() !== ''
-                );
-                
-                if (availableAccounts.length === 0) {
-                    this.showNotification("Tidak ada akun yang tersedia untuk disewa!");
-                    return;
-                }
-                
-                // Prioritaskan akun yang available 100% (yang diupdate manual)
-                const available100Accounts = availableAccounts.filter(account => account.manuallyUpdated);
-                
-                // Pilih akun yang akan disewa
-                let accountToRent;
-                
-                if (available100Accounts.length > 1) {
-                    // Jika ada lebih dari 1 akun available 100%, gunakan salah satu dan sisakan 1
-                    accountToRent = available100Accounts[0]; // Ambil yang pertama
-                    this.showNotification(`Menyewa akun Available 100% untuk ${hours} jam: ${accountToRent.username}`);
-                } else if (available100Accounts.length === 1 && availableAccounts.length > 1) {
-                    // Jika hanya ada 1 akun available 100% dan ada akun lain tersedia, gunakan akun biasa
-                    // Cari akun available biasa (yang bukan available 100%)
-                    accountToRent = availableAccounts.find(account => !account.manuallyUpdated);
-                    this.showNotification(`Menyewa akun available biasa untuk ${hours} jam: ${accountToRent.username} (menyisakan 1 akun Available 100%)`);
-                } else {
-                    // Tidak ada akun available 100% atau hanya ada 1 akun tersedia (yang bukan 100%)
-                    accountToRent = availableAccounts[0];
-                    this.showNotification(`Menyewa akun available untuk ${hours} jam: ${accountToRent.username}`);
-                }
-                
-                // Dapatkan index akun di array utama dan sewa sesuai durasi
-                const accountIndex = this.accounts.indexOf(accountToRent);
-                if (accountIndex !== -1) {
-                    this.rentAccount(accountIndex, hours);
-                    
-                    // Aktifkan proteksi double click
-                    this.enableClickProtection(rentBtnId);
-                }
-            }
-            
-            // Metode untuk mengaktifkan proteksi double click
-            enableClickProtection(buttonId = 'quickRentBtn') {
-                const quickRentBtn = document.getElementById(buttonId);
-                const originalText = quickRentBtn.textContent;
-                const cooldownTime = 3; // 3 detik cooldown
-                
-                // Nonaktifkan tombol
-                quickRentBtn.disabled = true;
-                
-                // Menampilkan efek visual cooldown
-                quickRentBtn.style.backgroundColor = "#adb5bd";
-                quickRentBtn.style.cursor = "not-allowed";
-                
-                // Tampilkan hitungan mundur
-                let countdown = cooldownTime;
-                quickRentBtn.textContent = `Tunggu (${countdown})`;
-                
-                // Update hitungan mundur setiap detik
-                const timer = setInterval(() => {
-                    countdown--;
-                    quickRentBtn.textContent = `Tunggu (${countdown})`;
-                    
-                    if (countdown <= 0) {
-                        // Kembalikan tombol ke keadaan semula
-                        clearInterval(timer);
-                        quickRentBtn.disabled = false;
-                        quickRentBtn.textContent = originalText;
-                        quickRentBtn.style.backgroundColor = "";
-                        quickRentBtn.style.cursor = "";
-                    }
-                }, 1000);
-            }
-
-            // Metode untuk menghapus akun dari daftar
-            deleteAccount(index) {
-                // Konfirmasi penghapusan
-                if (confirm(`Apakah Anda yakin ingin menghapus akun ${this.accounts[index].name}?`)) {
-                    // Hapus akun dari array
-                    this.accounts.splice(index, 1);
-                    this.saveAccounts();
-                    this.populateEmailFilter();
-                    this.renderAccounts();
-                    this.showNotification("Akun berhasil dihapus");
-                }
-            }
+            container.appendChild(accountCard);
+          });
+          logDebug("Selesai render akun cards");
         }
 
-        // Inisialisasi manager akun ketika halaman dimuat
-        let accountManager;
-        let currentAccountIndex = -1;
-        
-        // Fungsi untuk membuka modal input manual
-        function openManualInput(accountIndex) {
-            currentAccountIndex = accountIndex;
-            
-            // Set tanggal dan waktu default ke hari ini
-            const today = new Date();
-            const dateInput = document.getElementById('manualDate');
-            const timeInput = document.getElementById('manualTime');
-            
-            // Format tanggal untuk input date (YYYY-MM-DD)
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            dateInput.value = `${year}-${month}-${day}`;
-            
-            // Format waktu untuk input time (HH:MM)
-            const hours = String(today.getHours()).padStart(2, '0');
-            const minutes = String(today.getMinutes()).padStart(2, '0');
-            timeInput.value = `${hours}:${minutes}`;
-            
-            // Tampilkan modal
-            const modal = document.getElementById('manualModal');
-            modal.style.display = 'block';
-        }
-        
-        // Fungsi untuk menutup modal
-        function closeManualModal() {
-            const modal = document.getElementById('manualModal');
-            modal.style.display = 'none';
-            currentAccountIndex = -1;
-        }
-        
-        // Fungsi untuk mengubah jenis input waktu pada modal
-        function toggleTimeInputType() {
-            const exactInputs = document.getElementById('exactTimeInputs');
-            const durationInputs = document.getElementById('durationInputs');
-            const inputType = document.querySelector('input[name="timeInputType"]:checked').value;
-            
-            if (inputType === 'exact') {
-                exactInputs.style.display = 'block';
-                durationInputs.style.display = 'none';
-            } else {
-                exactInputs.style.display = 'none';
-                durationInputs.style.display = 'block';
+        copyInfoWithTime(accountIndex, buttonElement = null) {
+          const account = this.accounts[accountIndex];
+          const isAvailable = this.isAccountAvailable(account);
+
+          // Format teks yang akan disalin
+          let infoText = `Username: ${account.username}\nPassword: ${account.password}`;
+
+          // Menambahkan informasi waktu sewa jika akun sedang disewa
+          if (!isAvailable && account.availableAt) {
+            // Hitung waktu berdasarkan durasi asli (tanpa buffer 15 menit)
+            const now = new Date();
+            const hours = account.lastRentedHours || 6;
+            const actualEndTime = new Date(now.getTime() + hours * 60 * 60 * 1000); // Tanpa buffer 15 menit
+
+            // Format jam dan menit untuk waktu berakhir
+            let endHours = actualEndTime.getHours();
+            let endMinutes = String(actualEndTime.getMinutes()).padStart(2, "0");
+
+            // Antisipasi pemblokiran oleh Shopee untuk angka yang mirip nomor handphone Indonesia (08xx)
+            // Jika menit berakhir dengan '08', ubah menjadi '09' untuk teks yang disalin
+            if (endMinutes === "08") {
+              endMinutes = "09";
             }
-        }
-        
-        // Fungsi untuk menyimpan input manual
-        function saveManualTime() {
-            if (currentAccountIndex === -1) return;
-            
-            const inputType = document.querySelector('input[name="timeInputType"]:checked').value;
-            let dateTime;
-            
-            if (inputType === 'exact') {
-                const dateInput = document.getElementById('manualDate').value;
-                const timeInput = document.getElementById('manualTime').value;
-                
-                if (!dateInput || !timeInput) {
-                    alert('Mohon isi tanggal dan waktu!');
-                    return;
-                }
-                
-                // Gabungkan tanggal dan waktu
-                dateTime = new Date(`${dateInput}T${timeInput}`);
-            } else {
-                const hours = parseInt(document.getElementById('durationHours').value) || 0;
-                const minutes = parseInt(document.getElementById('durationMinutes').value) || 0;
-                
-                if (hours === 0 && minutes === 0) {
-                    alert('Mohon masukkan durasi yang valid!');
-                    return;
-                }
-                
-                // Hitung waktu berdasarkan durasi
-                const now = new Date();
-                dateTime = new Date(now.getTime() + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000));
-            }
-            
-            // Simpan ke akun
-            accountManager.setManualRentTime(currentAccountIndex, dateTime);
-            
-            // Tutup modal
-            closeManualModal();
+
+            // Format waktu yang baru sesuai permintaan dengan menambahkan WIB
+            infoText += `\nWaktu sewa sampai jam ${endHours}:${endMinutes} WIB (${hours} jam dari sekarang)`;
+          }
+
+          // Menambahkan informasi tambahan
+          infoText += `\n\n- Wajib login dalam kurun waktu 1 jam`;
+
+          // Hanya tambahkan pesan untuk mengabari jika durasi sewa adalah 6 jam
+          const hours = account.lastRentedHours || 6;
+          if (hours === 6) {
+            infoText += `\n- Mohon di-infokan kepada kami jika sudah berhasil login`;
+          }
+
+          // Salin informasi ke clipboard
+          const textarea = document.createElement("textarea");
+          textarea.value = infoText;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textarea);
+
+          // Tampilkan notifikasi
+          this.showNotification("Informasi akun telah disalin ke clipboard");
+
+          // Jika ini adalah akun yang baru disewa, hapus highlight
+          if (accountIndex === this.lastRentedIndex) {
+            this.lastRentedIndex = -1;
+            // Render ulang setelah info disalin untuk mengupdate urutan
+            setTimeout(() => this.renderAccounts(), 1500);
+          }
         }
 
-        // Fungsi untuk memproses input bulk add account
-        function processBulkAccounts() {
-            const bulkInput = document.getElementById('bulkInput').value.trim();
-            if (!bulkInput) {
-                alert('Silakan masukkan data akun!');
-                return;
+        showNotification(message) {
+          const notification = document.getElementById("notification");
+          notification.textContent = message;
+          notification.classList.add("show");
+
+          // Hilangkan notifikasi setelah 3 detik
+          setTimeout(() => {
+            notification.classList.remove("show");
+          }, 3000);
+        }
+
+        // Metode untuk mengekspor data akun ke file JSON
+        exportData() {
+          // Membuat objek blob dari data JSON
+          const dataStr = JSON.stringify(this.accounts);
+          const blob = new Blob([dataStr], { type: "application/json" });
+
+          // Membuat URL untuk blob
+          const url = URL.createObjectURL(blob);
+
+          // Membuat elemen anchor untuk download
+          const a = document.createElement("a");
+          a.href = url;
+
+          // Nama file dengan tanggal dan waktu saat ini
+          const date = new Date();
+          const timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}_${String(date.getHours()).padStart(2, "0")}${String(date.getMinutes()).padStart(2, "0")}`;
+          a.download = `unlock-tool-accounts-${timestamp}.json`;
+
+          // Klik secara otomatis untuk memulai download
+          document.body.appendChild(a);
+          a.click();
+
+          // Membersihkan
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          this.showNotification("Data akun berhasil diekspor ke file JSON");
+        }
+
+        // Metode untuk mengimpor data akun dari file JSON
+        importData(file) {
+          const reader = new FileReader();
+
+          reader.onload = (event) => {
+            try {
+              const importedAccounts = JSON.parse(event.target.result);
+
+              // Validasi data
+              if (!Array.isArray(importedAccounts)) {
+                throw new Error("Format data tidak valid");
+              }
+
+              // Impor data
+              this.accounts = importedAccounts;
+              this.saveAccounts();
+              // Perbarui filter email setelah impor data
+              this.populateEmailFilter();
+              this.renderAccounts();
+
+              this.showNotification("Data akun berhasil diimpor");
+            } catch (error) {
+              this.showNotification("Gagal mengimpor data: " + error.message);
+              console.error("Error importing data:", error);
             }
-            
-            // Split berdasarkan baris kosong ganda untuk mendapatkan grup akun
-            const accountGroups = bulkInput.split(/\n\s*\n+/);
-            let addedCount = 0;
-            
-            accountGroups.forEach(group => {
-                const lines = group.trim().split('\n');
-                
-                // Setiap grup harus memiliki minimal 2 baris (username dan email)
-                if (lines.length >= 2) {
-                    const username = lines[0].trim();
-                    const email = lines[1].trim();
-                    
-                    if (username && email) {
-                        // Tambahkan akun baru
-                        const newId = accountManager.accounts.length > 0 
-                            ? Math.max(...accountManager.accounts.map(account => account.id)) + 1 
-                            : 1;
-                        
-                        const newAccount = {
-                            id: newId,
-                            name: `Akun ${newId}`,
-                            username: username,
-                            password: 'wawawa666',
-                            email: email,
-                            availableAt: null,
-                            note: '',
-                            isReady: false // Akun dari bulk add belum ready
-                        };
-                        
-                        // Tambahkan akun baru ke awal array
-                        accountManager.accounts.unshift(newAccount);
-                        addedCount++;
-                    }
-                }
+          };
+
+          reader.readAsText(file);
+        }
+
+        // Metode untuk mengisi dropdown filter email
+        populateEmailFilter() {
+          const emailFilter = document.getElementById("emailFilter");
+
+          // Hapus semua opsi kecuali opsi default
+          while (emailFilter.options.length > 1) {
+            emailFilter.remove(1);
+          }
+
+          // Ambil semua email yang tidak kosong
+          const emails = this.accounts.filter((account) => account.email && account.email.trim() !== "").map((account) => account.email);
+
+          // Kelompokkan email berdasarkan domain
+          const emailsByDomain = {};
+          emails.forEach((email) => {
+            const parts = email.split("@");
+            if (parts.length === 2) {
+              const domain = parts[1]; // Bagian domain (setelah @)
+              if (!emailsByDomain[domain]) {
+                emailsByDomain[domain] = [];
+              }
+              if (!emailsByDomain[domain].includes(email)) {
+                emailsByDomain[domain].push(email);
+              }
+            }
+          });
+
+          // Urutkan domain secara alfabetis
+          const sortedDomains = Object.keys(emailsByDomain).sort();
+
+          // Untuk setiap domain, urutkan emailnya dan tambahkan ke dropdown
+          sortedDomains.forEach((domain) => {
+            // Urutkan email dalam domain yang sama
+            const sortedEmails = emailsByDomain[domain].sort();
+
+            sortedEmails.forEach((email) => {
+              const option = document.createElement("option");
+              option.value = email;
+              option.textContent = email;
+              emailFilter.appendChild(option);
             });
-            
-            if (addedCount > 0) {
-                // Simpan perubahan dan render ulang
-                accountManager.saveAccounts();
-                accountManager.populateEmailFilter();
-                accountManager.renderAccounts();
-                
-                // Tampilkan notifikasi
-                accountManager.showNotification(`${addedCount} akun baru berhasil ditambahkan`);
-                
-                // Tutup modal
-                closeBulkModal();
-                
-                // Reset form
-                document.getElementById('bulkInput').value = '';
-            } else {
-                alert('Tidak ada akun valid yang ditemukan. Pastikan format data benar!');
+          });
+
+          // Set nilai dropdown ke email yang dipilih saat ini
+          emailFilter.value = this.selectedEmail;
+        }
+
+        // Metode untuk mengatur filter email
+        setEmailFilter(email) {
+          this.selectedEmail = email;
+          this.renderAccounts();
+
+          // Perbarui dropdown
+          const emailFilter = document.getElementById("emailFilter");
+          emailFilter.value = email;
+        }
+
+        // Metode untuk mengatur filter pencarian username
+        setSearchQuery(query) {
+          this.searchQuery = query;
+          this.renderAccounts();
+        }
+
+        // Metode untuk quick renting (otomatis menyewa akun yang tersedia)
+        quickRent(hours = 6) {
+          // Cek apakah tombol sedang dalam masa cooldown
+          const rentBtnId = hours === 6 ? "quickRentBtn" : hours === 12 ? "quickRent12Btn" : "quickRent24Btn";
+          const rentBtn = document.getElementById(rentBtnId);
+          if (rentBtn.disabled) {
+            return;
+          }
+
+          // Filter untuk mendapatkan daftar akun yang tersedia
+          const availableAccounts = this.accounts.filter((account) => this.isAccountAvailable(account) && account.username && account.username.trim() !== "" && account.password && account.password.trim() !== "");
+
+          if (availableAccounts.length === 0) {
+            this.showNotification("Tidak ada akun yang tersedia untuk disewa!");
+            return;
+          }
+
+          // Prioritaskan akun yang available 100% (yang diupdate manual)
+          const available100Accounts = availableAccounts.filter((account) => account.manuallyUpdated);
+
+          // Pilih akun yang akan disewa
+          let accountToRent;
+
+          if (available100Accounts.length > 1) {
+            // Jika ada lebih dari 1 akun available 100%, gunakan salah satu dan sisakan 1
+            accountToRent = available100Accounts[0]; // Ambil yang pertama
+            this.showNotification(`Menyewa akun Available 100% untuk ${hours} jam: ${accountToRent.username}`);
+          } else if (available100Accounts.length === 1 && availableAccounts.length > 1) {
+            // Jika hanya ada 1 akun available 100% dan ada akun lain tersedia, gunakan akun biasa
+            // Cari akun available biasa (yang bukan available 100%)
+            accountToRent = availableAccounts.find((account) => !account.manuallyUpdated);
+            this.showNotification(`Menyewa akun available biasa untuk ${hours} jam: ${accountToRent.username} (menyisakan 1 akun Available 100%)`);
+          } else {
+            // Tidak ada akun available 100% atau hanya ada 1 akun tersedia (yang bukan 100%)
+            accountToRent = availableAccounts[0];
+            this.showNotification(`Menyewa akun available untuk ${hours} jam: ${accountToRent.username}`);
+          }
+
+          // Dapatkan index akun di array utama dan sewa sesuai durasi
+          const accountIndex = this.accounts.indexOf(accountToRent);
+          if (accountIndex !== -1) {
+            this.rentAccount(accountIndex, hours);
+
+            // Aktifkan proteksi double click
+            this.enableClickProtection(rentBtnId);
+          }
+        }
+
+        // Metode untuk mengaktifkan proteksi double click
+        enableClickProtection(buttonId = "quickRentBtn") {
+          const quickRentBtn = document.getElementById(buttonId);
+          const originalText = quickRentBtn.textContent;
+          const cooldownTime = 3; // 3 detik cooldown
+
+          // Nonaktifkan tombol
+          quickRentBtn.disabled = true;
+
+          // Menampilkan efek visual cooldown
+          quickRentBtn.style.backgroundColor = "#adb5bd";
+          quickRentBtn.style.cursor = "not-allowed";
+
+          // Tampilkan hitungan mundur
+          let countdown = cooldownTime;
+          quickRentBtn.textContent = `Tunggu (${countdown})`;
+
+          // Update hitungan mundur setiap detik
+          const timer = setInterval(() => {
+            countdown--;
+            quickRentBtn.textContent = `Tunggu (${countdown})`;
+
+            if (countdown <= 0) {
+              // Kembalikan tombol ke keadaan semula
+              clearInterval(timer);
+              quickRentBtn.disabled = false;
+              quickRentBtn.textContent = originalText;
+              quickRentBtn.style.backgroundColor = "";
+              quickRentBtn.style.cursor = "";
             }
-        }
-        
-        // Fungsi untuk menampilkan modal bulk add
-        function openBulkModal() {
-            const modal = document.getElementById('bulkAddModal');
-            modal.style.display = 'block';
-        }
-        
-        // Fungsi untuk menutup modal bulk add
-        function closeBulkModal() {
-            const modal = document.getElementById('bulkAddModal');
-            modal.style.display = 'none';
+          }, 1000);
         }
 
-        // Event listener untuk tombol Quick Renting 12 Jam
-        document.getElementById('quickRent12Btn').addEventListener('click', () => {
-            accountManager.quickRent(12); // Panggil dengan parameter 12 jam
+        // Metode untuk menghapus akun dari daftar
+        deleteAccount(index) {
+          // Konfirmasi penghapusan
+          if (confirm(`Apakah Anda yakin ingin menghapus akun ${this.accounts[index].name}?`)) {
+            // Hapus akun dari array
+            this.accounts.splice(index, 1);
+            this.saveAccounts();
+            this.populateEmailFilter();
+            this.renderAccounts();
+            this.showNotification("Akun berhasil dihapus");
+          }
+        }
+
+        syncWithDatabase() {
+          fetch("https://shopee.seninselasatechno.com/accounts-sync/sync-from-frontend", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ accounts: this.accounts }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                this.showNotification(`✅ Sinkronisasi berhasil (${data.result.inserted} ditambahkan, ${data.result.updated} diperbarui)`);
+                console.log("Sync result:", data.result);
+              } else {
+                this.showNotification("❌ Gagal menyinkronkan akun ke database");
+                console.error("Sync error:", data.message);
+              }
+            })
+            .catch((error) => {
+              this.showNotification("❌ Gagal terhubung ke server");
+              console.error("Sync request failed:", error);
+            });
+        }
+      }
+
+      // Inisialisasi manager akun ketika halaman dimuat
+      let accountManager;
+      let currentAccountIndex = -1;
+
+      // Fungsi untuk membuka modal input manual
+      function openManualInput(accountIndex) {
+        currentAccountIndex = accountIndex;
+
+        // Set tanggal dan waktu default ke hari ini
+        const today = new Date();
+        const dateInput = document.getElementById("manualDate");
+        const timeInput = document.getElementById("manualTime");
+
+        // Format tanggal untuk input date (YYYY-MM-DD)
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+        dateInput.value = `${year}-${month}-${day}`;
+
+        // Format waktu untuk input time (HH:MM)
+        const hours = String(today.getHours()).padStart(2, "0");
+        const minutes = String(today.getMinutes()).padStart(2, "0");
+        timeInput.value = `${hours}:${minutes}`;
+
+        // Tampilkan modal
+        const modal = document.getElementById("manualModal");
+        modal.style.display = "block";
+      }
+
+      // Fungsi untuk menutup modal
+      function closeManualModal() {
+        const modal = document.getElementById("manualModal");
+        modal.style.display = "none";
+        currentAccountIndex = -1;
+      }
+
+      // Fungsi untuk mengubah jenis input waktu pada modal
+      function toggleTimeInputType() {
+        const exactInputs = document.getElementById("exactTimeInputs");
+        const durationInputs = document.getElementById("durationInputs");
+        const inputType = document.querySelector('input[name="timeInputType"]:checked').value;
+
+        if (inputType === "exact") {
+          exactInputs.style.display = "block";
+          durationInputs.style.display = "none";
+        } else {
+          exactInputs.style.display = "none";
+          durationInputs.style.display = "block";
+        }
+      }
+
+      // Fungsi untuk menyimpan input manual
+      function saveManualTime() {
+        if (currentAccountIndex === -1) return;
+
+        const inputType = document.querySelector('input[name="timeInputType"]:checked').value;
+        let dateTime;
+
+        if (inputType === "exact") {
+          const dateInput = document.getElementById("manualDate").value;
+          const timeInput = document.getElementById("manualTime").value;
+
+          if (!dateInput || !timeInput) {
+            alert("Mohon isi tanggal dan waktu!");
+            return;
+          }
+
+          // Gabungkan tanggal dan waktu
+          dateTime = new Date(`${dateInput}T${timeInput}`);
+        } else {
+          const hours = parseInt(document.getElementById("durationHours").value) || 0;
+          const minutes = parseInt(document.getElementById("durationMinutes").value) || 0;
+
+          if (hours === 0 && minutes === 0) {
+            alert("Mohon masukkan durasi yang valid!");
+            return;
+          }
+
+          // Hitung waktu berdasarkan durasi
+          const now = new Date();
+          dateTime = new Date(now.getTime() + hours * 60 * 60 * 1000 + minutes * 60 * 1000);
+        }
+
+        // Simpan ke akun
+        accountManager.setManualRentTime(currentAccountIndex, dateTime);
+
+        // Tutup modal
+        closeManualModal();
+      }
+
+      // Fungsi untuk memproses input bulk add account
+      function processBulkAccounts() {
+        const bulkInput = document.getElementById("bulkInput").value.trim();
+        if (!bulkInput) {
+          alert("Silakan masukkan data akun!");
+          return;
+        }
+
+        // Split berdasarkan baris kosong ganda untuk mendapatkan grup akun
+        const accountGroups = bulkInput.split(/\n\s*\n+/);
+        let addedCount = 0;
+
+        accountGroups.forEach((group) => {
+          const lines = group.trim().split("\n");
+
+          // Setiap grup harus memiliki minimal 2 baris (username dan email)
+          if (lines.length >= 2) {
+            const username = lines[0].trim();
+            const email = lines[1].trim();
+
+            if (username && email) {
+              // Tambahkan akun baru
+              const newId = accountManager.accounts.length > 0 ? Math.max(...accountManager.accounts.map((account) => account.id)) + 1 : 1;
+
+              const newAccount = {
+                id: newId,
+                name: `Akun ${newId}`,
+                username: username,
+                password: "wawawa666",
+                email: email,
+                availableAt: null,
+                note: "",
+                isReady: false, // Akun dari bulk add belum ready
+              };
+
+              // Tambahkan akun baru ke awal array
+              accountManager.accounts.unshift(newAccount);
+              addedCount++;
+            }
+          }
         });
 
-        // Event listener untuk tombol Quick Renting 24 Jam
-        document.getElementById('quickRent24Btn').addEventListener('click', () => {
-            accountManager.quickRent(24); // Panggil dengan parameter 24 jam
-        });
+        if (addedCount > 0) {
+          // Simpan perubahan dan render ulang
+          accountManager.saveAccounts();
+          accountManager.populateEmailFilter();
+          accountManager.renderAccounts();
+
+          // Tampilkan notifikasi
+          accountManager.showNotification(`${addedCount} akun baru berhasil ditambahkan`);
+
+          // Tutup modal
+          closeBulkModal();
+
+          // Reset form
+          document.getElementById("bulkInput").value = "";
+        } else {
+          alert("Tidak ada akun valid yang ditemukan. Pastikan format data benar!");
+        }
+      }
+
+      // Fungsi untuk menampilkan modal bulk add
+      function openBulkModal() {
+        const modal = document.getElementById("bulkAddModal");
+        modal.style.display = "block";
+      }
+
+      // Fungsi untuk menutup modal bulk add
+      function closeBulkModal() {
+        const modal = document.getElementById("bulkAddModal");
+        modal.style.display = "none";
+      }
+
+      // Event listener untuk tombol Quick Renting 12 Jam
+      document.getElementById("quickRent12Btn").addEventListener("click", () => {
+        accountManager.quickRent(12); // Panggil dengan parameter 12 jam
+      });
+
+      // Event listener untuk tombol Quick Renting 24 Jam
+      document.getElementById("quickRent24Btn").addEventListener("click", () => {
+        accountManager.quickRent(24); // Panggil dengan parameter 24 jam
+      });
     </script>
-</body>
-</html> 
+  </body>
+</html>
