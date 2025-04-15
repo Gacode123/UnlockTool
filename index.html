@@ -862,7 +862,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.1.3</div>
+      <div class="version-badge">v1.0.3</div>
     </a>
 
     <!-- Loading Screen -->
@@ -907,10 +907,6 @@
               <option value="">Semua Email</option>
               <!-- Opsi email akan diisi secara dinamis -->
             </select>
-
-            <!-- Kolom input dan tombol ubah password massal -->
-            <input type="text" id="massPasswordInput" placeholder="Password baru massal" style="max-width: 180px; margin-left: 10px;" />
-            <button type="button" id="massPasswordBtn" class="action-btn" style="background-color: #e03131; color: white; padding: 8px 12px; font-size: 0.9rem; margin-left: 5px;">Ubah Password Massal</button>
 
             <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
             <div class="search-container">
@@ -1294,17 +1290,6 @@
             if (event.target == bulkAddModal) {
               closeBulkModal();
             }
-          });
-
-          // Event listener untuk tombol mass password
-          document.getElementById("massPasswordBtn")?.addEventListener("click", () => {
-            const newPass = document.getElementById("massPasswordInput").value;
-            if (!newPass) {
-              accountManager.showNotification("Mohon masukkan password baru terlebih dahulu!");
-              return;
-            }
-            accountManager.massUpdatePassword(newPass);
-            document.getElementById("massPasswordInput").value = "";
           });
         } catch (err) {
           console.error("Error saat inisialisasi app: ", err);
@@ -1812,11 +1797,8 @@
                                     <label>Aksi:</label>
                                     <div class="btn-group control-buttons">
                                         <button class="manual-btn" onclick="openManualInput(${realIndex})">Manual</button>
-                                        <button class="reset-btn" style="flex: 1; width: 50%" onclick="accountManager.resetAccount(${realIndex})">
+                                        <button class="reset-btn" onclick="accountManager.resetAccount(${realIndex})">
                                             Reset
-                                        </button>
-                                        <button class="reset-btn" style="flex: 1; width: 50%" onclick="accountManager.resetTo100(${realIndex})">
-                                            Reset to 100%
                                         </button>
                                         ${
                                           !isAvailable
@@ -2143,50 +2125,6 @@
               this.showNotification("❌ Gagal terhubung ke server");
               console.error("Sync request failed:", error);
             });
-        }
-
-        resetTo100(index) {
-          this.updateAccount(index, {
-            availableAt: null,
-            manuallyUpdated: true, // Set ke available 100%
-          });
-
-          // Reset pencarian username
-          this.searchQuery = "";
-          const searchInput = document.getElementById("usernameSearch");
-          if (searchInput) {
-            searchInput.value = "";
-          }
-          // Sembunyikan tombol clear search
-          const clearButton = document.getElementById("clearSearch");
-          if (clearButton) {
-            clearButton.style.display = "none";
-          }
-          // Render ulang dengan reset pencarian
-          this.renderAccounts();
-        }
-
-        // Tambahkan fungsi untuk ubah password massal
-        massUpdatePassword(newPassword) {
-          // Ambil filter email aktif
-          const filterEmail = this.selectedEmail;
-          // Filter akun yang available/available 100% dan sesuai filter email
-          let changed = 0;
-          this.accounts.forEach((account, idx) => {
-            const isAvailable = this.isAccountAvailable(account);
-            const emailMatch = !filterEmail || account.email === filterEmail;
-            if (isAvailable && emailMatch) {
-              this.accounts[idx].password = newPassword;
-              changed++;
-            }
-          });
-          if (changed > 0) {
-            this.saveAccounts();
-            this.renderAccounts();
-            this.showNotification(`Password ${changed} akun berhasil diubah massal!`);
-          } else {
-            this.showNotification("Tidak ada akun yang memenuhi syarat untuk diubah password-nya.");
-          }
         }
       }
 
