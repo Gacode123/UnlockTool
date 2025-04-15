@@ -862,7 +862,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.0.2</div>
+      <div class="version-badge">v1.0.3</div>
     </a>
 
     <!-- Loading Screen -->
@@ -1592,6 +1592,20 @@
             availableAt: null,
             manuallyUpdated: false, // Reset penanda manual update
           });
+
+          // Reset pencarian username
+          this.searchQuery = "";
+          const searchInput = document.getElementById("usernameSearch");
+          if (searchInput) {
+            searchInput.value = "";
+          }
+          // Sembunyikan tombol clear search
+          const clearButton = document.getElementById("clearSearch");
+          if (clearButton) {
+            clearButton.style.display = "none";
+          }
+          // Render ulang dengan reset pencarian
+          this.renderAccounts();
         }
 
         markAccountAsReady(index) {
