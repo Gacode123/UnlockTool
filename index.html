@@ -862,7 +862,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.0.3</div>
+      <div class="version-badge">v1.1.3</div>
     </a>
 
     <!-- Loading Screen -->
@@ -901,6 +901,12 @@
           <button id="logoutBtn" class="logout-btn">Logout</button>
         </div>
         <div class="account-summary">
+          <!-- Kolom ubah password massal -->
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+            <input type="password" id="massPasswordInput" placeholder="Password baru massal" style="padding: 8px 12px; border-radius: 6px; border: 1px solid #ddd; font-family: 'Poppins', sans-serif; font-size: 0.95rem; min-width: 180px;" />
+            <button id="massPasswordBtn" class="action-btn export-btn" style="padding: 8px 18px;">Ubah Password Massal</button>
+            <span id="massPasswordInfo" style="font-size: 0.9rem; color: #888;"></span>
+          </div>
           <div class="filter-container">
             <label for="emailFilter"><strong>Filter Email:</strong></label>
             <select id="emailFilter" class="email-filter">
@@ -2126,6 +2132,27 @@
               console.error("Sync request failed:", error);
             });
         }
+
+        // Mass update password hanya untuk akun available/available 100% sesuai filter email
+        massUpdatePassword(newPassword) {
+          let count = 0;
+          // Filter sesuai email jika ada
+          const filteredAccounts = this.accounts.filter((account) => {
+            // Filter email
+            if (this.selectedEmail && account.email !== this.selectedEmail) return false;
+            // Hanya yang available
+            return this.isAccountAvailable(account);
+          });
+          filteredAccounts.forEach((account) => {
+            account.password = newPassword;
+            count++;
+          });
+          this.saveAccounts();
+          this.renderAccounts();
+          this.showNotification(`${count} akun berhasil diubah password massal!`);
+          // Kosongkan input
+          document.getElementById("massPasswordInput").value = "";
+        }
       }
 
       // Inisialisasi manager akun ketika halaman dimuat
@@ -2299,6 +2326,17 @@
       // Event listener untuk tombol Quick Renting 24 Jam
       document.getElementById("quickRent24Btn").addEventListener("click", () => {
         accountManager.quickRent(24); // Panggil dengan parameter 24 jam
+      });
+
+      // Tambahkan event listener untuk tombol ubah password massal
+      document.getElementById("massPasswordBtn")?.addEventListener("click", function() {
+        const newPassword = document.getElementById("massPasswordInput").value;
+        if (!newPassword) {
+          accountManager.showNotification("Mohon masukkan password baru!");
+          return;
+        }
+        // Panggil fungsi massal di AccountManager
+        accountManager.massUpdatePassword(newPassword);
       });
     </script>
   </body>
