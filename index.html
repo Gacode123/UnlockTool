@@ -874,7 +874,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.7.0</div>
+      <div class="version-badge">v1.6.1</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -1330,10 +1330,10 @@
           // Event listener untuk tombol Reset All Available
           document.getElementById("resetAllBtn").addEventListener("click", resetAllAvailable);
 
-          // Auto-reset semua akun available setiap 5 menit
+          // Auto-reset semua akun available setiap 15 menit
           setInterval(() => {
             accountManager.resetAllAvailable();
-          }, 5 * 60 * 1000);
+          }, 15 * 60 * 1000);
 
           // Set label waktu reset awal
           document.getElementById('lastResetTime').textContent = '--:--';
@@ -2462,8 +2462,8 @@
       let nextResetTime; // akan menampung Date object
 
       function scheduleNextReset() {
-        // reset terjadi setiap 5 menit dari sekarang
-        nextResetTime = new Date(Date.now() + 5 * 60 * 1000);
+        // reset terjadi setiap 15 menit dari sekarang
+        nextResetTime = new Date(Date.now() + 15 * 60 * 1000);
       }
 
       function updateCountdown() {
