@@ -874,10 +874,14 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.6.0</div>
+      <div class="version-badge">v1.6.1</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
+    </div>
+    <div id="nextResetLabel"
+         style="position: fixed; top: 65px; left: 10px; font-size: 0.75rem; color: #555;">
+      Next Reset in: <span id="nextResetCountdown">05:00</span>
     </div>
 
     <!-- Loading Screen -->
@@ -1333,6 +1337,9 @@
 
           // Set label waktu reset awal
           document.getElementById('lastResetTime').textContent = '--:--';
+          // Inisialisasi countdown reset berikutnya
+          scheduleNextReset();
+          setInterval(updateCountdown, 1000);
         } catch (err) {
           console.error("Error saat inisialisasi app: ", err);
         }
@@ -2167,6 +2174,7 @@
           // Update label waktu reset
           const now = new Date();
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
+          scheduleNextReset();
         }
       }
 
@@ -2413,6 +2421,27 @@
         const h = String(date.getHours()).padStart(2, '0');
         const m = String(date.getMinutes()).padStart(2, '0');
         return `${h}:${m}`;
+      }
+
+      // ====== RESET COUNTDOWN ======
+      let nextResetTime; // akan menampung Date object
+
+      function scheduleNextReset() {
+        // reset terjadi setiap 5 menit dari sekarang
+        nextResetTime = new Date(Date.now() + 5 * 60 * 1000);
+      }
+
+      function updateCountdown() {
+        const diff = nextResetTime - Date.now();
+        if (diff <= 0) {
+          document.getElementById('nextResetCountdown').textContent = '00:00';
+          // setelah mencapai 0, jadwalkan ulang
+          scheduleNextReset();
+        } else {
+          const m = String(Math.floor(diff / 60000)).padStart(2, '0');
+          const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+          document.getElementById('nextResetCountdown').textContent = `${m}:${s}`;
+        }
       }
     </script>
   </body>
