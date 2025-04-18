@@ -882,6 +882,9 @@
     <div id="nextResetLabel"
          style="position: fixed; top: 65px; left: 10px; font-size: 0.75rem; color: #555;">
       Next Reset in: <span id="nextResetCountdown">05:00</span>
+      <div style="margin-top: 5px;">
+        <button id="toggleAutoResetBtn" class="toggle-btn active" style="padding: 2px 8px; font-size: 0.7rem; border-radius: 4px; cursor: pointer; border: 1px solid #ccc; background-color: #5cb85c; color: white;">Auto Reset ON</button>
+      </div>
     </div>
 
     <!-- Loading Screen -->
@@ -1330,10 +1333,11 @@
           // Event listener untuk tombol Reset All Available
           document.getElementById("resetAllBtn").addEventListener("click", resetAllAvailable);
 
-          // Auto-reset semua akun available setiap 5 menit
-          setInterval(() => {
-            accountManager.resetAllAvailable();
-          }, 5 * 60 * 1000);
+          // Event listener untuk tombol toggle auto reset
+          document.getElementById("toggleAutoResetBtn").addEventListener("click", toggleAutoReset);
+
+          // Auto-reset semua akun available setiap 15 menit
+          startAutoResetInterval();
 
           // Set label waktu reset awal
           document.getElementById('lastResetTime').textContent = '--:--';
@@ -2165,15 +2169,47 @@
 
         // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
+          // Kumpulkan semua indeks akun yang available
+          const availableIndices = [];
           this.accounts.forEach((account, idx) => {
             if (this.isAccountAvailable(account)) {
-              resetWithDelay(idx);
+              availableIndices.push(idx);
             }
           });
-          this.showNotification("Auto-reset semua available dijalankan");
+          
+          if (availableIndices.length === 0) {
+            this.showNotification("Tidak ada akun available untuk direset");
+            return;
+          }
+          
+          // Bagi menjadi dua grup (50% pertama dan 50% kedua)
+          const halfLength = Math.ceil(availableIndices.length / 2);
+          const firstHalf = availableIndices.slice(0, halfLength);
+          const secondHalf = availableIndices.slice(halfLength);
+          
+          // Reset grup pertama segera
+          firstHalf.forEach(idx => {
+            resetWithDelay(idx);
+          });
+          
           // Update label waktu reset
           const now = new Date();
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
+          
+          // Tampilkan notifikasi
+          this.showNotification(`Auto-reset 50% pertama (${firstHalf.length} akun), menunggu untuk 50% sisanya...`);
+          
+          // Tunggu 15 detik (lebih dari buffer 10 detik) lalu reset grup kedua
+          if (secondHalf.length > 0) {
+            setTimeout(() => {
+              secondHalf.forEach(idx => {
+                resetWithDelay(idx);
+              });
+              this.showNotification(`Auto-reset 50% kedua (${secondHalf.length} akun) selesai`);
+            }, 15000);
+          }
+          
+          // Jadwalkan reset selanjutnya
           scheduleNextReset();
         }
       }
@@ -2476,18 +2512,62 @@
 
       // ====== RESET COUNTDOWN ======
       let nextResetTime; // akan menampung Date object
+      let autoResetEnabled = true; // status auto reset default ON
+      let autoResetInterval; // variable untuk menyimpan interval
+
+      function toggleAutoReset() {
+        autoResetEnabled = !autoResetEnabled;
+        const toggleBtn = document.getElementById('toggleAutoResetBtn');
+        
+        if (autoResetEnabled) {
+          // Aktifkan auto reset
+          toggleBtn.textContent = "Auto Reset ON";
+          toggleBtn.style.backgroundColor = "#5cb85c";
+          toggleBtn.classList.add("active");
+          // Jadwalkan reset berikutnya
+          scheduleNextReset();
+          // Mulai interval baru
+          startAutoResetInterval();
+        } else {
+          // Nonaktifkan auto reset
+          toggleBtn.textContent = "Auto Reset OFF";
+          toggleBtn.style.backgroundColor = "#d9534f";
+          toggleBtn.classList.remove("active");
+          // Hapus interval yang berjalan
+          if (autoResetInterval) {
+            clearInterval(autoResetInterval);
+          }
+        }
+      }
+
+      function startAutoResetInterval() {
+        // Hapus interval yang berjalan jika ada
+        if (autoResetInterval) {
+          clearInterval(autoResetInterval);
+        }
+        
+        // Buat interval baru
+        autoResetInterval = setInterval(() => {
+          // Hanya jalankan reset jika enabled
+          if (autoResetEnabled) {
+            accountManager.resetAllAvailable();
+          }
+        }, 15 * 60 * 1000);
+      }
 
       function scheduleNextReset() {
-        // reset terjadi setiap 5 menit dari sekarang
-        nextResetTime = new Date(Date.now() + 5 * 60 * 1000);
+        // reset terjadi setiap 15 menit dari sekarang
+        nextResetTime = new Date(Date.now() + 15 * 60 * 1000);
       }
 
       function updateCountdown() {
         const diff = nextResetTime - Date.now();
         if (diff <= 0) {
           document.getElementById('nextResetCountdown').textContent = '00:00';
-          // setelah mencapai 0, jadwalkan ulang
-          scheduleNextReset();
+          // setelah mencapai 0, jadwalkan ulang jika auto reset aktif
+          if (autoResetEnabled) {
+            scheduleNextReset();
+          }
         } else {
           const m = String(Math.floor(diff / 60000)).padStart(2, '0');
           const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
