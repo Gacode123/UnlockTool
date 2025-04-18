@@ -2174,7 +2174,6 @@
           // Update label waktu reset
           const now = new Date();
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
-          scheduleNextReset();
         }
       }
 
@@ -2381,6 +2380,9 @@
             resetWithDelay(idx);
           }
         });
+        // Update label waktu reset jika ada
+        const now = new Date();
+        document.getElementById('lastResetTime').textContent = formatHHMM(now);
       }
 
       // Modal Bulk Change Password
