@@ -874,7 +874,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.6.3</div>
+      <div class="version-badge">v1.6.1</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -1328,12 +1328,12 @@
           });
 
           // Event listener untuk tombol Reset All Available
-          document.getElementById("resetAllBtn").addEventListener("click", () => accountManager.resetAllAvailable());
+          document.getElementById("resetAllBtn").addEventListener("click", resetAllAvailable);
 
-          // Auto-reset semua akun available setiap 15 menit
+          // Auto-reset semua akun available setiap 5 menit
           setInterval(() => {
             accountManager.resetAllAvailable();
-          }, 15 * 60 * 1000);
+          }, 5 * 60 * 1000);
 
           // Set label waktu reset awal
           document.getElementById('lastResetTime').textContent = '--:--';
@@ -1818,7 +1818,7 @@
                                         <button class="ready-btn" style="flex: 1;" onclick="accountManager.markAccountAsReady(${realIndex})">
                                             Account is Ready
                                         </button>
-                                        <button class="reset-btn" style="flex: 1;" onclick="resetImmediate(${realIndex})">
+                                        <button class="reset-btn" style="flex: 1;" onclick="resetWithDelay(${realIndex})">
                                             Reset
                                         </button>
                                     </div>
@@ -1833,7 +1833,7 @@
                                     <label>Aksi:</label>
                                     <div class="btn-group control-buttons">
                                         <button class="manual-btn" onclick="openManualInput(${realIndex})">Manual</button>
-                                        <button class="reset-btn" onclick="resetImmediate(${realIndex})">
+                                        <button class="reset-btn" onclick="resetWithDelay(${realIndex})">
                                             Reset
                                         </button>
                                         ${
@@ -2165,40 +2165,12 @@
 
         // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
-          // Kumpulkan indeks akun yang Available
-          const availableIndexes = this.accounts
-            .map((acc, idx) => this.isAccountAvailable(acc) ? idx : null)
-            .filter(idx => idx !== null);
-          
-          if (availableIndexes.length === 0) {
-            this.showNotification("Tidak ada akun Available untuk direset");
-            return;
-          }
-          
-          // Bagi menjadi 2 grup (50% pertama dan 50% kedua)
-          const halfLength = Math.ceil(availableIndexes.length / 2);
-          const firstGroup = availableIndexes.slice(0, halfLength);
-          const secondGroup = availableIndexes.slice(halfLength);
-          
-          // Reset grup pertama (50%) secara bersamaan
-          firstGroup.forEach(idx => {
-            resetWithDelay(idx);
+          this.accounts.forEach((account, idx) => {
+            if (this.isAccountAvailable(account)) {
+              resetWithDelay(idx);
+            }
           });
-          
-          // Notifikasi untuk grup pertama
-          this.showNotification(`Reset batch pertama: ${firstGroup.length} akun`);
-          
-          // Tunggu 20 detik (10 detik proses resetWithDelay + 10 detik buffer)
-          // Kemudian reset grup kedua
-          if (secondGroup.length > 0) {
-            setTimeout(() => {
-              secondGroup.forEach(idx => {
-                resetWithDelay(idx);
-              });
-              this.showNotification(`Reset batch kedua: ${secondGroup.length} akun`);
-            }, 20000);
-          }
-          
+          this.showNotification("Auto-reset semua available dijalankan");
           // Update label waktu reset
           const now = new Date();
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
@@ -2401,19 +2373,14 @@
         }, 10000);
       }
 
-      // Function resetImmediate untuk reset akun tanpa delay
-      function resetImmediate(index) {
-        // bersihkan kolom cari
-        accountManager.searchQuery = "";
-        document.getElementById("usernameSearch")?.value = "";
-        document.getElementById("clearSearch")?.style.display = "none";
-
-        const wasManual = accountManager.accounts[index].manuallyUpdated; // simpan flag 100%
-
-        accountManager.resetAccount(index);          // reset langsung
-        if (wasManual) {                             // kembalikan flag bila perlu
-          accountManager.updateAccount(index, { manuallyUpdated: true });
-        }
+      function resetAllAvailable() {
+        // iterasi seluruh akun
+        accountManager.accounts.forEach((account, idx) => {
+          if (accountManager.isAccountAvailable(account)) {
+            // panggil fungsi delay yang sudah ada
+            resetWithDelay(idx);
+          }
+        });
       }
 
       // Modal Bulk Change Password
@@ -2460,8 +2427,8 @@
       let nextResetTime; // akan menampung Date object
 
       function scheduleNextReset() {
-        // reset terjadi setiap 15 menit dari sekarang
-        nextResetTime = new Date(Date.now() + 15 * 60 * 1000);
+        // reset terjadi setiap 5 menit dari sekarang
+        nextResetTime = new Date(Date.now() + 5 * 60 * 1000);
       }
 
       function updateCountdown() {
