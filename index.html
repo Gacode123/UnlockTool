@@ -874,7 +874,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.7.0</div>
+      <div class="version-badge">v1.6.1</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -2423,35 +2423,26 @@
         return `${h}:${m}`;
       }
 
-      // ====== RESET COUNTDOWN SINKRON DENGAN FIREBASE ======
-      let nextResetTime = 0; // Akan diisi dari Firebase
+      // ====== RESET COUNTDOWN ======
+      let nextResetTime; // akan menampung Date object
+
+      function scheduleNextReset() {
+        // reset terjadi setiap 5 menit dari sekarang
+        nextResetTime = new Date(Date.now() + 5 * 60 * 1000);
+      }
 
       function updateCountdown() {
         const diff = nextResetTime - Date.now();
         if (diff <= 0) {
           document.getElementById('nextResetCountdown').textContent = '00:00';
+          // setelah mencapai 0, jadwalkan ulang
+          scheduleNextReset();
         } else {
           const m = String(Math.floor(diff / 60000)).padStart(2, '0');
           const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
           document.getElementById('nextResetCountdown').textContent = `${m}:${s}`;
         }
       }
-
-      // Listener realtime untuk nextResetTime
-      firebase.database().ref('nextResetTime').on('value', (snapshot) => {
-        const val = snapshot.val();
-        if (val) {
-          nextResetTime = val;
-          updateCountdown(); // update tampilan countdown setiap kali berubah
-        }
-        if (!val || val < Date.now()) {
-          // Set nextResetTime ke 5 menit dari sekarang jika belum ada atau sudah lewat
-          const newTime = Date.now() + 5 * 60 * 1000;
-          firebase.database().ref('nextResetTime').set(newTime);
-        }
-      });
-
-      setInterval(updateCountdown, 1000);
     </script>
   </body>
 </html>
