@@ -874,7 +874,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.4.0</div>
+      <div class="version-badge">v1.5.0</div>
     </a>
 
     <!-- Loading Screen -->
@@ -1322,6 +1322,11 @@
 
           // Event listener untuk tombol Reset All Available
           document.getElementById("resetAllBtn").addEventListener("click", resetAllAvailable);
+
+          // Auto-reset semua akun available setiap 5 menit
+          setInterval(() => {
+            accountManager.resetAllAvailable();
+          }, 5 * 60 * 1000);
         } catch (err) {
           console.error("Error saat inisialisasi app: ", err);
         }
@@ -2143,6 +2148,16 @@
               this.showNotification("❌ Gagal terhubung ke server");
               console.error("Sync request failed:", error);
             });
+        }
+
+        // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
+        resetAllAvailable() {
+          this.accounts.forEach((account, idx) => {
+            if (this.isAccountAvailable(account)) {
+              resetWithDelay(idx);
+            }
+          });
+          this.showNotification("Auto-reset semua available dijalankan");
         }
       }
 
