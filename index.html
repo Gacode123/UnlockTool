@@ -60,68 +60,6 @@
         position: relative; /* Tambahkan ini untuk positioning versi */
       }
 
-      /* Toggle Switch untuk Auto Reset */
-      .switch {
-        position: relative;
-        display: inline-block;
-        width: 30px;
-        height: 16px;
-      }
-
-      .switch input { 
-        opacity: 0;
-        width: 0;
-        height: 0;
-      }
-
-      .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: .4s;
-        border-radius: 8px;
-      }
-
-      .slider:before {
-        position: absolute;
-        content: "";
-        height: 12px;
-        width: 12px;
-        left: 2px;
-        bottom: 2px;
-        background-color: white;
-        transition: .4s;
-        border-radius: 50%;
-      }
-
-      input:checked + .slider {
-        background-color: var(--success-color);
-      }
-
-      input:checked + .slider:before {
-        transform: translateX(14px);
-      }
-
-      .toggle-container {
-        position: fixed;
-        top: 85px;
-        left: 10px;
-        font-size: 0.75rem;
-        color: #555;
-        display: flex;
-        align-items: center;
-        z-index: 1000;
-      }
-
-      .toggle-label {
-        margin-right: 5px;
-        cursor: pointer;
-      }
-
       /* Tambahkan style untuk versi */
       .version-badge {
         position: fixed;
@@ -936,7 +874,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.6.1</div>
+      <div class="version-badge">v1.7.0</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -944,14 +882,6 @@
     <div id="nextResetLabel"
          style="position: fixed; top: 65px; left: 10px; font-size: 0.75rem; color: #555;">
       Next Reset in: <span id="nextResetCountdown">05:00</span>
-    </div>
-    <!-- Toggle untuk auto-reset -->
-    <div class="toggle-container">
-      <label class="toggle-label" for="autoResetToggle">Auto Reset:</label>
-      <label class="switch">
-        <input type="checkbox" id="autoResetToggle" checked>
-        <span class="slider"></span>
-      </label>
     </div>
 
     <!-- Loading Screen -->
@@ -1243,9 +1173,6 @@
             accountManager.renderAccounts(true);
           }, 30000);
 
-          // Setup auto reset
-          setupAutoReset();
-
           // Logout handler - pindah ke sini agar tersedia hanya setelah login
           document.getElementById("logoutBtn").addEventListener("click", () => {
             // Tampilkan loading screen saat logout
@@ -1402,6 +1329,11 @@
 
           // Event listener untuk tombol Reset All Available
           document.getElementById("resetAllBtn").addEventListener("click", resetAllAvailable);
+
+          // Auto-reset semua akun available setiap 5 menit
+          setInterval(() => {
+            accountManager.resetAllAvailable();
+          }, 5 * 60 * 1000);
 
           // Set label waktu reset awal
           document.getElementById('lastResetTime').textContent = '--:--';
@@ -2233,47 +2165,15 @@
 
         // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
-          // Kumpulkan semua indeks akun yang available
-          const availableIndices = [];
           this.accounts.forEach((account, idx) => {
             if (this.isAccountAvailable(account)) {
-              availableIndices.push(idx);
+              resetWithDelay(idx);
             }
           });
-          
-          if (availableIndices.length === 0) {
-            this.showNotification("Tidak ada akun available untuk direset");
-            return;
-          }
-          
-          // Bagi menjadi dua grup (50% pertama dan 50% kedua)
-          const halfLength = Math.ceil(availableIndices.length / 2);
-          const firstHalf = availableIndices.slice(0, halfLength);
-          const secondHalf = availableIndices.slice(halfLength);
-          
-          // Reset grup pertama segera
-          firstHalf.forEach(idx => {
-            resetWithDelay(idx);
-          });
-          
+          this.showNotification("Auto-reset semua available dijalankan");
           // Update label waktu reset
           const now = new Date();
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
-          
-          // Tampilkan notifikasi
-          this.showNotification(`Auto-reset 50% pertama (${firstHalf.length} akun), menunggu untuk 50% sisanya...`);
-          
-          // Tunggu 15 detik (lebih dari buffer 10 detik) lalu reset grup kedua
-          if (secondHalf.length > 0) {
-            setTimeout(() => {
-              secondHalf.forEach(idx => {
-                resetWithDelay(idx);
-              });
-              this.showNotification(`Auto-reset 50% kedua (${secondHalf.length} akun) selesai`);
-            }, 15000);
-          }
-          
-          // Jadwalkan reset selanjutnya
           scheduleNextReset();
         }
       }
@@ -2281,63 +2181,6 @@
       // Inisialisasi manager akun ketika halaman dimuat
       let accountManager;
       let currentAccountIndex = -1;
-      let autoResetInterval; // variabel untuk menyimpan interval auto-reset
-
-      // Fungsi untuk mengatur auto-reset
-      function setupAutoReset() {
-        const autoResetToggle = document.getElementById('autoResetToggle');
-        
-        // Ambil status auto-reset dari localStorage
-        const autoResetEnabled = localStorage.getItem('autoResetEnabled') !== 'false';
-        autoResetToggle.checked = autoResetEnabled;
-        
-        // Perbarui tampilan countdown berdasarkan status
-        document.getElementById('nextResetLabel').style.opacity = autoResetEnabled ? '1' : '0.5';
-        
-        // Bersihkan interval yang ada (jika ada)
-        if (autoResetInterval) {
-          clearInterval(autoResetInterval);
-        }
-        
-        // Buat interval baru jika auto-reset diaktifkan
-        if (autoResetEnabled) {
-          autoResetInterval = setInterval(() => {
-            if (accountManager) {
-              accountManager.resetAllAvailable();
-            }
-          }, 15 * 60 * 1000);
-        }
-        
-        // Event listener untuk toggle
-        autoResetToggle.addEventListener('change', function() {
-          const isEnabled = this.checked;
-          localStorage.setItem('autoResetEnabled', isEnabled);
-          
-          // Perbarui tampilan countdown
-          document.getElementById('nextResetLabel').style.opacity = isEnabled ? '1' : '0.5';
-          
-          // Perbarui interval
-          if (autoResetInterval) {
-            clearInterval(autoResetInterval);
-          }
-          
-          if (isEnabled) {
-            // Reset countdown timer untuk reset berikutnya
-            scheduleNextReset();
-            
-            // Buat interval baru
-            autoResetInterval = setInterval(() => {
-              if (accountManager) {
-                accountManager.resetAllAvailable();
-              }
-            }, 15 * 60 * 1000);
-            
-            accountManager.showNotification("Auto Reset diaktifkan");
-          } else {
-            accountManager.showNotification("Auto Reset dinonaktifkan");
-          }
-        });
-      }
 
       // Fungsi untuk membuka modal input manual
       function openManualInput(accountIndex) {
@@ -2619,8 +2462,8 @@
       let nextResetTime; // akan menampung Date object
 
       function scheduleNextReset() {
-        // reset terjadi setiap 15 menit dari sekarang
-        nextResetTime = new Date(Date.now() + 15 * 60 * 1000);
+        // reset terjadi setiap 5 menit dari sekarang
+        nextResetTime = new Date(Date.now() + 5 * 60 * 1000);
       }
 
       function updateCountdown() {
