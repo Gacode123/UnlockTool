@@ -1782,8 +1782,8 @@
                                         <button class="ready-btn" style="flex: 1;" onclick="accountManager.markAccountAsReady(${realIndex})">
                                             Account is Ready
                                         </button>
-                                        <button class="reset-btn" style="flex: 1;" onclick="accountManager.deleteAccount(${realIndex})">
-                                            DELETE ACCOUNT
+                                        <button class="reset-btn" style="flex: 1;" onclick="resetWithDelay(${realIndex})">
+                                            Reset
                                         </button>
                                     </div>
                                 `
@@ -1797,7 +1797,7 @@
                                     <label>Aksi:</label>
                                     <div class="btn-group control-buttons">
                                         <button class="manual-btn" onclick="openManualInput(${realIndex})">Manual</button>
-                                        <button class="reset-btn" onclick="accountManager.resetAccount(${realIndex})">
+                                        <button class="reset-btn" onclick="resetWithDelay(${realIndex})">
                                             Reset
                                         </button>
                                         ${
@@ -2300,6 +2300,15 @@
       document.getElementById("quickRent24Btn").addEventListener("click", () => {
         accountManager.quickRent(24); // Panggil dengan parameter 24 jam
       });
+
+      function resetWithDelay(index) {
+        // sewa dulu 6 jam
+        accountManager.rentAccount(index, 6);
+        // setelah 10 detik, panggil reset
+        setTimeout(() => {
+          accountManager.resetAccount(index);
+        }, 10000);
+      }
     </script>
   </body>
 </html>
