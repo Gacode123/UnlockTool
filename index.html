@@ -874,7 +874,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.6.2</div>
+      <div class="version-badge">v1.6.3</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -2170,15 +2170,15 @@
             .map((acc, idx) => this.isAccountAvailable(acc) ? idx : null)
             .filter(idx => idx !== null);
         
-          // Reset satu per satu tiap 0,5 detik
+          // Reset satu per satu tiap 1 detik
           availableIndexes.forEach((idx, i) => {
             setTimeout(() => {
               resetWithDelay(idx);
-            }, i * 500);
+            }, i * 1000);
           });
         
           // Notifikasi dan update label waktu reset
-          this.showNotification("Auto-reset semua Available dijalankan per 0,5 detik");
+          this.showNotification("Auto-reset semua Available dijalankan per 1 detik");
           const now = new Date();
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
           scheduleNextReset();
