@@ -60,6 +60,68 @@
         position: relative; /* Tambahkan ini untuk positioning versi */
       }
 
+      /* Toggle Switch untuk Auto Reset */
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 30px;
+        height: 16px;
+      }
+
+      .switch input { 
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 8px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 12px;
+        width: 12px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: var(--success-color);
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(14px);
+      }
+
+      .toggle-container {
+        position: fixed;
+        top: 85px;
+        left: 10px;
+        font-size: 0.75rem;
+        color: #555;
+        display: flex;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .toggle-label {
+        margin-right: 5px;
+        cursor: pointer;
+      }
+
       /* Tambahkan style untuk versi */
       .version-badge {
         position: fixed;
@@ -883,6 +945,14 @@
          style="position: fixed; top: 65px; left: 10px; font-size: 0.75rem; color: #555;">
       Next Reset in: <span id="nextResetCountdown">05:00</span>
     </div>
+    <!-- Toggle untuk auto-reset -->
+    <div class="toggle-container">
+      <label class="toggle-label" for="autoResetToggle">Auto Reset:</label>
+      <label class="switch">
+        <input type="checkbox" id="autoResetToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
 
     <!-- Loading Screen -->
     <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: white; display: flex; justify-content: center; align-items: center; z-index: 9999">
@@ -1173,6 +1243,9 @@
             accountManager.renderAccounts(true);
           }, 30000);
 
+          // Setup auto reset
+          setupAutoReset();
+
           // Logout handler - pindah ke sini agar tersedia hanya setelah login
           document.getElementById("logoutBtn").addEventListener("click", () => {
             // Tampilkan loading screen saat logout
@@ -1329,11 +1402,6 @@
 
           // Event listener untuk tombol Reset All Available
           document.getElementById("resetAllBtn").addEventListener("click", resetAllAvailable);
-
-          // Auto-reset semua akun available setiap 15 menit
-          setInterval(() => {
-            accountManager.resetAllAvailable();
-          }, 15 * 60 * 1000);
 
           // Set label waktu reset awal
           document.getElementById('lastResetTime').textContent = '--:--';
@@ -2213,6 +2281,63 @@
       // Inisialisasi manager akun ketika halaman dimuat
       let accountManager;
       let currentAccountIndex = -1;
+      let autoResetInterval; // variabel untuk menyimpan interval auto-reset
+
+      // Fungsi untuk mengatur auto-reset
+      function setupAutoReset() {
+        const autoResetToggle = document.getElementById('autoResetToggle');
+        
+        // Ambil status auto-reset dari localStorage
+        const autoResetEnabled = localStorage.getItem('autoResetEnabled') !== 'false';
+        autoResetToggle.checked = autoResetEnabled;
+        
+        // Perbarui tampilan countdown berdasarkan status
+        document.getElementById('nextResetLabel').style.opacity = autoResetEnabled ? '1' : '0.5';
+        
+        // Bersihkan interval yang ada (jika ada)
+        if (autoResetInterval) {
+          clearInterval(autoResetInterval);
+        }
+        
+        // Buat interval baru jika auto-reset diaktifkan
+        if (autoResetEnabled) {
+          autoResetInterval = setInterval(() => {
+            if (accountManager) {
+              accountManager.resetAllAvailable();
+            }
+          }, 15 * 60 * 1000);
+        }
+        
+        // Event listener untuk toggle
+        autoResetToggle.addEventListener('change', function() {
+          const isEnabled = this.checked;
+          localStorage.setItem('autoResetEnabled', isEnabled);
+          
+          // Perbarui tampilan countdown
+          document.getElementById('nextResetLabel').style.opacity = isEnabled ? '1' : '0.5';
+          
+          // Perbarui interval
+          if (autoResetInterval) {
+            clearInterval(autoResetInterval);
+          }
+          
+          if (isEnabled) {
+            // Reset countdown timer untuk reset berikutnya
+            scheduleNextReset();
+            
+            // Buat interval baru
+            autoResetInterval = setInterval(() => {
+              if (accountManager) {
+                accountManager.resetAllAvailable();
+              }
+            }, 15 * 60 * 1000);
+            
+            accountManager.showNotification("Auto Reset diaktifkan");
+          } else {
+            accountManager.showNotification("Auto Reset dinonaktifkan");
+          }
+        });
+      }
 
       // Fungsi untuk membuka modal input manual
       function openManualInput(accountIndex) {
