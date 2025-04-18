@@ -2165,15 +2165,47 @@
 
         // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
+          // Kumpulkan semua indeks akun yang available
+          const availableIndices = [];
           this.accounts.forEach((account, idx) => {
             if (this.isAccountAvailable(account)) {
-              resetWithDelay(idx);
+              availableIndices.push(idx);
             }
           });
-          this.showNotification("Auto-reset semua available dijalankan");
+          
+          if (availableIndices.length === 0) {
+            this.showNotification("Tidak ada akun available untuk direset");
+            return;
+          }
+          
+          // Bagi menjadi dua grup (50% pertama dan 50% kedua)
+          const halfLength = Math.ceil(availableIndices.length / 2);
+          const firstHalf = availableIndices.slice(0, halfLength);
+          const secondHalf = availableIndices.slice(halfLength);
+          
+          // Reset grup pertama segera
+          firstHalf.forEach(idx => {
+            resetWithDelay(idx);
+          });
+          
           // Update label waktu reset
           const now = new Date();
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
+          
+          // Tampilkan notifikasi
+          this.showNotification(`Auto-reset 50% pertama (${firstHalf.length} akun), menunggu untuk 50% sisanya...`);
+          
+          // Tunggu 15 detik (lebih dari buffer 10 detik) lalu reset grup kedua
+          if (secondHalf.length > 0) {
+            setTimeout(() => {
+              secondHalf.forEach(idx => {
+                resetWithDelay(idx);
+              });
+              this.showNotification(`Auto-reset 50% kedua (${secondHalf.length} akun) selesai`);
+            }, 15000);
+          }
+          
+          // Jadwalkan reset selanjutnya
           scheduleNextReset();
         }
       }
