@@ -2361,14 +2361,30 @@
 
         // simpan status manuallyUpdated
         const wasManual = accountManager.accounts[index].manuallyUpdated;
+        
+        // Tandai akun dengan resetPending dan catat availableAt yang akan diset
+        accountManager.accounts[index].resetPending = true;
+        
         // sewa dulu 6 jam
         accountManager.rentAccount(index, 6);
+        
+        // Simpan availableAt saat ini untuk verifikasi
+        const tempAvailableAt = accountManager.accounts[index].availableAt;
+        
         // setelah 10 detik, panggil reset tanpa clear search lagi
         setTimeout(() => {
-          accountManager.resetAccount(index);
-          // kembalikan manuallyUpdated jika semula true
-          if (wasManual) {
-            accountManager.updateAccount(index, { manuallyUpdated: true });
+          // Verifikasi bahwa tidak ada perubahan sejak waktu reset dimulai
+          // dan resetPending masih true
+          if (accountManager.accounts[index].resetPending === true && 
+              accountManager.accounts[index].availableAt === tempAvailableAt) {
+            // Reset flag
+            accountManager.accounts[index].resetPending = false;
+            // Reset akun
+            accountManager.resetAccount(index);
+            // kembalikan manuallyUpdated jika semula true
+            if (wasManual) {
+              accountManager.updateAccount(index, { manuallyUpdated: true });
+            }
           }
         }, 10000);
       }
