@@ -874,7 +874,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.6.3</div>
+      <div class="version-badge">v1.6.1</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -1328,7 +1328,7 @@
           });
 
           // Event listener untuk tombol Reset All Available
-          document.getElementById("resetAllBtn").addEventListener("click", () => accountManager.resetAllAvailable());
+          document.getElementById("resetAllBtn").addEventListener("click", resetAllAvailable);
 
           // Auto-reset semua akun available setiap 5 menit
           setInterval(() => {
@@ -2170,15 +2170,15 @@
             .map((acc, idx) => this.isAccountAvailable(acc) ? idx : null)
             .filter(idx => idx !== null);
         
-          // Reset satu per satu tiap 1 detik
+          // Reset satu per satu tiap 5 detik
           availableIndexes.forEach((idx, i) => {
             setTimeout(() => {
               resetWithDelay(idx);
-            }, i * 1000);
+            }, i * 5000);
           });
         
           // Notifikasi dan update label waktu reset
-          this.showNotification("Auto-reset semua Available dijalankan per 1 detik");
+          this.showNotification("Auto-reset semua Available dijalankan per 5 detik");
           const now = new Date();
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
           scheduleNextReset();
@@ -2378,6 +2378,27 @@
             accountManager.updateAccount(index, { manuallyUpdated: true });
           }
         }, 10000);
+      }
+      
+      // Fungsi global untuk reset semua akun available
+      function resetAllAvailable() {
+        // Kumpulkan indeks akun yang Available
+        const availableIndexes = accountManager.accounts
+          .map((acc, idx) => accountManager.isAccountAvailable(acc) ? idx : null)
+          .filter(idx => idx !== null);
+      
+        // Reset satu per satu tiap 5 detik
+        availableIndexes.forEach((idx, i) => {
+          setTimeout(() => {
+            resetWithDelay(idx);
+          }, i * 5000);
+        });
+      
+        // Notifikasi dan update label waktu reset
+        accountManager.showNotification("Auto-reset semua Available dijalankan per 5 detik");
+        const now = new Date();
+        document.getElementById('lastResetTime').textContent = formatHHMM(now);
+        scheduleNextReset();
       }
 
       // Modal Bulk Change Password
