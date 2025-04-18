@@ -1639,11 +1639,11 @@
           this.lastRentedIndex = index;
 
           // Render ulang dengan sorting yang benar
-          // setTimeout(() => {
-          //   this.renderAccounts(true);
-          //   // Reset lastRentedIndex setelah render
-          //   this.lastRentedIndex = -1;
-          // }, 100);
+          setTimeout(() => {
+            this.renderAccounts(true);
+            // Reset lastRentedIndex setelah render
+            this.lastRentedIndex = -1;
+          }, 100);
         }
 
         updateRentTime(index) {
@@ -2233,95 +2233,48 @@
 
         // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
-          console.log("--- Starting resetAllAvailable ---");
-          // 1. Ambil snapshot state akun saat ini untuk konsistensi
-          const currentAccountsState = JSON.parse(JSON.stringify(this.accounts)); 
-          
-          // 2. Identifikasi akun available berdasarkan snapshot
+          // Kumpulkan semua indeks akun yang available
           const availableIndices = [];
-          currentAccountsState.forEach((account, idx) => {
-            // Gunakan isAccountAvailable pada data snapshot jika memungkinkan,
-            // atau pastikan isAccountAvailable tidak bergantung pada state global yang bisa berubah
-            // Untuk aman, kita cek properti langsung dari snapshot:
-            let isAvail = false;
-            if (account.isReady) {
-               if (!account.availableAt) {
-                   isAvail = true;
-               } else {
-                   const now = new Date();
-                   const availableAt = new Date(account.availableAt);
-                   isAvail = now >= availableAt;
-               }
-            }
-            // Log pengecekan status (opsional, bisa dihapus setelah debug)
-            // console.log(`Checking snapshot idx ${idx}, username: ${account.username}, isReady: ${account.isReady}, availableAt: ${account.availableAt}, isAvailableResult: ${isAvail}`); 
-            if (isAvail) {
-              // Simpan indeks ASLI dari this.accounts, bukan indeks snapshot
-              // Cari indeks asli berdasarkan ID atau username jika perlu, atau asumsikan urutan sama
-              // Asumsi urutan sama (lebih sederhana):
-              availableIndices.push(idx); 
+          this.accounts.forEach((account, idx) => {
+            if (this.isAccountAvailable(account)) {
+              availableIndices.push(idx);
             }
           });
           
-          console.log(`Total available accounts found from snapshot: ${availableIndices.length}. Indices: [${availableIndices.join(', ')}]`);
-
           if (availableIndices.length === 0) {
             this.showNotification("Tidak ada akun available untuk direset");
-            console.log("--- Exiting resetAllAvailable (no accounts) ---");
             return;
           }
-
-          // 3. Hitung pembagian 50/50
-          const halfLength = Math.floor(availableIndices.length / 2);
-          console.log(`Calculated halfLength: ${halfLength}`);
-
+          
+          // Bagi menjadi dua grup (50% pertama dan 50% kedua)
+          const halfLength = Math.ceil(availableIndices.length / 2);
           const firstHalf = availableIndices.slice(0, halfLength);
           const secondHalf = availableIndices.slice(halfLength);
-
-          console.log(`First half (indices to process now): [${firstHalf.join(', ')}]. Count: ${firstHalf.length}`);
-          console.log(`Second half (indices to process later): [${secondHalf.join(', ')}]. Count: ${secondHalf.length}`);
-
-          // 4. Proses Grup Pertama
-          this.showNotification(`Resetting first half (${firstHalf.length} accounts)...`); 
-          console.log(">>> Processing First Half <<<");
-          firstHalf.forEach((idx, loopIndex) => {
-            console.log(`  [First Half Loop ${loopIndex+1}/${firstHalf.length}] Processing original index: ${idx}`);
-            // Panggil resetWithDelay menggunakan indeks asli
-            resetWithDelay(idx); 
-            console.log(`  [First Half Loop ${loopIndex+1}/${firstHalf.length}] Called resetWithDelay for index: ${idx}`);
+          
+          // Reset grup pertama segera
+          firstHalf.forEach(idx => {
+            resetWithDelay(idx);
           });
-          console.log(">>> Finished Processing First Half Loop <<<");
-
-          // 5. Update Waktu Reset & Render Sekali
+          
+          // Update label waktu reset
           const now = new Date();
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
-          console.log("Rendering accounts ONCE after first half processing loop.");
-          // Panggil render SETELAH semua loop pertama selesai
-          this.renderAccounts(true); 
-
-          // 6. Jadwalkan & Proses Grup Kedua (jika ada)
+          
+          // Tampilkan notifikasi
+          this.showNotification(`Auto-reset 50% pertama (${firstHalf.length} akun), menunggu untuk 50% sisanya...`);
+          
+          // Tunggu 15 detik (lebih dari buffer 10 detik) lalu reset grup kedua
           if (secondHalf.length > 0) {
-            console.log(`Scheduling reset for second half (${secondHalf.length} accounts) in 15 seconds...`);
             setTimeout(() => {
-              console.log(">>> Processing Second Half (after 15s delay) <<<");
-              this.showNotification(`Resetting second half (${secondHalf.length} accounts)...`);
-              secondHalf.forEach((idx, loopIndex) => {
-                 console.log(`  [Second Half Loop ${loopIndex+1}/${secondHalf.length}] Processing original index: ${idx}`);
-                 resetWithDelay(idx);
-                 console.log(`  [Second Half Loop ${loopIndex+1}/${secondHalf.length}] Called resetWithDelay for index: ${idx}`);
+              secondHalf.forEach(idx => {
+                resetWithDelay(idx);
               });
-              console.log(">>> Finished Processing Second Half Loop <<<");
-              // Render lagi SETELAH semua loop kedua selesai
-              console.log("Rendering accounts ONCE after second half processing loop.");
-              this.renderAccounts(true); 
-            }, 15000); // Delay 15 detik
-          } else {
-               console.log("No accounts in the second half to process.");
+              this.showNotification(`Auto-reset 50% kedua (${secondHalf.length} akun) selesai`);
+            }, 15000);
           }
           
-          // 7. Jadwalkan reset otomatis berikutnya
-          scheduleNextReset(); 
-          console.log("--- Finished resetAllAvailable function call ---");
+          // Jadwalkan reset selanjutnya
+          scheduleNextReset();
         }
       }
 
@@ -2556,13 +2509,6 @@
       });
 
       function resetWithDelay(index) {
-        // Pastikan akun masih tersedia sebelum melakukan reset
-        const account = accountManager.accounts[index];
-        if (!accountManager.isAccountAvailable(account)) {
-          console.log(`Skip reset: akun ${account.username} tidak available (mungkin sedang rented)`);
-          return;
-        }
-        
         // --- Clear search segera ---
         accountManager.searchQuery = "";
         const searchInput = document.getElementById("usernameSearch");
@@ -2572,25 +2518,14 @@
 
         // simpan status manuallyUpdated
         const wasManual = accountManager.accounts[index].manuallyUpdated;
-        
         // sewa dulu 6 jam
         accountManager.rentAccount(index, 6);
-        
-        // Simpan nilai availableAt yang baru saja disetel
-        const tempAvailableAt = accountManager.accounts[index].availableAt;
-        
         // setelah 10 detik, panggil reset tanpa clear search lagi
         setTimeout(() => {
-          const acc = accountManager.accounts[index];
-          
-          // Hanya reset kalau waktu masih sama persis (belum disentuh siapa-pun)
-          if (acc.availableAt === tempAvailableAt) {
-            accountManager.resetAccount(index);           // set availableAt = null
-            if (wasManual) {                              // pulihkan flag manual
-              accountManager.updateAccount(index, { manuallyUpdated: true });
-            }
-          } else {
-            console.log(`Skip reset: akun ${acc.username} sudah dipakai orang lain`);
+          accountManager.resetAccount(index);
+          // kembalikan manuallyUpdated jika semula true
+          if (wasManual) {
+            accountManager.updateAccount(index, { manuallyUpdated: true });
           }
         }, 10000);
       }
@@ -2609,22 +2544,10 @@
           return;
         }
         
-        // Tambahkan log untuk debug
-        console.log("DEBUG: Total akun available:", availableIndices.length);
-        
         // Bagi menjadi dua grup (50% pertama dan 50% kedua)
-        // Gunakan Math.floor untuk memastikan grup pertama tidak lebih besar
-        const halfLength = Math.floor(availableIndices.length / 2);
-        
-        // Debugging perhitungan pembagian
-        console.log("DEBUG: halfLength (Math.floor):", halfLength);
-        
+        const halfLength = Math.ceil(availableIndices.length / 2);
         const firstHalf = availableIndices.slice(0, halfLength);
         const secondHalf = availableIndices.slice(halfLength);
-        
-        // Log hasil pembagian
-        console.log("DEBUG: Grup 1 (reset segera):", firstHalf.length, "akun");
-        console.log("DEBUG: Grup 2 (reset delay):", secondHalf.length, "akun");
         
         // Reset grup pertama segera
         firstHalf.forEach(idx => {
@@ -2641,28 +2564,10 @@
         // Tunggu 15 detik (lebih dari buffer 10 detik) lalu reset grup kedua
         if (secondHalf.length > 0) {
           setTimeout(() => {
-            // Periksa ulang status available untuk grup kedua sebelum reset
-            const stillAvailable = [];
             secondHalf.forEach(idx => {
-              // Periksa apakah akun masih available dan belum direset dari grup pertama
-              const account = accountManager.accounts[idx];
-              if (accountManager.isAccountAvailable(account)) {
-                stillAvailable.push(idx);
-              }
-            });
-            
-            // Reset hanya akun yang masih available
-            stillAvailable.forEach(idx => {
               resetWithDelay(idx);
             });
-            
-            // Log informasi akun yang tidak jadi direset
-            const skippedCount = secondHalf.length - stillAvailable.length;
-            if (skippedCount > 0) {
-              console.log(`DEBUG: ${skippedCount} akun dilewati karena sudah tidak available`);
-            }
-            
-            accountManager.showNotification(`Reset 50% kedua (${stillAvailable.length} akun) selesai`);
+            accountManager.showNotification(`Reset 50% kedua (${secondHalf.length} akun) selesai`);
           }, 15000);
         }
         
