@@ -874,7 +874,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.0</div>
+      <div class="version-badge">v1.6.1</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -1170,9 +1170,7 @@
           // Set interval untuk memperbarui tampilan, tapi interval lebih panjang (30 detik)
           // untuk mengurangi beban pada Firebase
           setInterval(() => {
-            if (!accountManager.isResetInProgress) {
-              accountManager.renderAccounts(true);
-            }
+            accountManager.renderAccounts(true);
           }, 30000);
 
           // Logout handler - pindah ke sini agar tersedia hanya setelah login
@@ -1254,17 +1252,14 @@
           });
 
           // Event listeners untuk modal input manual
-          document.querySelectorAll(".close").forEach(el => {
-            el.addEventListener("click", () => {
-              closeManualModal();
-              closeBulkModal();
-              closeBulkChangePwdModal();
-            });
-          });
+          document.querySelector(".close")?.addEventListener("click", closeManualModal);
           document.getElementById("saveManualBtn")?.addEventListener("click", saveManualTime);
 
           // Event listener untuk proses data bulk add
           document.getElementById("processBulkBtn")?.addEventListener("click", processBulkAccounts);
+
+          // Event listener untuk menutup modal bulk add
+          document.getElementById("closeBulkModal")?.addEventListener("click", closeBulkModal);
 
           // Event listener untuk filter email
           document.getElementById("emailFilter")?.addEventListener("change", (event) => {
@@ -1299,6 +1294,7 @@
 
           // Event listener untuk tombol scroll to top
           const scrollToTopBtn = document.getElementById("scrollToTop");
+
           if (scrollToTopBtn) {
             window.addEventListener("scroll", () => {
               if (window.pageYOffset > 300) {
@@ -1428,8 +1424,6 @@
           this.lastRentedIndex = -1; // Menambahkan properti untuk melacak akun yang baru disewa
           this.selectedEmail = ""; // Menyimpan email yang dipilih untuk filter
           this.searchQuery = ""; // Menyimpan kata kunci pencarian username
-          this.isResetInProgress = false; // Flag untuk mencegah reset berulang
-          this.lastManualReset = null; // Timestamp reset manual terakhir
 
           // Tambahkan listener Firebase untuk real-time updates
           firebase
@@ -1646,7 +1640,6 @@
           this.updateAccount(index, {
             availableAt: null,
             manuallyUpdated: false, // Reset penanda manual update
-            lastRentedHours: null // Reset durasi sewa terakhir
           });
           this.renderAccounts();
         }
@@ -2172,19 +2165,6 @@
 
         // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
-          // Cek jika reset batch sebelumnya belum selesai
-          if (this.isResetInProgress) {
-            this.showNotification("Reset sedang berlangsung, harap tunggu");
-            return;
-          }
-          
-          // Cek throttling untuk menghindari konflik dengan auto-reset
-          const now = new Date();
-          if (this.lastManualReset && (now - this.lastManualReset) < 40000) {
-            this.showNotification("Terlalu cepat, tunggu minimal 40 detik antar reset");
-            return;
-          }
-          
           // Kumpulkan indeks akun yang Available
           const availableIndexes = this.accounts
             .map((acc, idx) => this.isAccountAvailable(acc) ? idx : null)
@@ -2195,22 +2175,18 @@
             return;
           }
           
-          // Set flag bahwa reset sedang berlangsung
-          this.isResetInProgress = true;
-          this.lastManualReset = now;
+          // Bagi menjadi 2 grup (50% pertama dan 50% kedua)
+          const halfLength = Math.ceil(availableIndexes.length / 2);
+          const firstGroup = availableIndexes.slice(0, halfLength);
+          const secondGroup = availableIndexes.slice(halfLength);
           
-          // Bagi menjadi 2 grup (≤50% pertama dan sisanya)
-          const firstBatchSize = Math.floor(availableIndexes.length / 2);
-          const firstGroup = availableIndexes.slice(0, firstBatchSize);
-          const secondGroup = availableIndexes.slice(firstBatchSize);
-          
-          // Reset grup pertama (≤50%) secara bersamaan
+          // Reset grup pertama (50%) secara bersamaan
           firstGroup.forEach(idx => {
             resetWithDelay(idx);
           });
           
           // Notifikasi untuk grup pertama
-          this.showNotification(`Reset batch pertama: ${firstGroup.length} akun, ${secondGroup.length} akun masih Available`);
+          this.showNotification(`Reset batch pertama: ${firstGroup.length} akun`);
           
           // Tunggu 20 detik (10 detik proses resetWithDelay + 10 detik buffer)
           // Kemudian reset grup kedua
@@ -2219,22 +2195,12 @@
               secondGroup.forEach(idx => {
                 resetWithDelay(idx);
               });
-              this.showNotification(`Reset batch kedua: ${secondGroup.length} akun sekarang diproses`);
-              
-              // Tunggu 20 detik lagi untuk memastikan batch kedua selesai
-              setTimeout(() => {
-                this.isResetInProgress = false; // Reset flag setelah semua proses selesai
-                this.showNotification("Proses reset All Available selesai");
-              }, 20000);
-            }, 20000);
-          } else {
-            // Jika tidak ada batch kedua, tunggu 20 detik lalu reset flag
-            setTimeout(() => {
-              this.isResetInProgress = false;
+              this.showNotification(`Reset batch kedua: ${secondGroup.length} akun`);
             }, 20000);
           }
           
           // Update label waktu reset
+          const now = new Date();
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
           scheduleNextReset();
         }
@@ -2403,6 +2369,16 @@
         modal.style.display = "none";
       }
 
+      // Event listener untuk tombol Quick Renting 12 Jam
+      document.getElementById("quickRent12Btn").addEventListener("click", () => {
+        accountManager.quickRent(12); // Panggil dengan parameter 12 jam
+      });
+
+      // Event listener untuk tombol Quick Renting 24 Jam
+      document.getElementById("quickRent24Btn").addEventListener("click", () => {
+        accountManager.quickRent(24); // Panggil dengan parameter 24 jam
+      });
+
       function resetWithDelay(index) {
         // --- Clear search segera ---
         accountManager.searchQuery = "";
@@ -2484,12 +2460,6 @@
           const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
           document.getElementById('nextResetCountdown').textContent = `${m}:${s}`;
         }
-      }
-
-      // Fungsi untuk debugging event listener (opsional)
-      function debugListeners() {
-        console.log('Quick12:', getEventListeners(document.getElementById('quickRent12Btn')));
-        console.log('Quick24:', getEventListeners(document.getElementById('quickRent24Btn')));
       }
     </script>
   </body>
