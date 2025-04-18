@@ -1328,7 +1328,7 @@
           });
 
           // Event listener untuk tombol Reset All Available
-          document.getElementById("resetAllBtn").addEventListener("click", resetAllAvailable);
+          document.getElementById("resetAllBtn").addEventListener("click", () => accountManager.resetAllAvailable());
 
           // Auto-reset semua akun available setiap 5 menit
           setInterval(() => {
@@ -2399,48 +2399,6 @@
             accountManager.updateAccount(index, { manuallyUpdated: true });
           }
         }, 10000);
-      }
-      
-      // Fungsi global untuk reset semua akun available
-      function resetAllAvailable() {
-        // Kumpulkan indeks akun yang Available
-        const availableIndexes = accountManager.accounts
-          .map((acc, idx) => accountManager.isAccountAvailable(acc) ? idx : null)
-          .filter(idx => idx !== null);
-      
-        if (availableIndexes.length === 0) {
-          accountManager.showNotification("Tidak ada akun Available untuk direset");
-          return;
-        }
-        
-        // Bagi menjadi 2 grup (50% pertama dan 50% kedua)
-        const halfLength = Math.ceil(availableIndexes.length / 2);
-        const firstGroup = availableIndexes.slice(0, halfLength);
-        const secondGroup = availableIndexes.slice(halfLength);
-        
-        // Reset grup pertama (50%) secara bersamaan
-        firstGroup.forEach(idx => {
-          resetWithDelay(idx);
-        });
-        
-        // Notifikasi untuk grup pertama
-        accountManager.showNotification(`Reset batch pertama: ${firstGroup.length} akun`);
-        
-        // Tunggu 20 detik (10 detik proses resetWithDelay + 10 detik buffer)
-        // Kemudian reset grup kedua
-        if (secondGroup.length > 0) {
-          setTimeout(() => {
-            secondGroup.forEach(idx => {
-              resetWithDelay(idx);
-            });
-            accountManager.showNotification(`Reset batch kedua: ${secondGroup.length} akun`);
-          }, 20000);
-        }
-        
-        // Update label waktu reset
-        const now = new Date();
-        document.getElementById('lastResetTime').textContent = formatHHMM(now);
-        scheduleNextReset();
       }
 
       // Modal Bulk Change Password
