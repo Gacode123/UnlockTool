@@ -871,7 +871,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.2.0</div>
+      <div class="version-badge">v1.2.1</div>
     </a>
 
     <!-- Loading Screen -->
@@ -2315,11 +2315,17 @@
       });
 
       function resetWithDelay(index) {
+        // simpan status manuallyUpdated
+        const wasManual = accountManager.accounts[index].manuallyUpdated;
         // sewa dulu 6 jam
         accountManager.rentAccount(index, 6);
         // setelah 10 detik, panggil reset
         setTimeout(() => {
           accountManager.resetAccount(index);
+          // kembalikan manuallyUpdated jika semula true
+          if (wasManual) {
+            accountManager.updateAccount(index, { manuallyUpdated: true });
+          }
         }, 10000);
       }
 
