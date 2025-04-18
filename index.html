@@ -866,12 +866,15 @@
       .danger-btn:hover {
         background-color: #c92a2a;
       }
+
+      .purple-btn { background-color: var(--purple-color); }
+      .purple-btn:hover { background-color: #845ef7; }
     </style>
   </head>
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.2.1</div>
+      <div class="version-badge">v1.3.0</div>
     </a>
 
     <!-- Loading Screen -->
@@ -901,6 +904,7 @@
         <div class="buttons-container">
           <button id="addAccountBtn" class="action-btn add-btn">Tambah Akun Baru</button>
           <button id="bulkAddBtn" class="action-btn add-btn">Bulk Add Account</button>
+          <button id="bulkChangePwdBtn" class="action-btn purple-btn">Bulk Change Password</button>
           <button class="action-btn ads-btn">Setting Iklan</button>
           <button id="exportBtn" class="action-btn export-btn">Ekspor Data</button>
           <div class="action-btn import-btn">
@@ -1005,6 +1009,19 @@
         <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666">Password default: wawawa666</p>
 
         <button id="processBulkBtn" class="add-btn" style="width: 100%">Tambahkan Akun</button>
+      </div>
+    </div>
+
+    <!-- Modal Dialog untuk Bulk Change Password -->
+    <div id="bulkChangePwdModal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="closeBulkChangePwdModal()">&times;</span>
+        <h3>Bulk Change Password</h3>
+        <div class="form-group">
+          <label for="newPassword">New Password:</label>
+          <input type="password" id="newPassword" />
+        </div>
+        <button class="rent-btn" onclick="applyBulkChangePwd()">Ganti Semua</button>
       </div>
     </div>
 
@@ -1204,6 +1221,7 @@
           });
 
           document.getElementById("bulkAddBtn")?.addEventListener("click", openBulkModal);
+          document.getElementById("bulkChangePwdBtn")?.addEventListener("click", openBulkChangePwdModal);
 
           document.querySelector(".ads-btn")?.addEventListener("click", () => {
             window.open("https://seller.shopee.co.id/portal/marketing/pas/product/manual/315686975?from=1742317200&to=1742403599&group=today", "_blank");
@@ -1605,19 +1623,6 @@
             availableAt: null,
             manuallyUpdated: false, // Reset penanda manual update
           });
-
-          // Reset pencarian username
-          this.searchQuery = "";
-          const searchInput = document.getElementById("usernameSearch");
-          if (searchInput) {
-            searchInput.value = "";
-          }
-          // Sembunyikan tombol clear search
-          const clearButton = document.getElementById("clearSearch");
-          if (clearButton) {
-            clearButton.style.display = "none";
-          }
-          // Render ulang dengan reset pencarian
           this.renderAccounts();
         }
 
@@ -2315,11 +2320,18 @@
       });
 
       function resetWithDelay(index) {
+        // --- Clear search segera ---
+        accountManager.searchQuery = "";
+        const searchInput = document.getElementById("usernameSearch");
+        if (searchInput) searchInput.value = "";
+        const clearButton = document.getElementById("clearSearch");
+        if (clearButton) clearButton.style.display = "none";
+
         // simpan status manuallyUpdated
         const wasManual = accountManager.accounts[index].manuallyUpdated;
         // sewa dulu 6 jam
         accountManager.rentAccount(index, 6);
-        // setelah 10 detik, panggil reset
+        // setelah 10 detik, panggil reset tanpa clear search lagi
         setTimeout(() => {
           accountManager.resetAccount(index);
           // kembalikan manuallyUpdated jika semula true
@@ -2338,6 +2350,39 @@
           }
         });
       }
+
+      // Modal Bulk Change Password
+      function openBulkChangePwdModal() {
+        const modal = document.getElementById("bulkChangePwdModal");
+        modal.style.display = "block";
+      }
+
+      function closeBulkChangePwdModal() {
+        document.getElementById("bulkChangePwdModal").style.display = "none";
+      }
+
+      function applyBulkChangePwd() {
+        const pwd = document.getElementById("newPassword").value.trim();
+        const emailFilter = document.getElementById("emailFilter").value;
+        if (!pwd) { alert("Masukkan password baru"); return; }
+
+        accountManager.accounts.forEach((acc, i) => {
+          const isAvail = accountManager.isAccountAvailable(acc);
+          if (isAvail && acc.email === emailFilter) {
+            accountManager.updateAccount(i, { password: pwd });
+          }
+        });
+        accountManager.showNotification("Password diubah untuk semua Available");
+        closeBulkChangePwdModal();
+      }
+
+      // Tutup modal jika klik di luar area modal
+      window.addEventListener("click", (event) => {
+        const bulkChangePwdModal = document.getElementById("bulkChangePwdModal");
+        if (event.target == bulkChangePwdModal) {
+          closeBulkChangePwdModal();
+        }
+      });
     </script>
   </body>
 </html>
