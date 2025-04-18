@@ -2518,25 +2518,14 @@
 
         // simpan status manuallyUpdated
         const wasManual = accountManager.accounts[index].manuallyUpdated;
-        
         // sewa dulu 6 jam
         accountManager.rentAccount(index, 6);
-        
-        // Simpan nilai availableAt yang baru saja disetel
-        const tempAvailableAt = accountManager.accounts[index].availableAt;
-        
         // setelah 10 detik, panggil reset tanpa clear search lagi
         setTimeout(() => {
-          const acc = accountManager.accounts[index];
-          
-          // Hanya reset kalau waktu masih sama persis (belum disentuh siapa-pun)
-          if (acc.availableAt === tempAvailableAt) {
-            accountManager.resetAccount(index);           // set availableAt = null
-            if (wasManual) {                              // pulihkan flag manual
-              accountManager.updateAccount(index, { manuallyUpdated: true });
-            }
-          } else {
-            console.log(`Skip reset: akun ${acc.username} sudah dipakai orang lain`);
+          accountManager.resetAccount(index);
+          // kembalikan manuallyUpdated jika semula true
+          if (wasManual) {
+            accountManager.updateAccount(index, { manuallyUpdated: true });
           }
         }, 10000);
       }
