@@ -1328,7 +1328,7 @@
           });
 
           // Event listener untuk tombol Reset All Available
-          document.getElementById("resetAllBtn").addEventListener("click", resetAllAvailable);
+          document.getElementById("resetAllBtn").addEventListener("click", () => accountManager.resetAllAvailable());
 
           // Auto-reset semua akun available setiap 5 menit
           setInterval(() => {
@@ -2165,13 +2165,20 @@
 
         // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
-          this.accounts.forEach((account, idx) => {
-            if (this.isAccountAvailable(account)) {
+          // Kumpulkan indeks akun yang Available
+          const availableIndexes = this.accounts
+            .map((acc, idx) => this.isAccountAvailable(acc) ? idx : null)
+            .filter(idx => idx !== null);
+        
+          // Reset satu per satu tiap 0,5 detik
+          availableIndexes.forEach((idx, i) => {
+            setTimeout(() => {
               resetWithDelay(idx);
-            }
+            }, i * 500);
           });
-          this.showNotification("Auto-reset semua available dijalankan");
-          // Update label waktu reset
+        
+          // Notifikasi dan update label waktu reset
+          this.showNotification("Auto-reset semua Available dijalankan per 0,5 detik");
           const now = new Date();
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
           scheduleNextReset();
@@ -2371,16 +2378,6 @@
             accountManager.updateAccount(index, { manuallyUpdated: true });
           }
         }, 10000);
-      }
-
-      function resetAllAvailable() {
-        // iterasi seluruh akun
-        accountManager.accounts.forEach((account, idx) => {
-          if (accountManager.isAccountAvailable(account)) {
-            // panggil fungsi delay yang sudah ada
-            resetWithDelay(idx);
-          }
-        });
       }
 
       // Modal Bulk Change Password
