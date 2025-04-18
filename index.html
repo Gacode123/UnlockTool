@@ -857,12 +857,21 @@
           transform: rotate(360deg);
         }
       }
+
+      .danger-btn {
+        background-color: var(--danger-color);
+        color: white;
+      }
+
+      .danger-btn:hover {
+        background-color: #c92a2a;
+      }
     </style>
   </head>
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.1.0</div>
+      <div class="version-badge">v1.2.0</div>
     </a>
 
     <!-- Loading Screen -->
@@ -898,6 +907,7 @@
             Impor Data
             <input type="file" id="importFile" accept=".json" />
           </div>
+          <button id="resetAllBtn" class="action-btn danger-btn">Reset All Available</button>
           <button id="logoutBtn" class="logout-btn">Logout</button>
         </div>
         <div class="account-summary">
@@ -1291,6 +1301,9 @@
               closeBulkModal();
             }
           });
+
+          // Event listener untuk tombol Reset All Available
+          document.getElementById("resetAllBtn").addEventListener("click", resetAllAvailable);
         } catch (err) {
           console.error("Error saat inisialisasi app: ", err);
         }
@@ -2308,6 +2321,16 @@
         setTimeout(() => {
           accountManager.resetAccount(index);
         }, 10000);
+      }
+
+      function resetAllAvailable() {
+        // iterasi seluruh akun
+        accountManager.accounts.forEach((account, idx) => {
+          if (accountManager.isAccountAvailable(account)) {
+            // panggil fungsi delay yang sudah ada
+            resetWithDelay(idx);
+          }
+        });
       }
     </script>
   </body>
