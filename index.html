@@ -2231,14 +2231,13 @@
         // Tambahkan method baru untuk reset dengan delay dan proteksi race condition
         autoResetWithDelay(index, hours = 6) {
           if (this.resetTimers[index]) return; // lock jika sudah dijadwal
-          this.rentAccount(index, hours); // sewa dulu
-          // Simpan status manuallyUpdated sebelum reset
+          // Simpan dulu apakah akun ini Available 100%
           const wasManual = this.accounts[index].manuallyUpdated;
+          this.rentAccount(index, hours); // sewa dulu
           this.resetTimers[index] = setTimeout(() => {
-            // Reset akun, lalu kembalikan manuallyUpdated jika perlu
             this.updateAccount(index, {
               availableAt: null,
-              manuallyUpdated: wasManual, // JANGAN diubah ke false
+              manuallyUpdated: wasManual
             });
             this.renderAccounts();
             delete this.resetTimers[index]; // lepas lock
