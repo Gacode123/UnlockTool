@@ -874,7 +874,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.7.0</div>
+      <div class="version-badge">v2.0.0</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -1331,7 +1331,7 @@
           });
 
           // Event listener untuk tombol Reset All Available
-          document.getElementById("resetAllBtn").addEventListener("click", resetAllAvailable);
+          document.getElementById("resetAllBtn").addEventListener("click", () => accountManager.resetAllAvailable());
 
           // Event listener untuk tombol toggle auto reset
           document.getElementById("toggleAutoResetBtn").addEventListener("click", toggleAutoReset);
@@ -1428,6 +1428,7 @@
           this.lastRentedIndex = -1; // Menambahkan properti untuk melacak akun yang baru disewa
           this.selectedEmail = ""; // Menyimpan email yang dipilih untuk filter
           this.searchQuery = ""; // Menyimpan kata kunci pencarian username
+          this.resetTimers = {}; // Tambahkan property untuk menyimpan timer reset
 
           // Tambahkan listener Firebase untuk real-time updates
           firebase
@@ -1583,6 +1584,11 @@
         }
 
         updateRentTime(index) {
+          // Bersihkan timer reset jika ada
+          if (this.resetTimers[index]) {
+            clearTimeout(this.resetTimers[index]);
+            delete this.resetTimers[index];
+          }
           const account = this.accounts[index];
           if (!account.lastRentedHours) return; // Tidak ada info durasi sewa sebelumnya
 
@@ -1615,6 +1621,11 @@
         }
 
         setManualRentTime(index, dateTime) {
+          // Bersihkan timer reset jika ada
+          if (this.resetTimers[index]) {
+            clearTimeout(this.resetTimers[index]);
+            delete this.resetTimers[index];
+          }
           // Tidak ada buffer 15 menit untuk input manual karena ini sudah dikonfirmasi login
           this.updateAccount(index, {
             availableAt: dateTime.toISOString(),
@@ -1822,7 +1833,7 @@
                                         <button class="ready-btn" style="flex: 1;" onclick="accountManager.markAccountAsReady(${realIndex})">
                                             Account is Ready
                                         </button>
-                                        <button class="reset-btn" style="flex: 1;" onclick="resetWithDelay(${realIndex})">
+                                        <button class="reset-btn" style="flex: 1;" onclick="accountManager.manualReset(${realIndex})">
                                             Reset
                                         </button>
                                     </div>
@@ -1837,7 +1848,7 @@
                                     <label>Aksi:</label>
                                     <div class="btn-group control-buttons">
                                         <button class="manual-btn" onclick="openManualInput(${realIndex})">Manual</button>
-                                        <button class="reset-btn" onclick="resetWithDelay(${realIndex})">
+                                        <button class="reset-btn" onclick="accountManager.autoResetWithDelay(${realIndex})">
                                             Reset
                                         </button>
                                         ${
@@ -2189,7 +2200,7 @@
           
           // Reset grup pertama segera
           firstHalf.forEach(idx => {
-            resetWithDelay(idx);
+            this.autoResetWithDelay(idx);
           });
           
           // Update label waktu reset
@@ -2203,14 +2214,37 @@
           if (secondHalf.length > 0) {
             setTimeout(() => {
               secondHalf.forEach(idx => {
-                resetWithDelay(idx);
+                this.autoResetWithDelay(idx);
               });
               this.showNotification(`Auto-reset 50% kedua (${secondHalf.length} akun) selesai`);
+              // update label setelah batch kedua
+              document.getElementById('lastResetTime').textContent = formatHHMM(new Date());
             }, 15000);
           }
           
           // Jadwalkan reset selanjutnya
           scheduleNextReset();
+        }
+
+        // Tambahkan method baru untuk reset dengan delay dan proteksi race condition
+        autoResetWithDelay(index, hours = 6) {
+          if (this.resetTimers[index]) return; // lock jika sudah dijadwal
+          this.rentAccount(index, hours); // sewa dulu
+          this.resetTimers[index] = setTimeout(() => {
+            this.resetAccount(index); // reset setelah delay
+            delete this.resetTimers[index]; // lepas lock
+          }, 10000);
+        }
+
+        // Tambahkan method manualReset di atas autoResetWithDelay
+        manualReset(index) {
+          // batalkan timer jika ada
+          if (this.resetTimers[index]) {
+            clearTimeout(this.resetTimers[index]);
+            delete this.resetTimers[index];
+          }
+          // langsung reset tanpa sewa ulang
+          this.resetAccount(index);
         }
       }
 
@@ -2387,89 +2421,6 @@
         accountManager.quickRent(24); // Panggil dengan parameter 24 jam
       });
 
-      function resetWithDelay(index) {
-        // --- Clear search segera ---
-        accountManager.searchQuery = "";
-        const searchInput = document.getElementById("usernameSearch");
-        if (searchInput) searchInput.value = "";
-        const clearButton = document.getElementById("clearSearch");
-        if (clearButton) clearButton.style.display = "none";
-
-        // simpan status manuallyUpdated
-        const wasManual = accountManager.accounts[index].manuallyUpdated;
-        
-        // Tandai akun dengan resetPending dan catat availableAt yang akan diset
-        accountManager.accounts[index].resetPending = true;
-        
-        // sewa dulu 6 jam
-        accountManager.rentAccount(index, 6);
-        
-        // Simpan availableAt saat ini untuk verifikasi
-        const tempAvailableAt = accountManager.accounts[index].availableAt;
-        
-        // setelah 10 detik, panggil reset tanpa clear search lagi
-        setTimeout(() => {
-          // Verifikasi bahwa tidak ada perubahan sejak waktu reset dimulai
-          // dan resetPending masih true
-          if (accountManager.accounts[index].resetPending === true && 
-              accountManager.accounts[index].availableAt === tempAvailableAt) {
-            // Reset flag
-            accountManager.accounts[index].resetPending = false;
-            // Reset akun
-            accountManager.resetAccount(index);
-            // kembalikan manuallyUpdated jika semula true
-            if (wasManual) {
-              accountManager.updateAccount(index, { manuallyUpdated: true });
-            }
-          }
-        }, 10000);
-      }
-
-      function resetAllAvailable() {
-        // Kumpulkan semua indeks akun yang available
-        const availableIndices = [];
-        accountManager.accounts.forEach((account, idx) => {
-          if (accountManager.isAccountAvailable(account)) {
-            availableIndices.push(idx);
-          }
-        });
-        
-        if (availableIndices.length === 0) {
-          accountManager.showNotification("Tidak ada akun available untuk direset");
-          return;
-        }
-        
-        // Bagi menjadi dua grup (50% pertama dan 50% kedua)
-        const halfLength = Math.ceil(availableIndices.length / 2);
-        const firstHalf = availableIndices.slice(0, halfLength);
-        const secondHalf = availableIndices.slice(halfLength);
-        
-        // Reset grup pertama segera
-        firstHalf.forEach(idx => {
-          resetWithDelay(idx);
-        });
-        
-        // Update label waktu reset
-        const now = new Date();
-        document.getElementById('lastResetTime').textContent = formatHHMM(now);
-        
-        // Tampilkan notifikasi
-        accountManager.showNotification(`Reset 50% pertama (${firstHalf.length} akun), menunggu untuk 50% sisanya...`);
-        
-        // Tunggu 15 detik (lebih dari buffer 10 detik) lalu reset grup kedua
-        if (secondHalf.length > 0) {
-          setTimeout(() => {
-            secondHalf.forEach(idx => {
-              resetWithDelay(idx);
-            });
-            accountManager.showNotification(`Reset 50% kedua (${secondHalf.length} akun) selesai`);
-          }, 15000);
-        }
-        
-        // Jadwalkan reset selanjutnya
-        scheduleNextReset();
-      }
-
       // Modal Bulk Change Password
       function openBulkChangePwdModal() {
         const modal = document.getElementById("bulkChangePwdModal");
@@ -2550,6 +2501,7 @@
         autoResetInterval = setInterval(() => {
           // Hanya jalankan reset jika enabled
           if (autoResetEnabled) {
+            // panggil persis fungsi manual
             accountManager.resetAllAvailable();
           }
         }, 15 * 60 * 1000);
