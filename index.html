@@ -2534,6 +2534,18 @@
           document.getElementById('nextResetCountdown').textContent = `${m}:${s}`;
         }
       }
+
+      // Setelah deklarasi fungsi updateCountdown, tambahkan inisialisasi tampilan tombol sesuai status default
+      document.addEventListener("DOMContentLoaded", function () {
+        // ... existing code ...
+        // Set tampilan tombol auto reset sesuai status default (OFF)
+        const toggleBtn = document.getElementById('toggleAutoResetBtn');
+        if (toggleBtn) {
+          toggleBtn.textContent = "Auto Reset OFF";
+          toggleBtn.style.backgroundColor = "#d9534f";
+          toggleBtn.classList.remove("active");
+        }
+      });
     </script>
   </body>
 </html>
