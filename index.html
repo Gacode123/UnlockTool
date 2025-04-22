@@ -286,12 +286,8 @@
       .status {
         font-size: 0.8rem;
         font-weight: 500;
-        padding: 2px 8px;
+        padding: 5px 10px;
         border-radius: 20px;
-        display: inline-block;
-        min-width: unset;
-        width: auto;
-        box-sizing: border-box;
       }
 
       .status.available {
@@ -892,27 +888,16 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
       }
-
-      .lastpass-status {
-        background: #e3f0fb;
-        color: #3571a6;
-        font-size: 0.8rem;
-        font-weight: 500;
-        padding: 2px 8px;
-        border-radius: 20px;
-        display: inline-block;
-        min-width: unset;
-        width: auto;
-        box-sizing: border-box;
-        margin-right: 8px;
-      }
     </style>
   </head>
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.3</div>
+      <div class="version-badge">v1.7.0</div>
     </a>
+    <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
+      Last All Reset at: <span id="lastResetTime">--:--</span>
+    </div>
     <div id="nextResetLabel"
          style="position: fixed; top: 65px; left: 10px; font-size: 0.75rem; color: #555; display: none;">
       Next Reset in: <span id="nextResetCountdown">05:00</span>
@@ -1398,17 +1383,12 @@
       }
 
       // Fungsi untuk menghitung dan memformat waktu tersisa
-      function getRemainingTime(availableAt, account = null) {
+      function getRemainingTime(availableAt) {
         if (!availableAt) return null;
 
         const now = new Date();
         const availableDate = new Date(availableAt);
-        let diffMs = availableDate - now;
-
-        // Tambahkan grace period 15 menit khusus quick rent 6 jam (bukan manual), hanya untuk tampilan
-        if (account && account.lastRentedHours === 6 && account.manuallyUpdated === false) {
-          diffMs += 15 * 60 * 1000; // 15 menit
-        }
+        const diffMs = availableDate - now;
 
         if (diffMs <= 0) return "Available";
 
@@ -1593,10 +1573,6 @@
         }
 
         updateAccount(index, data) {
-          // Jika ada perubahan password, tambahkan timestamp lastPasswordChange
-          if (data.password !== undefined && data.password !== this.accounts[index].password) {
-            data.lastPasswordChange = new Date().toISOString();
-          }
           this.accounts[index] = { ...this.accounts[index], ...data };
           this.saveAccounts();
           // Perbarui filter email jika ada perubahan pada properti email
@@ -1834,7 +1810,7 @@
             const availableAtText = isAvailable ? "Available" : formatDateTime(account.availableAt);
 
             // Mendapatkan waktu tersisa
-            const remainingTime = !isAvailable ? getRemainingTime(account.availableAt, account) : null;
+            const remainingTime = !isAvailable ? getRemainingTime(account.availableAt) : null;
 
             // Text status berbeda untuk akun yang belum ready
             const statusText = !account.isReady ? "Not Ready" : isAvailable ? (account.manuallyUpdated ? "Available 100%" : "Available") : account.manuallyUpdated ? "Rented 100%" : "Rented";
@@ -1850,24 +1826,9 @@
               accountCard.classList.add("highlight");
             }
 
-            const lastPwdChange = account.lastPasswordChange ? account.lastPasswordChange : null;
-            let lastPwdChangeText = "Never";
-            if (lastPwdChange) {
-              const now = new Date();
-              const last = new Date(lastPwdChange);
-              const diffMs = now - last;
-              const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-              if (diffHours < 1) {
-                lastPwdChangeText = "< 1 Hour";
-              } else {
-                lastPwdChangeText = diffHours + " Hours";
-              }
-            }
-
             accountCard.innerHTML = `
-                        <div class="account-header" style="display: flex; align-items: center;">
-                            <h2 style="margin:0; flex:1; text-align:left;">${account.username ? account.username : account.name}</h2>
-                            <span class="lastpass-status">${lastPwdChangeText}</span>
+                        <div class="account-header">
+                            <h2>${account.username ? account.username : account.name}</h2>
                             <span class="status ${!account.isReady ? "not-ready" : isAvailable ? "available" : "rented"}">
                                 ${statusText}
                             </span>
