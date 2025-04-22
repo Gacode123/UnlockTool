@@ -893,7 +893,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.7.0</div>
+      <div class="version-badge">v2.0.0</div>
     </a>
     <div id="nextResetLabel"
          style="position: fixed; top: 65px; left: 10px; font-size: 0.75rem; color: #555; display: none;">
@@ -1835,19 +1835,19 @@
               const diffMs = now - last;
               const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
               if (diffHours < 1) {
-                lastPwdChangeText = "< 1 hour ago";
+                lastPwdChangeText = "< 1 Hour";
               } else {
-                lastPwdChangeText = diffHours + " hours ago";
+                lastPwdChangeText = diffHours + " Hours";
               }
             }
 
             accountCard.innerHTML = `
                         <div class="account-header">
-                            <h2>${account.username ? account.username : account.name}</h2>
+                            <span style="font-size:0.75rem; color:#888; margin-right:8px;">${lastPwdChangeText}</span>
                             <span class="status ${!account.isReady ? "not-ready" : isAvailable ? "available" : "rented"}">
                                 ${statusText}
                             </span>
-                            <span style="font-size:0.75rem; color:#888; margin-left:8px;">LAST Password change: ${lastPwdChangeText}</span>
+                            <h2 style="margin-left:8px;">${account.username ? account.username : account.name}</h2>
                         </div>
                         <div class="account-body">
                             <div class="form-group">
