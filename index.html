@@ -290,6 +290,8 @@
         border-radius: 20px;
         display: inline-block;
         min-width: unset;
+        width: auto;
+        box-sizing: border-box;
       }
 
       .status.available {
@@ -895,7 +897,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.1</div>
+      <div class="version-badge">2.0.3</div>
     </a>
     <div id="nextResetLabel"
          style="position: fixed; top: 65px; left: 10px; font-size: 0.75rem; color: #555; display: none;">
@@ -1844,10 +1846,10 @@
             }
 
             accountCard.innerHTML = `
-                        <div class="account-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="account-header" style="display: flex; align-items: center;">
                             <h2 style="margin:0; flex:1; text-align:left;">${account.username ? account.username : account.name}</h2>
                             <span style="font-size:0.75rem; color:#888; flex:1; text-align:center;">${lastPwdChangeText}</span>
-                            <span class="status ${!account.isReady ? "not-ready" : isAvailable ? "available" : "rented"}" style="flex:1; text-align:right;">
+                            <span class="status ${!account.isReady ? "not-ready" : isAvailable ? "available" : "rented"}">
                                 ${statusText}
                             </span>
                         </div>
