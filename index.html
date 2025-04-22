@@ -898,13 +898,6 @@
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
     </div>
-    <div id="nextResetLabel"
-         style="position: fixed; top: 65px; left: 10px; font-size: 0.75rem; color: #555;">
-      Next Reset in: <span id="nextResetCountdown">05:00</span>
-      <div style="margin-top: 5px;">
-        <button id="toggleAutoResetBtn" class="toggle-btn active" style="padding: 2px 8px; font-size: 0.7rem; border-radius: 4px; cursor: pointer; border: 1px solid #ccc; background-color: #5cb85c; color: white;">Auto Reset ON</button>
-      </div>
-    </div>
 
     <!-- Loading Screen -->
     <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: white; display: flex; justify-content: center; align-items: center; z-index: 9999">
@@ -1061,11 +1054,6 @@
     <script>
       // Tambahkan variabel untuk melacak status autentikasi
       let authCheckComplete = false;
-
-      // Helper untuk debug
-      function logDebug(message, data) {
-        console.log("[DEBUG] " + message, data || "");
-      }
 
       // Event listener untuk global error handling
       window.addEventListener("error", function (event) {
@@ -1361,25 +1349,14 @@
           // Event listener untuk tombol Reset All Available
           document.getElementById("resetAllBtn").addEventListener("click", () => accountManager.resetAllAvailable());
 
-          // Event listener untuk tombol toggle auto reset
-          document.getElementById("toggleAutoResetBtn").addEventListener("click", toggleAutoReset);
-
-          // Auto-reset semua akun available setiap 15 menit
-          startAutoResetInterval();
-
           // Set label waktu reset awal
           document.getElementById('lastResetTime').textContent = '--:--';
           // Inisialisasi countdown reset berikutnya
-          scheduleNextReset();
-          setInterval(updateCountdown, 1000);
+          // HAPUS: scheduleNextReset();
+          // HAPUS: setInterval(updateCountdown, 1000);
         } catch (err) {
           console.error("Error saat inisialisasi app: ", err);
         }
-      }
-
-      // Tambahkan logging untuk membantu debug
-      function logDebug(message, data) {
-        console.log("[DEBUG] " + message, data || "");
       }
 
       // Fungsi untuk menghitung dan memformat waktu tersisa
@@ -2237,7 +2214,6 @@
           // update label reset terakhir
           document.getElementById('lastResetTime').textContent = formatHHMM(new Date());
           this.showNotification(`Auto-reset ${availableIndices.length} akun selesai`);
-          scheduleNextReset();
         }
 
         // Tambahkan method baru untuk reset dengan delay dan proteksi race condition
@@ -2426,16 +2402,6 @@
         modal.style.display = "none";
       }
 
-      // Event listener untuk tombol Quick Renting 12 Jam
-      document.getElementById("quickRent12Btn").addEventListener("click", () => {
-        accountManager.quickRent(12); // Panggil dengan parameter 12 jam
-      });
-
-      // Event listener untuk tombol Quick Renting 24 Jam
-      document.getElementById("quickRent24Btn").addEventListener("click", () => {
-        accountManager.quickRent(24); // Panggil dengan parameter 24 jam
-      });
-
       // Modal Bulk Change Password
       function openBulkChangePwdModal() {
         const modal = document.getElementById("bulkChangePwdModal");
@@ -2476,88 +2442,10 @@
         return `${h}:${m}`;
       }
 
-      // ====== RESET COUNTDOWN ======
-      let nextResetTime; // akan menampung Date object
-      let autoResetEnabled = false; // status auto reset default OFF
-      let autoResetInterval; // variable untuk menyimpan interval
-
-      function toggleAutoReset() {
-        autoResetEnabled = !autoResetEnabled;
-        const toggleBtn = document.getElementById('toggleAutoResetBtn');
-        
-        if (autoResetEnabled) {
-          // Aktifkan auto reset
-          toggleBtn.textContent = "Auto Reset ON";
-          toggleBtn.style.backgroundColor = "#5cb85c";
-          toggleBtn.classList.add("active");
-          // Jadwalkan reset berikutnya
-          scheduleNextReset();
-          // Mulai interval baru
-          startAutoResetInterval();
-        } else {
-          // Nonaktifkan auto reset
-          toggleBtn.textContent = "Auto Reset OFF";
-          toggleBtn.style.backgroundColor = "#d9534f";
-          toggleBtn.classList.remove("active");
-          // Hapus interval yang berjalan
-          if (autoResetInterval) {
-            clearInterval(autoResetInterval);
-          }
-        }
+      // Helper untuk debug
+      function logDebug(message, data) {
+        console.log("[DEBUG] " + message, data || "");
       }
-
-      function startAutoResetInterval() {
-        // Hapus interval yang berjalan jika ada
-        if (autoResetInterval) {
-          clearInterval(autoResetInterval);
-        }
-        
-        // Buat interval baru
-        autoResetInterval = setInterval(() => {
-          // Hanya jalankan reset jika enabled
-          if (autoResetEnabled) {
-            // panggil persis fungsi manual
-            accountManager.resetAllAvailable();
-          }
-        }, 15 * 60 * 1000);
-      }
-
-      function scheduleNextReset() {
-        // reset terjadi setiap 15 menit dari sekarang
-        nextResetTime = new Date(Date.now() + 15 * 60 * 1000);
-      }
-
-      function updateCountdown() {
-        const diff = nextResetTime - Date.now();
-        if (diff <= 0) {
-          document.getElementById('nextResetCountdown').textContent = '00:00';
-          // setelah mencapai 0, jadwalkan ulang jika auto reset aktif
-          if (autoResetEnabled) {
-            scheduleNextReset();
-          }
-        } else {
-          const m = String(Math.floor(diff / 60000)).padStart(2, '0');
-          const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-          document.getElementById('nextResetCountdown').textContent = `${m}:${s}`;
-        }
-      }
-
-      // Setelah deklarasi fungsi updateCountdown, tambahkan inisialisasi tampilan tombol sesuai status default
-      document.addEventListener("DOMContentLoaded", function () {
-        // ... existing code ...
-        // Set tampilan tombol auto reset sesuai status default (OFF)
-        const toggleBtn = document.getElementById('toggleAutoResetBtn');
-        if (toggleBtn) {
-          toggleBtn.textContent = "Auto Reset OFF";
-          toggleBtn.style.backgroundColor = "#d9534f";
-          toggleBtn.classList.remove("active");
-        }
-      });
-
-      // Event listener untuk tombol Quick Renting 9 Jam
-      document.getElementById("quickRent9Btn").addEventListener("click", () => {
-        accountManager.quickRent(9); // Panggil dengan parameter 9 jam
-      });
     </script>
   </body>
 </html>
