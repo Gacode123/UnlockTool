@@ -893,7 +893,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.0</div>
+      <div class="version-badge">v1.7.0</div>
     </a>
     <div id="nextResetLabel"
          style="position: fixed; top: 65px; left: 10px; font-size: 0.75rem; color: #555; display: none;">
@@ -1842,12 +1842,12 @@
             }
 
             accountCard.innerHTML = `
-                        <div class="account-header">
-                            <span style="font-size:0.75rem; color:#888; margin-right:8px;">${lastPwdChangeText}</span>
-                            <span class="status ${!account.isReady ? "not-ready" : isAvailable ? "available" : "rented"}">
+                        <div class="account-header" style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2 style="margin:0; flex:1; text-align:left;">${account.username ? account.username : account.name}</h2>
+                            <span style="font-size:0.75rem; color:#888; flex:1; text-align:center;">${lastPwdChangeText}</span>
+                            <span class="status ${!account.isReady ? "not-ready" : isAvailable ? "available" : "rented"}" style="flex:1; text-align:right;">
                                 ${statusText}
                             </span>
-                            <h2 style="margin-left:8px;">${account.username ? account.username : account.name}</h2>
                         </div>
                         <div class="account-body">
                             <div class="form-group">
