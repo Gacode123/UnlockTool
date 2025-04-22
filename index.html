@@ -911,7 +911,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.4</div>
+      <div class="version-badge">v2.0.3</div>
     </a>
     <div id="nextResetLabel"
          style="position: fixed; top: 65px; left: 10px; font-size: 0.75rem; color: #555; display: none;">
@@ -1398,12 +1398,17 @@
       }
 
       // Fungsi untuk menghitung dan memformat waktu tersisa
-      function getRemainingTime(availableAt) {
+      function getRemainingTime(availableAt, account = null) {
         if (!availableAt) return null;
 
         const now = new Date();
         const availableDate = new Date(availableAt);
-        const diffMs = availableDate - now;
+        let diffMs = availableDate - now;
+
+        // Tambahkan grace period 15 menit khusus quick rent 6 jam (bukan manual), hanya untuk tampilan
+        if (account && account.lastRentedHours === 6 && account.manuallyUpdated === false) {
+          diffMs += 15 * 60 * 1000; // 15 menit
+        }
 
         if (diffMs <= 0) return "Available";
 
@@ -1829,7 +1834,7 @@
             const availableAtText = isAvailable ? "Available" : formatDateTime(account.availableAt);
 
             // Mendapatkan waktu tersisa
-            const remainingTime = !isAvailable ? getRemainingTime(account.availableAt) : null;
+            const remainingTime = !isAvailable ? getRemainingTime(account.availableAt, account) : null;
 
             // Text status berbeda untuk akun yang belum ready
             const statusText = !account.isReady ? "Not Ready" : isAvailable ? (account.manuallyUpdated ? "Available 100%" : "Available") : account.manuallyUpdated ? "Rented 100%" : "Rented";
