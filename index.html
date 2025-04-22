@@ -1584,11 +1584,9 @@
 
         rentAccount(index, hours) {
           const now = new Date();
-          // Tambahkan 15 menit buffer hanya untuk sewa 6 jam
+          // Hapus buffer 15 menit untuk sewa 6 jam
           let additionalBuffer = 0;
-          if (hours === 6) {
-            additionalBuffer = 15 * 60 * 1000; // 15 menit dalam milidetik
-          }
+          // Tidak ada buffer sama sekali
 
           const availableAt = new Date(now.getTime() + hours * 60 * 60 * 1000 + additionalBuffer);
           this.updateAccount(index, {
@@ -1604,11 +1602,9 @@
           this.lastRentedIndex = index;
 
           // Render ulang dengan sorting yang benar
-          setTimeout(() => {
-            this.renderAccounts(true);
-            // Reset lastRentedIndex setelah render
-            this.lastRentedIndex = -1;
-          }, 100);
+          this.renderAccounts(true);
+          // Reset lastRentedIndex setelah render
+          this.lastRentedIndex = -1;
         }
 
         updateRentTime(index) {
@@ -2231,14 +2227,9 @@
             return;
           }
           
-          // Bagi menjadi dua grup (50% pertama dan 50% kedua)
-          const halfLength = Math.ceil(availableIndices.length / 2);
-          const firstHalf = availableIndices.slice(0, halfLength);
-          const secondHalf = availableIndices.slice(halfLength);
-          
-          // Reset grup pertama segera
-          firstHalf.forEach(idx => {
-            this.autoResetWithDelay(idx);
+          // Reset semua akun available langsung tanpa delay
+          availableIndices.forEach(idx => {
+            this.manualReset(idx);
           });
           
           // Update label waktu reset
@@ -2246,19 +2237,7 @@
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
           
           // Tampilkan notifikasi
-          this.showNotification(`Auto-reset 50% pertama (${firstHalf.length} akun), menunggu untuk 50% sisanya...`);
-          
-          // Tunggu 15 detik (lebih dari buffer 10 detik) lalu reset grup kedua
-          if (secondHalf.length > 0) {
-            setTimeout(() => {
-              secondHalf.forEach(idx => {
-                this.autoResetWithDelay(idx);
-              });
-              this.showNotification(`Auto-reset 50% kedua (${secondHalf.length} akun) selesai`);
-              // update label setelah batch kedua
-              document.getElementById('lastResetTime').textContent = formatHHMM(new Date());
-            }, 15000);
-          }
+          this.showNotification(`Auto-reset semua akun available (${availableIndices.length} akun) selesai`);
           
           // Jadwalkan reset selanjutnya
           scheduleNextReset();
@@ -2266,18 +2245,21 @@
 
         // Tambahkan method baru untuk reset dengan delay dan proteksi race condition
         autoResetWithDelay(index, hours = 6) {
-          if (this.resetTimers[index]) return; // lock jika sudah dijadwal
+          // Batalkan timer jika ada
+          if (this.resetTimers[index]) {
+            clearTimeout(this.resetTimers[index]);
+            delete this.resetTimers[index];
+          }
           // Simpan dulu apakah akun ini Available 100%
           const wasManual = this.accounts[index].manuallyUpdated;
-          this.rentAccount(index, hours); // sewa dulu
-          this.resetTimers[index] = setTimeout(() => {
-            this.updateAccount(index, {
-              availableAt: null,
-              manuallyUpdated: wasManual
-            });
-            this.renderAccounts();
-            delete this.resetTimers[index]; // lepas lock
-          }, 10000);
+          // Sewa dulu (tanpa buffer)
+          this.rentAccount(index, hours);
+          // Langsung reset tanpa delay
+          this.updateAccount(index, {
+            availableAt: null,
+            manuallyUpdated: wasManual
+          });
+          this.renderAccounts();
         }
 
         // Tambahkan method manualReset di atas autoResetWithDelay
