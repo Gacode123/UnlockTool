@@ -899,10 +899,10 @@
       Last All Reset at: <span id="lastResetTime">--:--</span>
     </div>
     <div id="nextResetLabel"
-         style="position: fixed; top: 65px; left: 10px; font-size: 0.75rem; color: #555; display: none;">
+         style="position: fixed; top: 65px; left: 10px; font-size: 0.75rem; color: #555;">
       Next Reset in: <span id="nextResetCountdown">05:00</span>
-      <div style="margin-top: 5px; display: none;">
-        <button id="toggleAutoResetBtn" class="toggle-btn active" style="padding: 2px 8px; font-size: 0.7rem; border-radius: 4px; cursor: pointer; border: 1px solid #ccc; background-color: #5cb85c; color: white; display: none;">Auto Reset ON</button>
+      <div style="margin-top: 5px;">
+        <button id="toggleAutoResetBtn" class="toggle-btn active" style="padding: 2px 8px; font-size: 0.7rem; border-radius: 4px; cursor: pointer; border: 1px solid #ccc; background-color: #5cb85c; color: white;">Auto Reset ON</button>
       </div>
     </div>
 
@@ -1584,9 +1584,11 @@
 
         rentAccount(index, hours) {
           const now = new Date();
-          // Hapus buffer 15 menit untuk sewa 6 jam
+          // Tambahkan 15 menit buffer hanya untuk sewa 6 jam
           let additionalBuffer = 0;
-          // Tidak ada buffer sama sekali
+          if (hours === 6) {
+            additionalBuffer = 15 * 60 * 1000; // 15 menit dalam milidetik
+          }
 
           const availableAt = new Date(now.getTime() + hours * 60 * 60 * 1000 + additionalBuffer);
           this.updateAccount(index, {
@@ -1602,9 +1604,11 @@
           this.lastRentedIndex = index;
 
           // Render ulang dengan sorting yang benar
-          this.renderAccounts(true);
-          // Reset lastRentedIndex setelah render
-          this.lastRentedIndex = -1;
+          setTimeout(() => {
+            this.renderAccounts(true);
+            // Reset lastRentedIndex setelah render
+            this.lastRentedIndex = -1;
+          }, 100);
         }
 
         updateRentTime(index) {
@@ -2227,9 +2231,14 @@
             return;
           }
           
-          // Reset semua akun available langsung tanpa delay
-          availableIndices.forEach(idx => {
-            this.manualReset(idx);
+          // Bagi menjadi dua grup (50% pertama dan 50% kedua)
+          const halfLength = Math.ceil(availableIndices.length / 2);
+          const firstHalf = availableIndices.slice(0, halfLength);
+          const secondHalf = availableIndices.slice(halfLength);
+          
+          // Reset grup pertama segera
+          firstHalf.forEach(idx => {
+            this.autoResetWithDelay(idx);
           });
           
           // Update label waktu reset
@@ -2237,7 +2246,19 @@
           document.getElementById('lastResetTime').textContent = formatHHMM(now);
           
           // Tampilkan notifikasi
-          this.showNotification(`Auto-reset semua akun available (${availableIndices.length} akun) selesai`);
+          this.showNotification(`Auto-reset 50% pertama (${firstHalf.length} akun), menunggu untuk 50% sisanya...`);
+          
+          // Tunggu 15 detik (lebih dari buffer 10 detik) lalu reset grup kedua
+          if (secondHalf.length > 0) {
+            setTimeout(() => {
+              secondHalf.forEach(idx => {
+                this.autoResetWithDelay(idx);
+              });
+              this.showNotification(`Auto-reset 50% kedua (${secondHalf.length} akun) selesai`);
+              // update label setelah batch kedua
+              document.getElementById('lastResetTime').textContent = formatHHMM(new Date());
+            }, 15000);
+          }
           
           // Jadwalkan reset selanjutnya
           scheduleNextReset();
@@ -2245,21 +2266,18 @@
 
         // Tambahkan method baru untuk reset dengan delay dan proteksi race condition
         autoResetWithDelay(index, hours = 6) {
-          // Batalkan timer jika ada
-          if (this.resetTimers[index]) {
-            clearTimeout(this.resetTimers[index]);
-            delete this.resetTimers[index];
-          }
+          if (this.resetTimers[index]) return; // lock jika sudah dijadwal
           // Simpan dulu apakah akun ini Available 100%
           const wasManual = this.accounts[index].manuallyUpdated;
-          // Sewa dulu (tanpa buffer)
-          this.rentAccount(index, hours);
-          // Langsung reset tanpa delay
-          this.updateAccount(index, {
-            availableAt: null,
-            manuallyUpdated: wasManual
-          });
-          this.renderAccounts();
+          this.rentAccount(index, hours); // sewa dulu
+          this.resetTimers[index] = setTimeout(() => {
+            this.updateAccount(index, {
+              availableAt: null,
+              manuallyUpdated: wasManual
+            });
+            this.renderAccounts();
+            delete this.resetTimers[index]; // lepas lock
+          }, 10000);
         }
 
         // Tambahkan method manualReset di atas autoResetWithDelay
