@@ -871,7 +871,7 @@
       .purple-btn:hover { background-color: #845ef7; }
 
       /* Tambahkan style untuk tombol quick-rent-btn-10 */
-      .quick-rent-btn-10 {
+      .quick-rent-btn-9 {
         background-color: #20c997;
         color: white;
         border: none;
@@ -883,7 +883,7 @@
         transition: var(--transition);
         box-shadow: var(--box-shadow);
       }
-      .quick-rent-btn-10:hover {
+      .quick-rent-btn-9:hover {
         background-color: #12b886;
         transform: translateY(-2px);
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
@@ -963,7 +963,7 @@
           <div class="summary-row">
             <div class="summary-left">
               <button id="quickRentBtn" class="quick-rent-btn">6 Jam</button>
-              <button id="quickRent10Btn" class="quick-rent-btn-10">10 Jam</button>
+              <button id="quickRent9Btn" class="quick-rent-btn-9">9 Jam</button>
               <button id="quickRent12Btn" class="quick-rent-btn-12">12 Jam</button>
               <button id="quickRent24Btn" class="quick-rent-btn-24">24 Jam</button>
             </div>
@@ -1229,11 +1229,11 @@
             });
           }
 
-          const quickRent10Btn = document.getElementById("quickRent10Btn");
-          if (quickRent10Btn) {
-            quickRent10Btn.addEventListener("click", () => {
-              logDebug("Quick Rent 10 Jam diklik");
-              accountManager.quickRent(10);
+          const quickRent9Btn = document.getElementById("quickRent9Btn");
+          if (quickRent9Btn) {
+            quickRent9Btn.addEventListener("click", () => {
+              logDebug("Quick Rent 9 Jam diklik");
+              accountManager.quickRent(9);
             });
           }
 
@@ -1748,7 +1748,7 @@
 
           // Tampilkan/sembunyikan tombol Quick Renting
           const quickRentBtn = document.getElementById("quickRentBtn");
-          const quickRent10Btn = document.getElementById("quickRent10Btn");
+          const quickRent9Btn = document.getElementById("quickRent9Btn");
           const quickRent12Btn = document.getElementById("quickRent12Btn");
           const quickRent24Btn = document.getElementById("quickRent24Btn");
 
@@ -1758,10 +1758,10 @@
             logDebug("ERROR: Tombol quickRentBtn tidak ditemukan!");
           }
 
-          if (quickRent10Btn) {
-            quickRent10Btn.style.display = availableAccounts > 0 ? "block" : "none";
+          if (quickRent9Btn) {
+            quickRent9Btn.style.display = availableAccounts > 0 ? "block" : "none";
           } else {
-            logDebug("ERROR: Tombol quickRent10Btn tidak ditemukan!");
+            logDebug("ERROR: Tombol quickRent9Btn tidak ditemukan!");
           }
 
           if (quickRent12Btn) {
@@ -1879,7 +1879,7 @@
                                     <label>Durasi Sewa:</label>
                                     <div class="btn-group duration-buttons">
                                         <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 6)">6 Jam</button>
-                                        <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 10)">10 Jam</button>
+                                        <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 9)">9 Jam</button>
                                         <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 12)">12 Jam</button>
                                         <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 24)">24 Jam</button>
                                     </div>
@@ -2101,7 +2101,7 @@
         // Metode untuk quick renting (otomatis menyewa akun yang tersedia)
         quickRent(hours = 6) {
           // Cek apakah tombol sedang dalam masa cooldown
-          const rentBtnId = hours === 6 ? "quickRentBtn" : hours === 10 ? "quickRent10Btn" : hours === 12 ? "quickRent12Btn" : "quickRent24Btn";
+          const rentBtnId = hours === 6 ? "quickRentBtn" : hours === 9 ? "quickRent9Btn" : hours === 12 ? "quickRent12Btn" : "quickRent24Btn";
           const rentBtn = document.getElementById(rentBtnId);
           if (rentBtn.disabled) {
             return;
@@ -2583,9 +2583,9 @@
         }
       });
 
-      // Event listener untuk tombol Quick Renting 10 Jam
-      document.getElementById("quickRent10Btn").addEventListener("click", () => {
-        accountManager.quickRent(10); // Panggil dengan parameter 10 jam
+      // Event listener untuk tombol Quick Renting 9 Jam
+      document.getElementById("quickRent9Btn").addEventListener("click", () => {
+        accountManager.quickRent(9); // Panggil dengan parameter 9 jam
       });
     </script>
   </body>
