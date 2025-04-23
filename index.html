@@ -888,6 +888,13 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
       }
+
+      /* Tombol dinonaktifkan */
+      .btn-disabled {
+        background-color: #adb5bd !important; /* abu-abu */
+        cursor: not-allowed !important;
+        opacity: 0.7;
+      }
     </style>
   </head>
   <body>
@@ -1868,11 +1875,11 @@
                                         </button>
                                         ${
                                           !isAvailable
-                                            ? `
-                                        <button class="update-btn" onclick="accountManager.updateRentTime(${realIndex})">
-                                            Update Waktu
-                                        </button>
-                                        `
+                                            ? (
+                                                account.lastRentedHours === 6
+                                                  ? `<button class="update-btn" onclick="accountManager.updateRentTime(${realIndex})">Update Waktu</button>`
+                                                  : `<button class="update-btn btn-disabled" disabled>Update Waktu</button>`
+                                              )
                                             : ""
                                         }
                                     </div>
