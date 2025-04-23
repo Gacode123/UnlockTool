@@ -888,12 +888,18 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
       }
+
+      /* Pastikan CSS btn-disabled ada */
+      .btn-disabled {
+        opacity: .55;
+        cursor: not-allowed;
+      }
     </style>
   </head>
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool/blob/main/index.html" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.7.0</div>
+      <div class="version-badge">v2.0.0</div>
     </a>
 
     <!-- Loading Screen -->
@@ -1051,6 +1057,9 @@
     <script>
       // Tambahkan variabel untuk melacak status autentikasi
       let authCheckComplete = false;
+
+      // Daftar durasi yang boleh di-update
+      const UPDATEABLE_HOURS = [6, 9, 12, 24];
 
       // Event listener untuk global error handling
       window.addEventListener("error", function (event) {
@@ -1566,6 +1575,7 @@
           this.updateAccount(index, {
             availableAt: availableAt.toISOString(),
             lastRentedHours: hours, // Tetap menyimpan durasi asli
+            lastRentedMins: hours * 60, // simpan juga dalam menit
             manuallyUpdated: false, // Bukan update manual
           });
 
@@ -1590,12 +1600,10 @@
             delete this.resetTimers[index];
           }
           const account = this.accounts[index];
-          if (!account.lastRentedHours) return; // Tidak ada info durasi sewa sebelumnya
-
+          const mins = account.lastRentedMins;
+          if (!mins) return;
           const now = new Date();
-          const hours = account.lastRentedHours;
-          // Tidak ada buffer 15 menit untuk update karena pembeli sudah dikonfirmasi login
-          const availableAt = new Date(now.getTime() + hours * 60 * 60 * 1000);
+          const availableAt = new Date(now.getTime() + mins * 60000);
 
           this.updateAccount(index, {
             availableAt: availableAt.toISOString(),
@@ -1626,10 +1634,12 @@
             clearTimeout(this.resetTimers[index]);
             delete this.resetTimers[index];
           }
-          // Tidak ada buffer 15 menit untuk input manual karena ini sudah dikonfirmasi login
+          // Hitung selisih menit
+          const diffMs = dateTime - new Date();
+          const diffMins = Math.round(diffMs / 60000);
           this.updateAccount(index, {
             availableAt: dateTime.toISOString(),
-            lastRentedHours: Math.round((dateTime - new Date()) / (1000 * 60 * 60)), // Default 6 jam jika tanggal yang dimasukkan sudah lewat
+            lastRentedMins: diffMins, // simpan menit presisi
             manuallyUpdated: true, // Tandai bahwa akun diupdate secara manual
           });
 
@@ -1864,7 +1874,7 @@
                                         ${
                                           !isAvailable
                                             ? (
-                                                account.lastRentedHours === 6
+                                                UPDATEABLE_HOURS.includes(Math.round((account.lastRentedMins || 0) / 60))
                                                   ? `<button class="update-btn" onclick="accountManager.updateRentTime(${realIndex})">Update Waktu</button>`
                                                   : `<button class="update-btn btn-disabled" disabled>Update Waktu</button>`
                                               )
@@ -1890,30 +1900,23 @@
 
           // Menambahkan informasi waktu sewa jika akun sedang disewa
           if (!isAvailable && account.availableAt) {
-            // Hitung waktu berdasarkan durasi asli (tanpa buffer 15 menit)
-            const now = new Date();
-            const hours = account.lastRentedHours || 6;
-            const actualEndTime = new Date(now.getTime() + hours * 60 * 60 * 1000); // Tanpa buffer 15 menit
-
-            // Format jam dan menit untuk waktu berakhir
-            let endHours = actualEndTime.getHours();
-            let endMinutes = String(actualEndTime.getMinutes()).padStart(2, "0");
-
+            // Gunakan waktu berakhir dan durasi dari lastRentedMins
+            const endTime = new Date(account.availableAt);
+            let endH = endTime.getHours();
+            let endM = String(endTime.getMinutes()).padStart(2, "0");
             // Antisipasi pemblokiran oleh Shopee untuk angka yang mirip nomor handphone Indonesia (08xx)
-            // Jika menit berakhir dengan '08', ubah menjadi '09' untuk teks yang disalin
-            if (endMinutes === "08") {
-              endMinutes = "09";
+            if (endM === "08") {
+              endM = "09";
             }
-
-            // Format waktu yang baru sesuai permintaan dengan menambahkan WIB
-            infoText += `\nWaktu sewa sampai jam ${endHours}:${endMinutes} WIB (${hours} jam dari sekarang)`;
+            const mins = account.lastRentedMins || 360; // fallback 6 jam
+            infoText += `\nWaktu sewa sampai jam ${endH}:${endM} WIB (${minsToText(mins)} dari sekarang)`;
           }
 
           // Menambahkan informasi tambahan
           infoText += `\n\n- Wajib login dalam kurun waktu 1 jam`;
 
           // Hanya tambahkan pesan untuk mengabari jika durasi sewa adalah 6 jam
-          const hours = account.lastRentedHours || 6;
+          const hours = account.lastRentedMins ? Math.round(account.lastRentedMins / 60) : 6;
           if (hours === 6) {
             infoText += `\n- Mohon di-infokan kepada kami jika sudah berhasil login`;
           }
@@ -2438,6 +2441,13 @@
       // Helper untuk debug
       function logDebug(message, data) {
         console.log("[DEBUG] " + message, data || "");
+      }
+
+      // Helper untuk konversi menit ke teks jam+menit
+      function minsToText(total) {
+        const h = Math.floor(total / 60);
+        const m = total % 60;
+        return m ? `${h} jam ${m} menit` : `${h} jam`;
       }
     </script>
   </body>
