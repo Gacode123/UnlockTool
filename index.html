@@ -953,12 +953,6 @@
               <button type="button" id="clearSearch" class="clear-search-btn">&times;</button>
             </div>
 
-            <label for="passwordFilter" class="search-label"><strong>Filter Password:</strong></label>
-            <select id="passwordFilter" class="email-filter">
-              <option value="">Semua Password</option>
-              <!-- Opsi password akan diisi secara dinamis -->
-            </select>
-
             <div class="account-stats"><strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span></div>
           </div>
 
@@ -1898,14 +1892,12 @@
                                     </div>
                                 `
                                     : `
-                                    <label>Durasi Sewa:</label>
                                     <div class="btn-group duration-buttons">
                                         <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 6)">6 Jam</button>
                                         <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 9)">9 Jam</button>
                                         <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 12)">12 Jam</button>
                                         <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 24)">24 Jam</button>
                                     </div>
-                                    <label>Aksi:</label>
                                     <div class="btn-group control-buttons">
                                         <button class="manual-btn" onclick="openManualInput(${realIndex})">Manual</button>
                                         <button class="reset-btn" onclick="accountManager.autoResetWithDelay(${realIndex})">
