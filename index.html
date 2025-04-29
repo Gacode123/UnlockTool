@@ -951,6 +951,12 @@
               <!-- Opsi email akan diisi secara dinamis -->
             </select>
 
+            <label for="passwordFilter"><strong>Filter Password:</strong></label>
+            <select id="passwordFilter" class="email-filter">
+              <option value="">Semua Password</option>
+              <!-- Opsi password akan diisi secara dinamis -->
+            </select>
+
             <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
             <div class="search-container">
               <input type="text" id="usernameSearch" class="search-input" placeholder="Ketik untuk mencari..." />
@@ -1292,6 +1298,11 @@
             accountManager.setEmailFilter(event.target.value);
           });
 
+          // Event listener untuk filter password
+          document.getElementById("passwordFilter")?.addEventListener("change", (event) => {
+            accountManager.setPasswordFilter(event.target.value);
+          });
+
           // Event listener untuk filter pencarian username
           document.getElementById("usernameSearch")?.addEventListener("input", (event) => {
             accountManager.setSearchQuery(event.target.value);
@@ -1439,6 +1450,7 @@
           this.accounts = accounts.length ? accounts : this.createDefaultAccounts();
           this.lastRentedIndex = -1; // Menambahkan properti untuk melacak akun yang baru disewa
           this.selectedEmail = ""; // Menyimpan email yang dipilih untuk filter
+          this.selectedPassword = ""; // Menyimpan password yang dipilih untuk filter
           this.searchQuery = ""; // Menyimpan kata kunci pencarian username
           this.resetTimers = {}; // Tambahkan property untuk menyimpan timer reset
 
@@ -1452,6 +1464,7 @@
                 this.accounts = savedAccounts;
                 this.renderAccounts();
                 this.populateEmailFilter();
+                this.populatePasswordFilter();
               }
             });
 
@@ -1545,6 +1558,7 @@
               }
               this.renderAccounts();
               this.populateEmailFilter();
+              this.populatePasswordFilter();
             })
             .catch((error) => {
               console.error("Error loading data from Firebase:", error);
@@ -1553,6 +1567,7 @@
               this.accounts = savedAccounts ? JSON.parse(savedAccounts) : this.createDefaultAccounts();
               this.renderAccounts();
               this.populateEmailFilter();
+              this.populatePasswordFilter();
             });
         }
 
@@ -1562,6 +1577,10 @@
           // Perbarui filter email jika ada perubahan pada properti email
           if ("email" in data) {
             this.populateEmailFilter();
+          }
+          // Perbarui filter password jika ada perubahan pada properti password
+          if ("password" in data) {
+            this.populatePasswordFilter();
           }
           this.renderAccounts();
         }
@@ -1709,6 +1728,12 @@
           if (this.selectedEmail) {
             filteredAccounts = filteredAccounts.filter((account) => account.email === this.selectedEmail);
             logDebug("Akun setelah filter email: ", filteredAccounts.length);
+          }
+
+          // Tambahkan filter berdasarkan password jika ada password yang dipilih
+          if (this.selectedPassword) {
+            filteredAccounts = filteredAccounts.filter((account) => account.password === this.selectedPassword);
+            logDebug("Akun setelah filter password: ", filteredAccounts.length);
           }
 
           // Tambahkan filter berdasarkan pencarian username jika ada
@@ -2242,6 +2267,31 @@
           }
           // langsung reset tanpa sewa ulang
           this.resetAccount(index);
+        }
+
+        // Metode untuk mengisi dropdown filter password
+        populatePasswordFilter() {
+          const passwordFilter = document.getElementById("passwordFilter");
+          while (passwordFilter.options.length > 1) {
+            passwordFilter.remove(1);
+          }
+          const passwords = Array.from(new Set(this.accounts.filter((account) => account.password && account.password.trim() !== "").map((account) => account.password)));
+          passwords.sort();
+          passwords.forEach((pwd) => {
+            const option = document.createElement("option");
+            option.value = pwd;
+            option.textContent = pwd;
+            passwordFilter.appendChild(option);
+          });
+          passwordFilter.value = this.selectedPassword;
+        }
+
+        // Metode untuk mengatur filter password
+        setPasswordFilter(password) {
+          this.selectedPassword = password;
+          this.renderAccounts();
+          const passwordFilter = document.getElementById("passwordFilter");
+          passwordFilter.value = password;
         }
       }
 
