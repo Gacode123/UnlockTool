@@ -1325,7 +1325,9 @@
 
           // Event listener untuk filter password
           document.getElementById("passwordFilter")?.addEventListener("input", (event) => {
-            accountManager.setPasswordQuery(event.target.value);
+            const queryValue = event.target.value; // Ambil nilai
+            console.log(`[DEBUG] Input filter password berubah: "${queryValue}"`); // Log nilai input
+            accountManager.setPasswordQuery(queryValue); // Kirim nilai ke setter
             // Tampilkan/sembunyikan tombol clear
             const clearButton = document.getElementById("clearPasswordFilter");
             if (clearButton) {
@@ -1746,9 +1748,19 @@
 
           // Filter berdasarkan password
           if (this.passwordQuery) {
-            // Filter case-sensitive untuk password
-            filteredAccounts = filteredAccounts.filter((account) => account.password === this.passwordQuery);
+            console.log(`[DEBUG] Memfilter dengan password: "${this.passwordQuery}"`); // Log query
+            console.log('[DEBUG] Akun sebelum filter password:', JSON.parse(JSON.stringify(filteredAccounts))); // Log akun sebelum filter
+            
+            filteredAccounts = filteredAccounts.filter((account) => {
+              // Log perbandingan untuk setiap akun
+              const storedPassword = account.password;
+              const match = storedPassword === this.passwordQuery;
+              console.log(`[DEBUG] Membandingkan: Akun ${account.username}, Stored: "${storedPassword}", Query: "${this.passwordQuery}", Match: ${match}`);
+              return match; 
+            });
+
             logDebug("Akun setelah filter password: ", filteredAccounts.length);
+            console.log('[DEBUG] Akun setelah filter password:', JSON.parse(JSON.stringify(filteredAccounts))); // Log akun setelah filter
           }
 
           // Hitung jumlah akun yang available
