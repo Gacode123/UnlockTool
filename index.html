@@ -899,7 +899,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool/blob/main/index.html" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.2.0</div>
+      <div class="version-badge">v2.2.1</div>
     </a>
 
     <!-- Loading Screen -->
@@ -1871,18 +1871,18 @@
                             </div>
                             <div class="form-group">
                                 <label for="expiry-${realIndex}">Kadaluarsa Akun:</label>
-                                <input type="date" id="expiry-${realIndex}" value="${account.expiryDate || ""}" 
-                                    onchange="accountManager.updateAccount(${realIndex}, {expiryDate: this.value})">
+                                <div style="display: flex; gap: 5px; margin-bottom: 5px;">
+                                    <input type="date" id="expiry-${realIndex}" value="${account.expiryDate || ""}" 
+                                        onchange="accountManager.updateAccount(${realIndex}, {expiryDate: this.value})"
+                                        style="flex: 1;">
+                                    <button onclick="setExpiryDate(${realIndex}, 30)" class="copy-btn" style="padding: 5px 10px;">30 Hari</button>
+                                    <button onclick="setExpiryDate(${realIndex}, 90)" class="copy-btn" style="padding: 5px 10px;">90 Hari</button>
+                                </div>
                                 ${account.expiryDate ? `
                                     <div class="time-info" style="margin-top: 5px;">
                                         <strong>Sisa Waktu:</strong> ${getRemainingDays(account.expiryDate)}
                                     </div>
                                 ` : ''}
-                            </div>
-                            <div class="form-group">
-                                <label for="note-${realIndex}">Catatan:</label>
-                                <textarea class="note-input" id="note-${realIndex}" 
-                                    onchange="accountManager.updateAccount(${realIndex}, {note: this.value})">${account.note || ""}</textarea>
                             </div>
                             <div class="time-info">
                                 <strong>Status:</strong> ${detailStatusText}
@@ -2542,6 +2542,27 @@
         if (diffDays === 0) return "Hari ini";
         if (diffDays === 1) return "Besok";
         return `${diffDays} hari lagi`;
+      }
+
+      // Fungsi untuk mengatur tanggal kadaluarsa
+      function setExpiryDate(accountIndex, days) {
+        const today = new Date();
+        const expiryDate = new Date(today);
+        expiryDate.setDate(today.getDate() + days);
+        
+        // Format tanggal ke YYYY-MM-DD
+        const year = expiryDate.getFullYear();
+        const month = String(expiryDate.getMonth() + 1).padStart(2, '0');
+        const day = String(expiryDate.getDate()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+        
+        // Update input date
+        const dateInput = document.getElementById(`expiry-${accountIndex}`);
+        if (dateInput) {
+          dateInput.value = formattedDate;
+          // Trigger change event untuk update data
+          dateInput.dispatchEvent(new Event('change'));
+        }
       }
     </script>
   </body>
