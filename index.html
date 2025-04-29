@@ -899,7 +899,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool/blob/main/index.html" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.2.2.1</div>
+      <div class="version-badge">v2.0.0</div>
     </a>
 
     <!-- Loading Screen -->
@@ -1914,7 +1914,7 @@
                                         ${
                                           !isAvailable
                                             ? (
-                                                UPDATEABLE_HOURS.includes(Math.round((account.lastRentedMins || 0) / 60))
+                                                UPDATEABLE_HOURS.includes(Math.floor((account.lastRentedMins || 0) / 60))
                                                   ? `<button class="update-btn" onclick="accountManager.updateRentTime(${realIndex})">Update Waktu</button>`
                                                   : `<button class="update-btn btn-disabled" disabled>Update Waktu</button>`
                                               )
