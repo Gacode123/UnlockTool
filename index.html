@@ -889,18 +889,22 @@
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
       }
 
-      /* Pastikan CSS btn-disabled ada */
+      /* Tombol dinonaktifkan */
       .btn-disabled {
-        opacity: .55;
-        cursor: not-allowed;
+        background-color: #adb5bd !important; /* abu-abu */
+        cursor: not-allowed !important;
+        opacity: 0.7;
       }
     </style>
   </head>
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
-    <a href="https://github.com/Gacode123/UnlockTool/blob/main/index.html" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.0</div>
+    <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
+      <div class="version-badge">v1.7.0</div>
     </a>
+    <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
+      Last All Reset at: <span id="lastResetTime">--:--</span>
+    </div>
 
     <!-- Loading Screen -->
     <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: white; display: flex; justify-content: center; align-items: center; z-index: 9999">
@@ -1057,9 +1061,6 @@
     <script>
       // Tambahkan variabel untuk melacak status autentikasi
       let authCheckComplete = false;
-
-      // Daftar durasi yang boleh di-update
-      const UPDATEABLE_HOURS = [6, 9, 12, 24];
 
       // Event listener untuk global error handling
       window.addEventListener("error", function (event) {
@@ -1317,11 +1318,6 @@
             }
           });
 
-          // Event listener untuk filter password
-          document.getElementById("passwordFilter")?.addEventListener("change", (event) => {
-            accountManager.setPasswordQuery(event.target.value);
-          });
-
           // Event listener untuk tombol scroll to top
           const scrollToTopBtn = document.getElementById("scrollToTop");
 
@@ -1360,6 +1356,8 @@
           // Event listener untuk tombol Reset All Available
           document.getElementById("resetAllBtn").addEventListener("click", () => accountManager.resetAllAvailable());
 
+          // Set label waktu reset awal
+          document.getElementById('lastResetTime').textContent = '--:--';
           // Inisialisasi countdown reset berikutnya
           // HAPUS: scheduleNextReset();
           // HAPUS: setInterval(updateCountdown, 1000);
@@ -1442,7 +1440,6 @@
           this.lastRentedIndex = -1; // Menambahkan properti untuk melacak akun yang baru disewa
           this.selectedEmail = ""; // Menyimpan email yang dipilih untuk filter
           this.searchQuery = ""; // Menyimpan kata kunci pencarian username
-          this.passwordQuery = ""; // Menyimpan filter password
           this.resetTimers = {}; // Tambahkan property untuk menyimpan timer reset
 
           // Tambahkan listener Firebase untuk real-time updates
@@ -1471,7 +1468,7 @@
               password: "wawawa666",
               email: "",
               availableAt: null,
-              expiryDate: null, // Tambahkan properti expiryDate
+              note: "",
               isReady: true, // Akun default sudah ready
             });
           }
@@ -1523,9 +1520,6 @@
               // Fallback ke localStorage jika Firebase gagal
               localStorage.setItem("unlockToolAccounts", JSON.stringify(this.accounts));
             });
-          // Perbarui filter setelah menyimpan
-          this.populateEmailFilter();
-          this.populatePasswordFilter();
         }
 
         loadAccounts() {
@@ -1551,7 +1545,6 @@
               }
               this.renderAccounts();
               this.populateEmailFilter();
-              this.populatePasswordFilter();
             })
             .catch((error) => {
               console.error("Error loading data from Firebase:", error);
@@ -1560,7 +1553,6 @@
               this.accounts = savedAccounts ? JSON.parse(savedAccounts) : this.createDefaultAccounts();
               this.renderAccounts();
               this.populateEmailFilter();
-              this.populatePasswordFilter();
             });
         }
 
@@ -1586,7 +1578,6 @@
           this.updateAccount(index, {
             availableAt: availableAt.toISOString(),
             lastRentedHours: hours, // Tetap menyimpan durasi asli
-            lastRentedMins: hours * 60, // simpan juga dalam menit
             manuallyUpdated: false, // Bukan update manual
           });
 
@@ -1611,10 +1602,12 @@
             delete this.resetTimers[index];
           }
           const account = this.accounts[index];
-          const mins = account.lastRentedMins;
-          if (!mins) return;
+          if (!account.lastRentedHours) return; // Tidak ada info durasi sewa sebelumnya
+
           const now = new Date();
-          const availableAt = new Date(now.getTime() + mins * 60000);
+          const hours = account.lastRentedHours;
+          // Tidak ada buffer 15 menit untuk update karena pembeli sudah dikonfirmasi login
+          const availableAt = new Date(now.getTime() + hours * 60 * 60 * 1000);
 
           this.updateAccount(index, {
             availableAt: availableAt.toISOString(),
@@ -1645,12 +1638,10 @@
             clearTimeout(this.resetTimers[index]);
             delete this.resetTimers[index];
           }
-          // Hitung selisih menit
-          const diffMs = dateTime - new Date();
-          const diffMins = Math.round(diffMs / 60000);
+          // Tidak ada buffer 15 menit untuk input manual karena ini sudah dikonfirmasi login
           this.updateAccount(index, {
             availableAt: dateTime.toISOString(),
-            lastRentedMins: diffMins, // simpan menit presisi
+            lastRentedHours: Math.round((dateTime - new Date()) / (1000 * 60 * 60)), // Default 6 jam jika tanggal yang dimasukkan sudah lewat
             manuallyUpdated: true, // Tandai bahwa akun diupdate secara manual
           });
 
@@ -1725,23 +1716,6 @@
             const query = this.searchQuery.toLowerCase();
             filteredAccounts = filteredAccounts.filter((account) => account.username.toLowerCase().includes(query));
             logDebug("Akun setelah filter pencarian: ", filteredAccounts.length);
-          }
-
-          // Filter berdasarkan password
-          if (this.passwordQuery) {
-            console.log(`[DEBUG] Memfilter dengan password: "${this.passwordQuery}"`); // Log query
-            console.log('[DEBUG] Akun sebelum filter password:', JSON.parse(JSON.stringify(filteredAccounts))); // Log akun sebelum filter
-            
-            filteredAccounts = filteredAccounts.filter((account) => {
-              // Log perbandingan untuk setiap akun
-              const storedPassword = account.password;
-              const match = storedPassword === this.passwordQuery;
-              console.log(`[DEBUG] Membandingkan: Akun ${account.username}, Stored: "${storedPassword}", Query: "${this.passwordQuery}", Match: ${match}`);
-              return match; 
-            });
-
-            logDebug("Akun setelah filter password: ", filteredAccounts.length);
-            console.log('[DEBUG] Akun setelah filter password:', JSON.parse(JSON.stringify(filteredAccounts))); // Log akun setelah filter
           }
 
           // Hitung jumlah akun yang available
@@ -1864,15 +1838,9 @@
                                     onchange="accountManager.updateAccount(${realIndex}, {email: this.value})">
                             </div>
                             <div class="form-group">
-                                <label for="expiry-${realIndex}">Kadaluarsa Akun:</label>
-                                <input type="text" id="expiry-${realIndex}" value="${formatDateToDDMMYYYY(account.expiryDate) || ""}" 
-                                    placeholder="DD-MM-YYYY"
-                                    onchange="accountManager.updateAccount(${realIndex}, {expiryDate: formatDateToYYYYMMDD(this.value)})">
-                                ${account.expiryDate ? `
-                                    <div class="time-info" style="margin-top: 5px;">
-                                        <strong>Sisa Waktu:</strong> ${getRemainingDays(account.expiryDate)}
-                                    </div>
-                                ` : ''}
+                                <label for="note-${realIndex}">Catatan:</label>
+                                <textarea class="note-input" id="note-${realIndex}" 
+                                    onchange="accountManager.updateAccount(${realIndex}, {note: this.value})">${account.note || ""}</textarea>
                             </div>
                             <div class="time-info">
                                 <strong>Status:</strong> ${detailStatusText}
@@ -1892,12 +1860,14 @@
                                     </div>
                                 `
                                     : `
+                                    <label>Durasi Sewa:</label>
                                     <div class="btn-group duration-buttons">
                                         <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 6)">6 Jam</button>
                                         <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 9)">9 Jam</button>
                                         <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 12)">12 Jam</button>
                                         <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 24)">24 Jam</button>
                                     </div>
+                                    <label>Aksi:</label>
                                     <div class="btn-group control-buttons">
                                         <button class="manual-btn" onclick="openManualInput(${realIndex})">Manual</button>
                                         <button class="reset-btn" onclick="accountManager.autoResetWithDelay(${realIndex})">
@@ -1906,7 +1876,7 @@
                                         ${
                                           !isAvailable
                                             ? (
-                                                UPDATEABLE_HOURS.includes(Math.floor((account.lastRentedMins || 0) / 60))
+                                                account.lastRentedHours === 6
                                                   ? `<button class="update-btn" onclick="accountManager.updateRentTime(${realIndex})">Update Waktu</button>`
                                                   : `<button class="update-btn btn-disabled" disabled>Update Waktu</button>`
                                               )
@@ -1932,23 +1902,30 @@
 
           // Menambahkan informasi waktu sewa jika akun sedang disewa
           if (!isAvailable && account.availableAt) {
-            // Gunakan waktu berakhir dan durasi dari lastRentedMins
-            const endTime = new Date(account.availableAt);
-            let endH = endTime.getHours();
-            let endM = String(endTime.getMinutes()).padStart(2, "0");
+            // Hitung waktu berdasarkan durasi asli (tanpa buffer 15 menit)
+            const now = new Date();
+            const hours = account.lastRentedHours || 6;
+            const actualEndTime = new Date(now.getTime() + hours * 60 * 60 * 1000); // Tanpa buffer 15 menit
+
+            // Format jam dan menit untuk waktu berakhir
+            let endHours = actualEndTime.getHours();
+            let endMinutes = String(actualEndTime.getMinutes()).padStart(2, "0");
+
             // Antisipasi pemblokiran oleh Shopee untuk angka yang mirip nomor handphone Indonesia (08xx)
-            if (endM === "08") {
-              endM = "09";
+            // Jika menit berakhir dengan '08', ubah menjadi '09' untuk teks yang disalin
+            if (endMinutes === "08") {
+              endMinutes = "09";
             }
-            const mins = account.lastRentedMins || 360; // fallback 6 jam
-            infoText += `\nWaktu sewa sampai jam ${endH}:${endM} WIB (${minsToText(mins)} dari sekarang)`;
+
+            // Format waktu yang baru sesuai permintaan dengan menambahkan WIB
+            infoText += `\nWaktu sewa sampai jam ${endHours}:${endMinutes} WIB (${hours} jam dari sekarang)`;
           }
 
           // Menambahkan informasi tambahan
           infoText += `\n\n- Wajib login dalam kurun waktu 1 jam`;
 
           // Hanya tambahkan pesan untuk mengabari jika durasi sewa adalah 6 jam
-          const hours = account.lastRentedMins ? Math.round(account.lastRentedMins / 60) : 6;
+          const hours = account.lastRentedHours || 6;
           if (hours === 6) {
             infoText += `\n- Mohon di-infokan kepada kami jika sudah berhasil login`;
           }
@@ -2089,35 +2066,6 @@
           emailFilter.value = this.selectedEmail;
         }
 
-        // Metode untuk mengisi dropdown filter password
-        populatePasswordFilter() {
-          const passwordFilter = document.getElementById("passwordFilter");
-
-          // Hapus semua opsi kecuali opsi default
-          while (passwordFilter.options.length > 1) {
-            passwordFilter.remove(1);
-          }
-
-          // Ambil semua password yang tidak kosong dan unik
-          const passwords = [...new Set(this.accounts
-            .filter((account) => account.password && account.password.trim() !== "")
-            .map((account) => account.password))];
-
-          // Urutkan password secara alfabetis
-          passwords.sort();
-
-          // Tambahkan password ke dropdown
-          passwords.forEach((password) => {
-            const option = document.createElement("option");
-            option.value = password;
-            option.textContent = password;
-            passwordFilter.appendChild(option);
-          });
-
-          // Set nilai dropdown ke password yang dipilih saat ini
-          passwordFilter.value = this.passwordQuery;
-        }
-
         // Metode untuk mengatur filter email
         setEmailFilter(email) {
           this.selectedEmail = email;
@@ -2132,12 +2080,6 @@
         setSearchQuery(query) {
           this.searchQuery = query;
           this.renderAccounts();
-        }
-
-        // Metode untuk mengatur filter password
-        setPasswordQuery(query) {
-          this.passwordQuery = query; // Simpan query password (tanpa trim, case sensitive)
-          this.renderAccounts(); // Render ulang akun dengan filter baru
         }
 
         // Metode untuk quick renting (otomatis menyewa akun yang tersedia)
@@ -2276,6 +2218,8 @@
                   manuallyUpdated: wasManual
               });
           });
+          // update label reset terakhir
+          document.getElementById('lastResetTime').textContent = formatHHMM(new Date());
           this.showNotification(`Auto-reset ${availableIndices.length} akun selesai`);
         }
 
@@ -2508,42 +2452,6 @@
       // Helper untuk debug
       function logDebug(message, data) {
         console.log("[DEBUG] " + message, data || "");
-      }
-
-      // Helper untuk konversi menit ke teks jam+menit
-      function minsToText(total) {
-        const h = Math.floor(total / 60);
-        const m = total % 60;
-        return m ? `${h} jam ${m} menit` : `${h} jam`;
-      }
-
-      // Helper untuk menghitung sisa hari kadaluarsa
-      function getRemainingDays(expiryDate) {
-        if (!expiryDate) return "Belum diatur";
-        
-        const today = new Date();
-        const expiry = new Date(expiryDate);
-        const diffTime = expiry - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        if (diffDays < 0) return "Kadaluarsa";
-        if (diffDays === 0) return "Hari ini";
-        if (diffDays === 1) return "Besok";
-        return `${diffDays} hari lagi`;
-      }
-
-      // Fungsi untuk mengkonversi YYYY-MM-DD ke DD-MM-YYYY
-      function formatDateToDDMMYYYY(dateStr) {
-        if (!dateStr) return "";
-        const [year, month, day] = dateStr.split('-');
-        return `${day}-${month}-${year}`;
-      }
-
-      // Fungsi untuk mengkonversi DD-MM-YYYY ke YYYY-MM-DD
-      function formatDateToYYYYMMDD(dateStr) {
-        if (!dateStr) return "";
-        const [day, month, year] = dateStr.split('-');
-        return `${year}-${month}-${day}`;
       }
     </script>
   </body>
