@@ -1138,7 +1138,6 @@
           clearPwdBtn.addEventListener("click", function() {
             if (accountManager) {
               accountManager.setPasswordFilter("");
-              accountManager.populatePasswordFilter();
             }
           });
         }
@@ -2313,9 +2312,10 @@
         // Metode untuk mengatur filter password
         setPasswordFilter(password) {
           this.selectedPassword = password;
-          this.renderAccounts();
           const passwordFilter = document.getElementById("passwordFilter");
           passwordFilter.value = password;
+          this.renderAccounts();
+          this.populatePasswordFilter(); // Pastikan UI selalu update setelah set
         }
       }
 
