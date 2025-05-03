@@ -957,14 +957,6 @@
               <button type="button" id="clearSearch" class="clear-search-btn">&times;</button>
             </div>
 
-            <label for="passwordFilter"><strong>Filter Password:</strong></label>
-            <div style="display: flex; align-items: center; gap: 5px;">
-              <select id="passwordFilter" class="email-filter">
-                <option value="">Semua Password</option>
-                <!-- Opsi password akan diisi secara dinamis -->
-              </select>
-              <button id="clearPasswordFilterBtn" title="Hapus filter password" style="background: none; border: none; color: #e03131; font-size: 20px; cursor: pointer; padding: 0 8px;">&times;</button>
-            </div>
             <div id="passwordListContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;"></div>
 
             <div class="account-stats"><strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span></div>
@@ -2307,7 +2299,7 @@
           const passwordFilter = document.getElementById("passwordFilter");
           passwordFilter.value = password;
           this.renderAccounts();
-          this.populatePasswordFilter(); // Pastikan UI selalu update setelah set
+          this.renderPasswordList(); // Pastikan UI selalu update setelah set
         }
 
         renderPasswordList() {
@@ -2321,14 +2313,26 @@
             const item = document.createElement("div");
             item.style.display = "flex";
             item.style.alignItems = "center";
-            item.style.background = "#f8f9fa";
-            item.style.border = "1px solid #ddd";
+            item.style.background = (this.selectedPassword === pwd) ? "#dbeafe" : "#f8f9fa";
+            item.style.border = (this.selectedPassword === pwd) ? "2px solid #5469d4" : "1px solid #ddd";
             item.style.borderRadius = "5px";
             item.style.padding = "2px 8px 2px 8px";
             item.style.fontSize = "0.95em";
+            item.style.cursor = "pointer";
             item.innerHTML = `<span>${pwd}</span><button title='Hapus password ini dari semua akun' style='background:none;border:none;color:#e03131;font-size:16px;cursor:pointer;margin-left:4px;'>&times;</button>`;
+            // Klik pada span password untuk filter
+            item.querySelector("span").addEventListener("click", (e) => {
+              e.stopPropagation();
+              if (this.selectedPassword === pwd) {
+                this.setPasswordFilter(""); // reset filter jika sudah aktif
+              } else {
+                this.setPasswordFilter(pwd);
+              }
+            });
+            // Klik pada tombol X untuk hapus password
             const btn = item.querySelector("button");
-            btn.addEventListener("click", () => {
+            btn.addEventListener("click", (e) => {
+              e.stopPropagation();
               if (confirm(`Hapus password '${pwd}' dari semua akun?`)) {
                 this.deletePasswordFromAllAccounts(pwd);
               }
