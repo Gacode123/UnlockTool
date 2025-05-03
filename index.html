@@ -958,10 +958,13 @@
             </div>
 
             <label for="passwordFilter"><strong>Filter Password:</strong></label>
-            <select id="passwordFilter" class="email-filter">
-              <option value="">Semua Password</option>
-              <!-- Opsi password akan diisi secara dinamis -->
-            </select>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <select id="passwordFilter" class="email-filter">
+                <option value="">Semua Password</option>
+                <!-- Opsi password akan diisi secara dinamis -->
+              </select>
+              <button id="clearPasswordFilterBtn" title="Hapus filter password" style="display:none; background: none; border: none; color: #e03131; font-size: 20px; cursor: pointer; padding: 0 8px;">&times;</button>
+            </div>
 
             <div class="account-stats"><strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span></div>
           </div>
@@ -1129,6 +1132,16 @@
             }
           });
         }, 300); // Kurangi delay loading menjadi 300ms
+
+        const clearPwdBtn = document.getElementById("clearPasswordFilterBtn");
+        if (clearPwdBtn) {
+          clearPwdBtn.addEventListener("click", function() {
+            if (accountManager) {
+              accountManager.setPasswordFilter("");
+              accountManager.populatePasswordFilter();
+            }
+          });
+        }
       });
 
       // Event listener untuk tombol login
@@ -2272,6 +2285,7 @@
         // Metode untuk mengisi dropdown filter password
         populatePasswordFilter() {
           const passwordFilter = document.getElementById("passwordFilter");
+          const clearBtn = document.getElementById("clearPasswordFilterBtn");
           while (passwordFilter.options.length > 1) {
             passwordFilter.remove(1);
           }
@@ -2286,8 +2300,13 @@
           passwordFilter.value = this.selectedPassword;
           // Tambahan: reset filter jika password yang dipilih sudah tidak ada di data
           if (this.selectedPassword && !passwords.includes(this.selectedPassword)) {
-            this.selectedPassword = "";
-            passwordFilter.value = "";
+            // Tampilkan tombol silang
+            if (clearBtn) clearBtn.style.display = "inline-block";
+          } else {
+            if (clearBtn) clearBtn.style.display = "none";
+          }
+          if (this.selectedPassword && !passwords.includes(this.selectedPassword)) {
+            // Jangan reset otomatis, biarkan user klik silang
           }
         }
 
