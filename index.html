@@ -2284,6 +2284,11 @@
             passwordFilter.appendChild(option);
           });
           passwordFilter.value = this.selectedPassword;
+          // Tambahan: reset filter jika password yang dipilih sudah tidak ada di data
+          if (this.selectedPassword && !passwords.includes(this.selectedPassword)) {
+            this.selectedPassword = "";
+            passwordFilter.value = "";
+          }
         }
 
         // Metode untuk mengatur filter password
