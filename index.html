@@ -963,7 +963,7 @@
                 <option value="">Semua Password</option>
                 <!-- Opsi password akan diisi secara dinamis -->
               </select>
-              <button id="clearPasswordFilterBtn" title="Hapus filter password" style="display:none; background: none; border: none; color: #e03131; font-size: 20px; cursor: pointer; padding: 0 8px;">&times;</button>
+              <button id="clearPasswordFilterBtn" title="Hapus filter password" style="background: none; border: none; color: #e03131; font-size: 20px; cursor: pointer; padding: 0 8px;">&times;</button>
             </div>
 
             <div class="account-stats"><strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span></div>
@@ -2284,7 +2284,6 @@
         // Metode untuk mengisi dropdown filter password
         populatePasswordFilter() {
           const passwordFilter = document.getElementById("passwordFilter");
-          const clearBtn = document.getElementById("clearPasswordFilterBtn");
           while (passwordFilter.options.length > 1) {
             passwordFilter.remove(1);
           }
@@ -2296,17 +2295,8 @@
             option.textContent = pwd;
             passwordFilter.appendChild(option);
           });
-
-          // Ambil value yang sedang terpilih di dropdown (bisa dari this.selectedPassword atau langsung dari elemen)
           const selected = this.selectedPassword || passwordFilter.value;
           passwordFilter.value = selected;
-
-          // Jika password yang terpilih tidak ada di data, tampilkan tombol silang
-          if (selected && !passwords.includes(selected)) {
-            if (clearBtn) clearBtn.style.display = "inline-block";
-          } else {
-            if (clearBtn) clearBtn.style.display = "none";
-          }
         }
 
         // Metode untuk mengatur filter password
