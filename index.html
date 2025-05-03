@@ -2297,16 +2297,16 @@
             option.textContent = pwd;
             passwordFilter.appendChild(option);
           });
-          passwordFilter.value = this.selectedPassword;
-          // Tambahan: reset filter jika password yang dipilih sudah tidak ada di data
-          if (this.selectedPassword && !passwords.includes(this.selectedPassword)) {
-            // Tampilkan tombol silang
+
+          // Ambil value yang sedang terpilih di dropdown (bisa dari this.selectedPassword atau langsung dari elemen)
+          const selected = this.selectedPassword || passwordFilter.value;
+          passwordFilter.value = selected;
+
+          // Jika password yang terpilih tidak ada di data, tampilkan tombol silang
+          if (selected && !passwords.includes(selected)) {
             if (clearBtn) clearBtn.style.display = "inline-block";
           } else {
             if (clearBtn) clearBtn.style.display = "none";
-          }
-          if (this.selectedPassword && !passwords.includes(this.selectedPassword)) {
-            // Jangan reset otomatis, biarkan user klik silang
           }
         }
 
