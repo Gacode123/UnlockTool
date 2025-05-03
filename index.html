@@ -965,6 +965,7 @@
               </select>
               <button id="clearPasswordFilterBtn" title="Hapus filter password" style="background: none; border: none; color: #e03131; font-size: 20px; cursor: pointer; padding: 0 8px;">&times;</button>
             </div>
+            <div id="passwordListContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;"></div>
 
             <div class="account-stats"><strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span></div>
           </div>
@@ -2297,6 +2298,7 @@
           });
           const selected = this.selectedPassword || passwordFilter.value;
           passwordFilter.value = selected;
+          this.renderPasswordList();
         }
 
         // Metode untuk mengatur filter password
@@ -2306,6 +2308,48 @@
           passwordFilter.value = password;
           this.renderAccounts();
           this.populatePasswordFilter(); // Pastikan UI selalu update setelah set
+        }
+
+        renderPasswordList() {
+          const container = document.getElementById("passwordListContainer");
+          if (!container) return;
+          container.innerHTML = "";
+          // Ambil password unik
+          const passwords = Array.from(new Set(this.accounts.filter(acc => acc.password && acc.password.trim() !== "").map(acc => acc.password)));
+          passwords.sort();
+          passwords.forEach(pwd => {
+            const item = document.createElement("div");
+            item.style.display = "flex";
+            item.style.alignItems = "center";
+            item.style.background = "#f8f9fa";
+            item.style.border = "1px solid #ddd";
+            item.style.borderRadius = "5px";
+            item.style.padding = "2px 8px 2px 8px";
+            item.style.fontSize = "0.95em";
+            item.innerHTML = `<span>${pwd}</span><button title='Hapus password ini dari semua akun' style='background:none;border:none;color:#e03131;font-size:16px;cursor:pointer;margin-left:4px;'>&times;</button>`;
+            const btn = item.querySelector("button");
+            btn.addEventListener("click", () => {
+              if (confirm(`Hapus password '${pwd}' dari semua akun?`)) {
+                this.deletePasswordFromAllAccounts(pwd);
+              }
+            });
+            container.appendChild(item);
+          });
+        }
+
+        deletePasswordFromAllAccounts(pwd) {
+          let changed = false;
+          this.accounts.forEach((acc, i) => {
+            if (acc.password === pwd) {
+              this.updateAccount(i, { password: "" });
+              changed = true;
+            }
+          });
+          if (changed) {
+            this.showNotification(`Password '${pwd}' dihapus dari semua akun.`);
+            this.populatePasswordFilter();
+            this.renderPasswordList();
+          }
         }
       }
 
