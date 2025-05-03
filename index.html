@@ -2326,9 +2326,15 @@
             item.style.borderRadius = "5px";
             item.style.padding = "2px 8px 2px 8px";
             item.style.fontSize = "0.95em";
-            item.innerHTML = `<span>${pwd}</span><button title='Hapus password ini dari semua akun' style='background:none;border:none;color:#e03131;font-size:16px;cursor:pointer;margin-left:4px;'>&times;</button>`;
+            item.style.cursor = "pointer";
+            item.innerHTML = `<span style='cursor:pointer;'>${pwd}</span><button title='Hapus password ini dari semua akun' style='background:none;border:none;color:#e03131;font-size:16px;cursor:pointer;margin-left:4px;'>&times;</button>`;
+            const span = item.querySelector("span");
+            span.addEventListener("click", () => {
+              this.setPasswordFilter(pwd);
+            });
             const btn = item.querySelector("button");
-            btn.addEventListener("click", () => {
+            btn.addEventListener("click", (e) => {
+              e.stopPropagation();
               if (confirm(`Hapus password '${pwd}' dari semua akun?`)) {
                 this.deletePasswordFromAllAccounts(pwd);
               }
