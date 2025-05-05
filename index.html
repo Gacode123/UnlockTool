@@ -1027,6 +1027,7 @@
     <div id="appContainer" style="display: none">
       <div class="container">
         <div class="buttons-container">
+          <button id="addAccountBtn" class="action-btn add-btn">Tambah Akun Baru</button>
           <button id="bulkAddBtn" class="action-btn add-btn">Bulk Add Account</button>
           <button id="bulkChangePwdBtn" class="action-btn purple-btn">Bulk Change Password</button>
           <button class="action-btn ads-btn">Setting Iklan</button>
@@ -1362,6 +1363,10 @@
           }
 
           // Tambahan optional chaining (?.) untuk mencegah error jika tombol tidak ditemukan
+          document.getElementById("addAccountBtn")?.addEventListener("click", () => {
+            accountManager.addAccount();
+          });
+
           document.getElementById("bulkAddBtn")?.addEventListener("click", openBulkModal);
           document.getElementById("bulkChangePwdBtn")?.addEventListener("click", openBulkChangePwdModal);
 
@@ -1589,6 +1594,89 @@
             });
           }
           return defaultAccounts;
+        }
+
+        addAccount() {
+          const newId = this.accounts.length > 0 ? Math.max(...this.accounts.map((account) => account.id)) + 1 : 1;
+
+          const newAccount = {
+            id: newId,
+            name: `Akun ${newId}`,
+            username: `akun${newId}`,
+            password: "wawawa666",
+            email: "",
+            availableAt: null,
+            note: "",
+            isReady: false, // Akun baru belum ready
+          };
+
+          // Tambahkan akun baru ke awal array
+          this.accounts.unshift(newAccount);
+          this.saveAccounts();
+          this.populateEmailFilter();
+          this.renderAccounts();
+
+          // Scroll ke atas halaman
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+
+          // Tampilkan notifikasi akun baru ditambahkan
+          this.showNotification(`Akun baru (Akun ${newId}) telah ditambahkan`);
+        }
+
+        saveAccounts() {
+          // Firebase: Simpan data ke Realtime Database
+          firebase
+            .database()
+            .ref("accounts")
+            .set(this.accounts)
+            .then(() => {
+              console.log("Data saved successfully to Firebase");
+              this.syncWithDatabase();
+            })
+            .catch((error) => {
+              console.error("Error saving data to Firebase:", error);
+              // Fallback ke localStorage jika Firebase gagal
+              localStorage.setItem("unlockToolAccounts", JSON.stringify(this.accounts));
+            });
+        }
+
+        loadAccounts() {
+          // Firebase: Ambil data dari Realtime Database
+          firebase
+            .database()
+            .ref("accounts")
+            .once("value")
+            .then((snapshot) => {
+              const savedAccounts = snapshot.val();
+              if (savedAccounts) {
+                this.accounts = savedAccounts;
+              } else {
+                // Jika tidak ada data di Firebase, coba ambil dari localStorage
+                const localAccounts = localStorage.getItem("unlockToolAccounts");
+                if (localAccounts) {
+                  this.accounts = JSON.parse(localAccounts);
+                  // Simpan data localStorage ke Firebase
+                  this.saveAccounts();
+                } else {
+                  this.accounts = this.createDefaultAccounts();
+                }
+              }
+              this.renderAccounts();
+              this.populateEmailFilter();
+              this.populatePasswordFilter();
+            })
+            .catch((error) => {
+              console.error("Error loading data from Firebase:", error);
+              // Fallback ke localStorage jika Firebase gagal
+              const savedAccounts = localStorage.getItem("unlockToolAccounts");
+              this.accounts = savedAccounts ? JSON.parse(savedAccounts) : this.createDefaultAccounts();
+              this.renderAccounts();
+              this.populateEmailFilter();
+              this.populatePasswordFilter();
+            });
         }
 
         updateAccount(index, data) {
