@@ -973,7 +973,8 @@
       /* Container untuk password cards */
       #passwordListContainer {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
         gap: 6px;
         margin-top: 8px;
         min-height: 50px;
@@ -2384,6 +2385,7 @@
           });
           const selected = this.selectedPassword || passwordFilter.value;
           passwordFilter.value = selected;
+          this.renderAccounts();
           this.renderPasswordList();
         }
 
