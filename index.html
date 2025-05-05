@@ -2399,13 +2399,21 @@
 
         // Metode untuk mengatur filter password
         setPasswordFilter(password) {
+          // Jika password yang sama diklik lagi, lakukan unfilter
+          if (this.selectedPassword === password) {
+            this.selectedPassword = "";
+            const passwordFilter = document.getElementById("passwordFilter");
+            if (passwordFilter) passwordFilter.value = "";
+            // Hilangkan highlight
+            document.querySelectorAll('.password-card').forEach(card => card.classList.remove('active'));
+            this.renderAccounts();
+            return;
+          }
+          // Jika password berbeda, lakukan filter & highlight
           this.selectedPassword = password;
           const passwordFilter = document.getElementById("passwordFilter");
-          if (passwordFilter) {
-            passwordFilter.value = password;
-          }
-          
-          // Tambahkan highlight pada password card yang terpilih
+          if (passwordFilter) passwordFilter.value = password;
+          // Highlight card yang dipilih
           const passwordCards = document.querySelectorAll('.password-card');
           passwordCards.forEach(card => {
             if (card.getAttribute('data-password') === password) {
@@ -2414,7 +2422,6 @@
               card.classList.remove('active');
             }
           });
-          
           this.renderAccounts();
           this.populatePasswordFilter(); // Pastikan UI selalu update setelah set
         }
@@ -2441,6 +2448,7 @@
             
             const span = item.querySelector("span");
             span.addEventListener("click", () => {
+              // Toggle: jika sudah aktif, maka unfilter
               this.setPasswordFilter(pwd);
             });
             
