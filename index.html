@@ -14,6 +14,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
+    <!-- Tambahkan SortableJS untuk drag n drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
     <!-- Firebase Config -->
     <script>
       const firebaseConfig = {
@@ -83,7 +86,7 @@
       .version-badge:hover {
         background-color: #4559b3;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
 
       .container {
@@ -894,6 +897,90 @@
         background-color: #adb5bd !important; /* abu-abu */
         cursor: not-allowed !important;
         opacity: 0.7;
+      }
+
+      /* Style untuk Password Cards yang bisa di-drag */
+      .password-card {
+        display: flex;
+        align-items: center;
+        background: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 6px 10px;
+        margin: 4px 0;
+        font-size: 0.95em;
+        cursor: move; /* Menunjukkan item bisa di-drag */
+        user-select: none; /* Mencegah seleksi teks saat drag */
+        transition: all 0.2s ease;
+        position: relative;
+        z-index: 1;
+      }
+
+      .password-card:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      .password-card.sortable-chosen {
+        background: #e7f5ff;
+        border-color: #74c0fc;
+        opacity: 0.8;
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+      }
+
+      .password-card.sortable-ghost {
+        opacity: 0.4;
+        background: #e7f5ff;
+      }
+
+      .password-card.sortable-drag {
+        opacity: 0.9;
+        transform: rotate(2deg) scale(1.05);
+        transition: transform 0.15s cubic-bezier(0.2, 0, 0.13, 2);
+      }
+
+      .password-card span {
+        flex: 1;
+        cursor: pointer;
+        padding: 2px 4px;
+      }
+
+      .password-card .delete-btn {
+        background: none;
+        border: none;
+        color: #e03131;
+        font-size: 16px;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: all 0.2s ease;
+        margin-left: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+      }
+
+      .password-card .delete-btn:hover {
+        opacity: 1;
+        background-color: rgba(224, 49, 49, 0.1);
+      }
+
+      /* Container untuk password cards */
+      #passwordListContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 8px;
+        min-height: 50px;
+        padding: 5px;
+        background-color: #fff;
+        border-radius: 8px;
+        border: 1px dashed #ddd;
       }
     </style>
   </head>
@@ -2318,20 +2405,19 @@
           passwords.sort();
           passwords.forEach(pwd => {
             const item = document.createElement("div");
-            item.style.display = "flex";
-            item.style.alignItems = "center";
-            item.style.background = "#f8f9fa";
-            item.style.border = "1px solid #ddd";
-            item.style.borderRadius = "5px";
-            item.style.padding = "2px 8px 2px 8px";
-            item.style.fontSize = "0.95em";
-            item.style.cursor = "pointer";
-            item.innerHTML = `<span style='cursor:pointer;'>${pwd}</span><button title='Hapus password ini dari semua akun' style='background:none;border:none;color:#e03131;font-size:16px;cursor:pointer;margin-left:4px;'>&times;</button>`;
+            item.className = "password-card";
+            item.setAttribute("data-password", pwd);
+            item.innerHTML = `
+              <span title="Klik untuk filter password ini">${pwd}</span>
+              <button class="delete-btn" title="Hapus password ini dari semua akun">&times;</button>
+            `;
+            
             const span = item.querySelector("span");
             span.addEventListener("click", () => {
               this.setPasswordFilter(pwd);
             });
-            const btn = item.querySelector("button");
+            
+            const btn = item.querySelector(".delete-btn");
             btn.addEventListener("click", (e) => {
               e.stopPropagation();
               if (confirm(`Hapus password '${pwd}' dari semua akun?`)) {
@@ -2340,6 +2426,49 @@
             });
             container.appendChild(item);
           });
+
+          // Inisialisasi Sortable untuk drag dan drop
+          if (!this.passwordSortable) {
+            this.passwordSortable = new Sortable(container, {
+              animation: 150,
+              ghostClass: 'sortable-ghost',
+              chosenClass: 'sortable-chosen',
+              dragClass: 'sortable-drag',
+              easing: "cubic-bezier(0.2, 0, 0.13, 2)",
+              delay: 50, // Delay sebelum drag dimulai
+              delayOnTouchOnly: true,
+              touchStartThreshold: 3,
+              onEnd: (evt) => {
+                // Menunjukkan notifikasi posisi password telah diubah
+                this.showNotification("Posisi password berhasil diubah");
+                
+                // Simpan urutan password dalam localStorage jika diperlukan
+                const passwords = Array.from(container.children).map(el => el.getAttribute('data-password'));
+                localStorage.setItem('passwordOrder', JSON.stringify(passwords));
+              }
+            });
+          }
+
+          // Restore urutan password dari localStorage jika ada
+          const savedOrder = localStorage.getItem('passwordOrder');
+          if (savedOrder) {
+            try {
+              const orderArray = JSON.parse(savedOrder);
+              // Urutkan password card berdasarkan order yang tersimpan
+              [...container.children]
+                .sort((a, b) => {
+                  const aIndex = orderArray.indexOf(a.getAttribute('data-password'));
+                  const bIndex = orderArray.indexOf(b.getAttribute('data-password'));
+                  // Jika tidak ada dalam array, letakkan di akhir
+                  if (aIndex === -1) return 1;
+                  if (bIndex === -1) return -1;
+                  return aIndex - bIndex;
+                })
+                .forEach(node => container.appendChild(node));
+            } catch (e) {
+              console.error("Error restoring password order:", e);
+            }
+          }
         }
 
         deletePasswordFromAllAccounts(pwd) {
