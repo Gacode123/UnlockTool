@@ -983,6 +983,14 @@
         border-radius: 8px;
         border: 1px dashed #ddd;
       }
+
+      /* Style untuk password card yang aktif/terpilih */
+      .password-card.active {
+        background: #e7f5ff;
+        border-color: #4dabf7;
+        box-shadow: 0 2px 8px rgba(77, 171, 247, 0.3);
+        transform: translateY(-2px);
+      }
     </style>
   </head>
   <body>
@@ -2393,7 +2401,20 @@
         setPasswordFilter(password) {
           this.selectedPassword = password;
           const passwordFilter = document.getElementById("passwordFilter");
-          passwordFilter.value = password;
+          if (passwordFilter) {
+            passwordFilter.value = password;
+          }
+          
+          // Tambahkan highlight pada password card yang terpilih
+          const passwordCards = document.querySelectorAll('.password-card');
+          passwordCards.forEach(card => {
+            if (card.getAttribute('data-password') === password) {
+              card.classList.add('active');
+            } else {
+              card.classList.remove('active');
+            }
+          });
+          
           this.renderAccounts();
           this.populatePasswordFilter(); // Pastikan UI selalu update setelah set
         }
@@ -2408,6 +2429,10 @@
           passwords.forEach(pwd => {
             const item = document.createElement("div");
             item.className = "password-card";
+            // Tambahkan kelas active jika password ini adalah password yang terpilih
+            if (pwd === this.selectedPassword) {
+              item.classList.add("active");
+            }
             item.setAttribute("data-password", pwd);
             item.innerHTML = `
               <span title="Klik untuk filter password ini">${pwd}</span>
