@@ -996,7 +996,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.0</div>
+      <div class="version-badge">v1.7.0</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -2333,22 +2333,27 @@
 
         // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
-  // --- Clear search dan filter segera ---
-  this.searchQuery = "";
-  this.selectedEmail = "";
-  this.selectedPassword = "";
-  // Kosongkan input search
+  // Reset search query dengan trigger event supaya filter benar-benar hilang
   const searchInput = document.getElementById("usernameSearch");
-  if (searchInput) searchInput.value = "";
+  if (searchInput) {
+    searchInput.value = "";
+    searchInput.dispatchEvent(new Event("input"));
+  }
+  // Reset filter email
+  const emailFilter = document.getElementById("emailFilter");
+  if (emailFilter) {
+    emailFilter.value = "";
+    emailFilter.dispatchEvent(new Event("change"));
+  }
+  // Reset filter password
+  const passwordFilter = document.getElementById("passwordFilter");
+  if (passwordFilter) {
+    passwordFilter.value = "";
+    passwordFilter.dispatchEvent(new Event("change"));
+  }
   // Sembunyikan tombol clear search jika ada
   const clearButton = document.getElementById("clearSearch");
   if (clearButton) clearButton.style.display = "none";
-  // Reset filter email
-  const emailFilter = document.getElementById("emailFilter");
-  if (emailFilter) emailFilter.value = "";
-  // Reset filter password
-  const passwordFilter = document.getElementById("passwordFilter");
-  if (passwordFilter) passwordFilter.value = "";
 
   // kumpulkan semua index akun yg available
   const availableIndices = this.accounts
