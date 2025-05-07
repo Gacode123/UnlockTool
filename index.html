@@ -1797,6 +1797,7 @@
             availableAt: null,
             manuallyUpdated: wasManual, // JANGAN diubah ke false, tetap sesuai sebelumnya
           });
+          this.clearSearchBox();      // ⬅️ tambahkan
           this.renderAccounts();
         }
 
@@ -1815,6 +1816,14 @@
           const now = new Date();
           const availableAt = new Date(account.availableAt);
           return now >= availableAt;
+        }
+
+        clearSearchBox() {
+          this.searchQuery = "";
+          const searchInput  = document.getElementById("usernameSearch");
+          const clearButton  = document.getElementById("clearSearch");
+          if (searchInput)  searchInput.value = "";
+          if (clearButton)  clearButton.style.display = "none";
         }
 
         renderAccounts(sort = true) {
@@ -2362,6 +2371,7 @@
               availableAt: null,
               manuallyUpdated: wasManual
           });
+          this.clearSearchBox();      // ⬅️ tambahkan
           this.renderAccounts();
         }
 
@@ -2374,6 +2384,7 @@
           }
           // langsung reset tanpa sewa ulang
           this.resetAccount(index);
+          this.clearSearchBox();      // ⬅️ tambahkan
         }
 
         // Metode untuk mengisi dropdown filter password
