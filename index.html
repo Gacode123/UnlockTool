@@ -996,7 +996,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.0</div>
+      <div class="version-badge">v1.7.0</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -2333,50 +2333,26 @@
 
         // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
-  // PENTING: Gunakan fungsi setter untuk memastikan callback dan render dipicu dengan benar
-  // Reset search query dengan setter
-  this.setSearchQuery("");
-  
-  // Reset filter email dengan setter
-  this.setEmailFilter("");
-  
-  // Reset filter password dengan setter
-  this.setPasswordFilter("");
-  
-  // Kosongkan juga input search (redundant, tapi untuk jaga-jaga)
-  const searchInput = document.getElementById("usernameSearch");
-  if (searchInput) {
-    searchInput.value = "";
-  }
-  
-  // Sembunyikan tombol clear search
-  const clearButton = document.getElementById("clearSearch");
-  if (clearButton) {
-    clearButton.style.display = "none";
-  }
-
-  // kumpulkan semua index akun yg available
-  const availableIndices = this.accounts
-      .map((acc, i) => this.isAccountAvailable(acc) ? i : null)
-      .filter(i => i !== null);
-  if (availableIndices.length === 0) {
-      this.showNotification("Tidak ada akun available untuk direset");
-      return;
-  }
-  // reset instan semua akun
-  availableIndices.forEach(idx => {
-      const wasManual = this.accounts[idx].manuallyUpdated;
-      this.updateAccount(idx, {
-          availableAt: null,
-          manuallyUpdated: wasManual
-      });
-  });
-  // update label reset terakhir
-  document.getElementById('lastResetTime').textContent = formatHHMM(new Date());
-  this.showNotification(`Auto-reset ${availableIndices.length} akun selesai`);
-  // Render ulang akun agar tampilan langsung update
-  this.renderAccounts();
-}
+          // kumpulkan semua index akun yg available
+          const availableIndices = this.accounts
+              .map((acc, i) => this.isAccountAvailable(acc) ? i : null)
+              .filter(i => i !== null);
+          if (availableIndices.length === 0) {
+              this.showNotification("Tidak ada akun available untuk direset");
+              return;
+          }
+          // reset instan semua akun
+          availableIndices.forEach(idx => {
+              const wasManual = this.accounts[idx].manuallyUpdated;
+              this.updateAccount(idx, {
+                  availableAt: null,
+                  manuallyUpdated: wasManual
+              });
+          });
+          // update label reset terakhir
+          document.getElementById('lastResetTime').textContent = formatHHMM(new Date());
+          this.showNotification(`Auto-reset ${availableIndices.length} akun selesai`);
+        }
 
         // Tambahkan method baru untuk reset dengan delay dan proteksi race condition
         autoResetWithDelay(index, hours = 6) {
