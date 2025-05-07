@@ -2333,27 +2333,29 @@
 
         // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
-  // Reset search query dengan trigger event supaya filter benar-benar hilang
+  // Clone cara reset pencarian/filter dari updateRentTime/setManualRentTime
+  this.searchQuery = "";
   const searchInput = document.getElementById("usernameSearch");
   if (searchInput) {
     searchInput.value = "";
-    searchInput.dispatchEvent(new Event("input"));
+  }
+  // Sembunyikan tombol clear search
+  const clearButton = document.getElementById("clearSearch");
+  if (clearButton) {
+    clearButton.style.display = "none";
   }
   // Reset filter email
+  this.selectedEmail = "";
   const emailFilter = document.getElementById("emailFilter");
   if (emailFilter) {
     emailFilter.value = "";
-    emailFilter.dispatchEvent(new Event("change"));
   }
   // Reset filter password
+  this.selectedPassword = "";
   const passwordFilter = document.getElementById("passwordFilter");
   if (passwordFilter) {
     passwordFilter.value = "";
-    passwordFilter.dispatchEvent(new Event("change"));
   }
-  // Sembunyikan tombol clear search jika ada
-  const clearButton = document.getElementById("clearSearch");
-  if (clearButton) clearButton.style.display = "none";
 
   // kumpulkan semua index akun yg available
   const availableIndices = this.accounts
