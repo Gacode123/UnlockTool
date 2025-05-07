@@ -996,7 +996,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v1.7.0</div>
+      <div class="version-badge">v2.0.0</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -2333,28 +2333,26 @@
 
         // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
-  // Clone cara reset pencarian/filter dari updateRentTime/setManualRentTime
-  this.searchQuery = "";
+  // PENTING: Gunakan fungsi setter untuk memastikan callback dan render dipicu dengan benar
+  // Reset search query dengan setter
+  this.setSearchQuery("");
+  
+  // Reset filter email dengan setter
+  this.setEmailFilter("");
+  
+  // Reset filter password dengan setter
+  this.setPasswordFilter("");
+  
+  // Kosongkan juga input search (redundant, tapi untuk jaga-jaga)
   const searchInput = document.getElementById("usernameSearch");
   if (searchInput) {
     searchInput.value = "";
   }
+  
   // Sembunyikan tombol clear search
   const clearButton = document.getElementById("clearSearch");
   if (clearButton) {
     clearButton.style.display = "none";
-  }
-  // Reset filter email
-  this.selectedEmail = "";
-  const emailFilter = document.getElementById("emailFilter");
-  if (emailFilter) {
-    emailFilter.value = "";
-  }
-  // Reset filter password
-  this.selectedPassword = "";
-  const passwordFilter = document.getElementById("passwordFilter");
-  if (passwordFilter) {
-    passwordFilter.value = "";
   }
 
   // kumpulkan semua index akun yg available
