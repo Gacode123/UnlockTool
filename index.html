@@ -2170,12 +2170,93 @@
 
         // Metode untuk mengisi dropdown filter email
         populateEmailFilter() {
-          const emailFilter = document.getElementById("emailFilter");
-
-          // Hapus semua opsi kecuali opsi default
-          while (emailFilter.options.length > 1) {
-            emailFilter.remove(1);
+          // Periksa apakah sudah ada dropdown kustom
+          let customDropdownContainer = document.getElementById("customEmailDropdownContainer");
+          let customDropdown = document.getElementById("customEmailDropdown");
+          let originalEmailFilter = document.getElementById("emailFilter");
+          
+          // Jika belum ada, buat container dropdown kustom
+          if (!customDropdownContainer) {
+            // Buat container untuk dropdown kustom
+            customDropdownContainer = document.createElement("div");
+            customDropdownContainer.id = "customEmailDropdownContainer";
+            customDropdownContainer.style.position = "relative";
+            customDropdownContainer.style.display = "inline-block";
+            customDropdownContainer.style.minWidth = "200px";
+            
+            // Buat header dropdown (yang selalu terlihat)
+            const dropdownHeader = document.createElement("div");
+            dropdownHeader.className = "custom-dropdown-header";
+            dropdownHeader.id = "customEmailDropdownHeader";
+            dropdownHeader.style.padding = "8px 12px";
+            dropdownHeader.style.border = "1px solid #d9d9d9";
+            dropdownHeader.style.borderRadius = "4px";
+            dropdownHeader.style.cursor = "pointer";
+            dropdownHeader.style.backgroundColor = "white";
+            dropdownHeader.style.display = "flex";
+            dropdownHeader.style.justifyContent = "space-between";
+            dropdownHeader.style.alignItems = "center";
+            dropdownHeader.innerHTML = '<span>Semua Email</span><span style="margin-left: 5px;">▼</span>';
+            
+            // Buat dropdown content (yang muncul saat diklik)
+            customDropdown = document.createElement("div");
+            customDropdown.id = "customEmailDropdown";
+            customDropdown.style.display = "none";
+            customDropdown.style.position = "absolute";
+            customDropdown.style.backgroundColor = "white";
+            customDropdown.style.minWidth = "100%";
+            customDropdown.style.boxShadow = "0px 8px 16px 0px rgba(0,0,0,0.2)";
+            customDropdown.style.zIndex = "100";
+            customDropdown.style.maxHeight = "300px";
+            customDropdown.style.overflowY = "auto";
+            customDropdown.style.border = "1px solid #d9d9d9";
+            customDropdown.style.borderRadius = "4px";
+            customDropdown.style.marginTop = "2px";
+            
+            // Tambahkan semua ke container
+            customDropdownContainer.appendChild(dropdownHeader);
+            customDropdownContainer.appendChild(customDropdown);
+            
+            // Tambahkan event listener untuk toggle dropdown
+            dropdownHeader.addEventListener("click", () => {
+              const isHidden = customDropdown.style.display === "none";
+              customDropdown.style.display = isHidden ? "block" : "none";
+            });
+            
+            // Tambahkan event listener untuk menutup dropdown saat klik di luar
+            document.addEventListener("click", (event) => {
+              if (!customDropdownContainer.contains(event.target)) {
+                customDropdown.style.display = "none";
+              }
+            });
+            
+            // Gantikan dropdown asli dengan dropdown kustom
+            originalEmailFilter.parentNode.insertBefore(customDropdownContainer, originalEmailFilter);
+            originalEmailFilter.style.display = "none";
           }
+          
+          // Hapus semua item dari dropdown kustom
+          while (customDropdown.firstChild) {
+            customDropdown.removeChild(customDropdown.firstChild);
+          }
+          
+          // Tambahkan opsi 'Semua Email'
+          const allOption = document.createElement("div");
+          allOption.className = "dropdown-item";
+          allOption.setAttribute("data-value", "");
+          allOption.textContent = "Semua Email";
+          allOption.style.padding = "8px 12px";
+          allOption.style.cursor = "pointer";
+          allOption.style.borderBottom = "1px solid #eee";
+          allOption.addEventListener("click", () => {
+            // Set header dropdown
+            document.getElementById("customEmailDropdownHeader").innerHTML = '<span>Semua Email</span><span style="margin-left: 5px;">▼</span>';
+            // Set filter
+            this.setEmailFilter("");
+            // Tutup dropdown
+            customDropdown.style.display = "none";
+          });
+          customDropdown.appendChild(allOption);
 
           // Ambil semua email yang tidak kosong dan hitung berapa kali masing-masing email muncul
           const emailCount = {};
@@ -2239,10 +2320,60 @@
               // Menggunakan nilai yang dihitung dengan benar
               const availableAccountsForEmail = availableAccountsCount;
               
-              const option = document.createElement("option");
-              option.value = email;
-              option.textContent = `${email} (${availableAccountsForEmail}/${totalAccountsForEmail})`; // Format: email (tersedia/total)
-              emailFilter.appendChild(option);
+              // Buat custom dropdown item dengan tombol delete
+              const option = document.createElement("div");
+              option.className = "dropdown-item";
+              option.setAttribute("data-value", email);
+              
+              // Tambahkan styling CSS untuk dropdown item
+              option.style.display = "flex";
+              option.style.justifyContent = "space-between";
+              option.style.alignItems = "center"; 
+              option.style.padding = "8px 12px";
+              option.style.cursor = "pointer";
+              option.style.borderBottom = "1px solid #eee";
+              
+              // Buat container untuk teks email
+              const textContainer = document.createElement("div");
+              textContainer.textContent = `${email} (${availableAccountsForEmail}/${totalAccountsForEmail})`;
+              textContainer.style.flex = "1";
+              textContainer.style.overflow = "hidden";
+              textContainer.style.textOverflow = "ellipsis";
+              
+              // Buat tombol X (delete)
+              const deleteBtn = document.createElement("button");
+              deleteBtn.textContent = "×";
+              deleteBtn.className = "delete-email-btn";
+              deleteBtn.style.background = "none";
+              deleteBtn.style.border = "none";
+              deleteBtn.style.color = "#ff4d4f";
+              deleteBtn.style.fontSize = "16px";
+              deleteBtn.style.fontWeight = "bold";
+              deleteBtn.style.cursor = "pointer";
+              deleteBtn.style.padding = "0 5px";
+              deleteBtn.style.marginLeft = "10px";
+              deleteBtn.title = "Hapus email ini";
+              
+              // Tambahkan event listener untuk klik pada teks (untuk filter)
+              textContainer.addEventListener("click", (e) => {
+                e.stopPropagation();
+                this.setEmailFilter(email);
+                const customDropdown = document.getElementById("customEmailDropdown");
+                if (customDropdown) customDropdown.style.display = "none";
+              });
+              
+              // Tambahkan event listener untuk tombol delete
+              deleteBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                this.showDeleteEmailConfirmation(email);
+              });
+              
+              // Tambahkan elemen-elemen ke opsi dropdown
+              option.appendChild(textContainer);
+              option.appendChild(deleteBtn);
+              
+              // Tambahkan ke custom dropdown container
+              customDropdown.appendChild(option);
             });
           });
 
@@ -2348,9 +2479,21 @@
           this.selectedEmail = email;
           this.renderAccounts();
 
-          // Perbarui dropdown
+          // Perbarui dropdown header jika ada
+          const dropdownHeader = document.getElementById("customEmailDropdownHeader");
+          if (dropdownHeader && email) {
+            // Tampilkan email yang dipilih di header dropdown
+            dropdownHeader.innerHTML = `<span>${email}</span><span style="margin-left: 5px;">▼</span>`;
+          } else if (dropdownHeader) {
+            // Reset ke 'Semua Email'
+            dropdownHeader.innerHTML = '<span>Semua Email</span><span style="margin-left: 5px;">▼</span>';
+          }
+          
+          // Update juga dropdown asli untuk kompatibilitas
           const emailFilter = document.getElementById("emailFilter");
-          emailFilter.value = email;
+          if (emailFilter) {
+            emailFilter.value = email;
+          }
         }
 
         // Metode untuk mengatur filter pencarian username
