@@ -2204,9 +2204,14 @@
             const sortedEmails = emailsByDomain[domain].sort();
 
             sortedEmails.forEach((email) => {
+              // Hitung total akun dan akun tersedia untuk email ini
+              const accountsForEmail = this.accounts.filter(account => account.email === email);
+              const totalAccountsForEmail = accountsForEmail.length;
+              const availableAccountsForEmail = accountsForEmail.filter(account => this.isAccountAvailable(account)).length;
+              
               const option = document.createElement("option");
               option.value = email;
-              option.textContent = email;
+              option.textContent = `${email} (${availableAccountsForEmail}/${totalAccountsForEmail})`; // Format: email (tersedia/total)
               emailFilter.appendChild(option);
             });
           });
