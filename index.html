@@ -2177,20 +2177,32 @@
             emailFilter.remove(1);
           }
 
-          // Ambil semua email yang tidak kosong
-          const emails = this.accounts.filter((account) => account.email && account.email.trim() !== "").map((account) => account.email);
-
-          // Kelompokkan email berdasarkan domain
-          const emailsByDomain = {};
-          emails.forEach((email) => {
-            const parts = email.split("@");
-            if (parts.length === 2) {
-              const domain = parts[1]; // Bagian domain (setelah @)
-              if (!emailsByDomain[domain]) {
-                emailsByDomain[domain] = [];
+          // Ambil semua email yang tidak kosong dan hitung berapa kali masing-masing email muncul
+          const emailCount = {};
+          this.accounts.forEach(account => {
+            if (account.email && account.email.trim() !== "") {
+              if (emailCount[account.email]) {
+                emailCount[account.email]++;
+              } else {
+                emailCount[account.email] = 1;
               }
-              if (!emailsByDomain[domain].includes(email)) {
-                emailsByDomain[domain].push(email);
+            }
+          });
+
+          // Kelompokkan email berdasarkan domain, hanya untuk email yang masih digunakan oleh akun
+          const emailsByDomain = {};
+          Object.keys(emailCount).forEach(email => {
+            // Hanya tampilkan email yang memiliki setidaknya 1 akun yang menggunakannya
+            if (emailCount[email] > 0) {
+              const parts = email.split("@");
+              if (parts.length === 2) {
+                const domain = parts[1]; // Bagian domain (setelah @)
+                if (!emailsByDomain[domain]) {
+                  emailsByDomain[domain] = [];
+                }
+                if (!emailsByDomain[domain].includes(email)) {
+                  emailsByDomain[domain].push(email);
+                }
               }
             }
           });
