@@ -1062,7 +1062,7 @@
             </div>
             <div id="passwordListContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;"></div>
 
-            <div class="account-stats"><strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Not Ready:</strong> <span id="notReadyAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span></div>
+            <div class="account-stats"><strong>Total Akun:</strong> <span id="totalAccounts">0</span> <span id="notReadySection" style="display: none;">| <strong>Not Ready:</strong> <span id="notReadyAccounts">0</span></span> | <strong>Available:</strong> <span id="availableAccounts">0</span></div>
           </div>
 
           <div class="summary-row">
@@ -1867,11 +1867,17 @@
           // Update informasi ringkasan akun
           const totalAccountsEl = document.getElementById("totalAccounts");
           const notReadyAccountsEl = document.getElementById("notReadyAccounts");
+          const notReadySection = document.getElementById("notReadySection");
           const availableAccountsEl = document.getElementById("availableAccounts");
 
           if (totalAccountsEl) totalAccountsEl.textContent = filteredAccounts.length;
           if (notReadyAccountsEl) notReadyAccountsEl.textContent = notReadyAccounts;
           if (availableAccountsEl) availableAccountsEl.textContent = availableAccounts;
+          
+          // Tampilkan section Not Ready hanya jika ada akun yang not ready
+          if (notReadySection) {
+            notReadySection.style.display = notReadyAccounts > 0 ? "inline" : "none";
+          }
 
           logDebug("Total akun available: ", availableAccounts);
 
