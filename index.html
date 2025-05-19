@@ -2219,7 +2219,25 @@
               // Hitung total akun dan akun tersedia untuk email ini
               const accountsForEmail = this.accounts.filter(account => account.email === email);
               const totalAccountsForEmail = accountsForEmail.length;
-              const availableAccountsForEmail = accountsForEmail.filter(account => this.isAccountAvailable(account)).length;
+              
+              // Hitung akun yang available dengan lebih akurat
+              let readyAccountsCount = 0;
+              let availableAccountsCount = 0;
+              
+              accountsForEmail.forEach(account => {
+                // Periksa apakah akun ready
+                if (account.isReady) {
+                  readyAccountsCount++;
+                  
+                  // Periksa apakah akun tersedia (available)
+                  if (!account.availableAt || new Date() >= new Date(account.availableAt)) {
+                    availableAccountsCount++;
+                  }
+                }
+              });
+              
+              // Menggunakan nilai yang dihitung dengan benar
+              const availableAccountsForEmail = availableAccountsCount;
               
               const option = document.createElement("option");
               option.value = email;
