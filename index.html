@@ -2248,6 +2248,99 @@
 
           // Set nilai dropdown ke email yang dipilih saat ini
           emailFilter.value = this.selectedEmail;
+          
+          // Tambahkan tombol hapus email jika ada email yang dipilih
+          this.addDeleteEmailButton();
+        }
+        
+        // Fungsi untuk menambahkan tombol hapus email
+        addDeleteEmailButton() {
+          // Hapus tombol yang mungkin sudah ada sebelumnya
+          const existingButton = document.getElementById('deleteEmailBtn');
+          if (existingButton) {
+            existingButton.remove();
+          }
+          
+          // Jika ada email yang dipilih dan bukan opsi 'Semua', tambahkan tombol hapus
+          if (this.selectedEmail && this.selectedEmail !== '') {
+            const emailFilterContainer = document.getElementById('emailFilter').parentNode;
+            
+            const deleteButton = document.createElement('button');
+            deleteButton.id = 'deleteEmailBtn';
+            deleteButton.className = 'action-btn danger-btn';
+            deleteButton.style.marginLeft = '10px';
+            deleteButton.style.padding = '5px 10px';
+            deleteButton.textContent = 'Hapus Email';
+            deleteButton.onclick = () => this.showDeleteEmailConfirmation(this.selectedEmail);
+            
+            emailFilterContainer.appendChild(deleteButton);
+          }
+        }
+        
+        // Fungsi untuk menampilkan konfirmasi penghapusan email
+        showDeleteEmailConfirmation(email) {
+          // Hitung berapa akun yang menggunakan email ini
+          const accountsWithEmail = this.accounts.filter(account => account.email === email);
+          
+          if (accountsWithEmail.length > 0) {
+            // Jika masih ada akun yang menggunakan email ini, tanyakan tindakan selanjutnya
+            const confirmText = `Email ${email} digunakan oleh ${accountsWithEmail.length} akun.\n\nPilih tindakan:\n1. Hapus email dari semua akun (akan diganti dengan string kosong)\n2. Ganti dengan email baru\n3. Batal`;
+            
+            const userChoice = prompt(confirmText, '1');
+            
+            if (userChoice === '1') {
+              // Hapus email dari semua akun
+              this.deleteEmailFromAccounts(email, '');
+            } else if (userChoice === '2') {
+              // Ganti dengan email baru
+              const newEmail = prompt('Masukkan email baru:', '');
+              if (newEmail && newEmail.trim() !== '') {
+                this.deleteEmailFromAccounts(email, newEmail.trim());
+              } else {
+                this.showNotification('Penggantian email dibatalkan.');
+              }
+            } else {
+              this.showNotification('Penghapusan email dibatalkan.');
+            }
+          } else {
+            // Jika tidak ada akun yang menggunakan email ini, konfirmasi penghapusan
+            const confirmed = confirm(`Anda yakin ingin menghapus email ${email} dari daftar?`);
+            if (confirmed) {
+              // Refresh dropdown dan tampilkan notifikasi
+              this.selectedEmail = '';
+              this.populateEmailFilter();
+              this.renderAccounts();
+              this.showNotification(`Email ${email} berhasil dihapus dari daftar.`);
+            }
+          }
+        }
+        
+        // Fungsi untuk menghapus atau mengganti email pada semua akun
+        deleteEmailFromAccounts(oldEmail, newEmail) {
+          // Hitung berapa akun yang akan diupdate
+          let updatedCount = 0;
+          
+          // Update semua akun yang menggunakan email lama
+          this.accounts.forEach((account, index) => {
+            if (account.email === oldEmail) {
+              this.updateAccount(index, { email: newEmail });
+              updatedCount++;
+            }
+          });
+          
+          // Reset filter email
+          this.selectedEmail = newEmail || '';
+          
+          // Perbarui dropdown dan tampilan
+          this.populateEmailFilter();
+          this.renderAccounts();
+          
+          // Tampilkan notifikasi
+          if (newEmail) {
+            this.showNotification(`Email ${oldEmail} berhasil diganti dengan ${newEmail} pada ${updatedCount} akun.`);
+          } else {
+            this.showNotification(`Email berhasil dihapus dari ${updatedCount} akun.`);
+          }
         }
 
         // Metode untuk mengatur filter email
