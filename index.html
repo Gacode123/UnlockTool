@@ -573,15 +573,79 @@
         margin-bottom: 0;
       }
 
-      .email-filter {
-        padding: 5px 10px;
+      .custom-select-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 10px;
+        font-family: "Poppins", sans-serif;
+      }
+      
+      .custom-select {
+        position: relative;
+        width: 100%;
+      }
+      
+      .selected-option {
+        padding: 8px;
         border-radius: 5px;
         border: 1px solid #ddd;
+        background-color: white;
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .selected-option:after {
+        content: '▼';
+        font-size: 0.8rem;
+        margin-left: 10px;
+      }
+      
+      .options-container {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-top: 5px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      
+      .option {
+        padding: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f0f0f0;
+      }
+      
+      .option:hover {
+        background-color: #f7f7f7;
+      }
+      
+      .option:last-child {
+        border-bottom: none;
+      }
+      
+      .available-count {
+        color: var(--primary-color);
+        font-weight: bold;
+      }
+
+      .email-filter {
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        width: 100%;
+        margin-bottom: 10px;
         font-family: "Poppins", sans-serif;
         font-size: 0.9rem;
-        flex-grow: 1;
-        max-width: 250px;
-        cursor: pointer;
       }
 
       .email-filter:focus {
@@ -1042,10 +1106,15 @@
         <div class="account-summary">
           <div class="filter-container">
             <label for="emailFilter"><strong>Filter Email:</strong></label>
-            <select id="emailFilter" class="email-filter">
-              <option value="">Semua Email</option>
-              <!-- Opsi email akan diisi secara dinamis -->
-            </select>
+            <div class="custom-select-container">
+              <div id="customEmailFilter" class="custom-select">
+                <div class="selected-option" data-value="">Semua Email</div>
+                <div class="options-container" style="display: none;">
+                  <div class="option" data-value="">Semua Email</div>
+                  <!-- Opsi email akan diisi secara dinamis -->
+                </div>
+              </div>
+            </div>
 
             <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
             <div class="search-container">
@@ -2170,11 +2239,12 @@
 
         // Metode untuk mengisi dropdown filter email
         populateEmailFilter() {
-          const emailFilter = document.getElementById("emailFilter");
+          const optionsContainer = document.querySelector('.options-container');
+          const selectedOption = document.querySelector('.selected-option');
 
           // Hapus semua opsi kecuali opsi default
-          while (emailFilter.options.length > 1) {
-            emailFilter.remove(1);
+          while (optionsContainer.children.length > 1) {
+            optionsContainer.removeChild(optionsContainer.lastChild);
           }
 
           // Ambil semua email yang tidak kosong
@@ -2209,15 +2279,44 @@
               const totalAccountsForEmail = accountsForEmail.length;
               const availableAccountsForEmail = accountsForEmail.filter(account => this.isAccountAvailable(account)).length;
               
-              const option = document.createElement("option");
-              option.value = email;
-              option.textContent = `${email} (${availableAccountsForEmail}/${totalAccountsForEmail})`; // Format: email (tersedia/total)
-              emailFilter.appendChild(option);
+              const option = document.createElement("div");
+              option.className = "option";
+              option.setAttribute("data-value", email);
+              option.innerHTML = `${email} (<span class="available-count">${availableAccountsForEmail}</span>/<strong>${totalAccountsForEmail}</strong>)`;
+              option.addEventListener('click', () => this.setEmailFilter(email));
+              optionsContainer.appendChild(option);
             });
           });
 
-          // Set nilai dropdown ke email yang dipilih saat ini
-          emailFilter.value = this.selectedEmail;
+          // Set nilai dropdown ke email yang dipilih saat ini atau ke default
+          if (this.selectedEmail) {
+            // Cari opsi yang memiliki nilai yang sama dengan selectedEmail
+            const matchingOption = Array.from(optionsContainer.children).find(option => 
+              option.getAttribute('data-value') === this.selectedEmail);
+            
+            if (matchingOption) {
+              // Salin teks tanpa gaya ke selectedOption
+              selectedOption.textContent = matchingOption.textContent.replace(/\s*\(.+\)$/, ''); // Hapus counter dari teks yang ditampilkan
+              selectedOption.setAttribute('data-value', this.selectedEmail);
+              selectedOption.innerHTML = matchingOption.innerHTML;
+            } else {
+              // Reset ke default jika tidak ditemukan
+              selectedOption.textContent = 'Semua Email';
+              selectedOption.setAttribute('data-value', '');
+            }
+          }
+          
+          // Tambahkan event listener untuk dropdown
+          selectedOption.addEventListener('click', () => {
+            optionsContainer.style.display = optionsContainer.style.display === 'none' ? 'block' : 'none';
+          });
+          
+          // Tutup dropdown jika klik di luar dropdown
+          document.addEventListener('click', (event) => {
+            if (!event.target.closest('.custom-select-container')) {
+              optionsContainer.style.display = 'none';
+            }
+          });
         }
 
         // Metode untuk mengatur filter email
@@ -2225,9 +2324,24 @@
           this.selectedEmail = email;
           this.renderAccounts();
 
-          // Perbarui dropdown
-          const emailFilter = document.getElementById("emailFilter");
-          emailFilter.value = email;
+          // Perbarui dropdown kustom
+          const selectedOption = document.querySelector('.selected-option');
+          const options = document.querySelectorAll('.option');
+          
+          // Tutup dropdown setelah pemilihan
+          document.querySelector('.options-container').style.display = 'none';
+          
+          if (email === '') {
+            selectedOption.textContent = 'Semua Email';
+            selectedOption.setAttribute('data-value', '');
+          } else {
+            // Cari opsi yang dipilih
+            const selectedOptionElement = Array.from(options).find(option => option.getAttribute('data-value') === email);
+            if (selectedOptionElement) {
+              selectedOption.innerHTML = selectedOptionElement.innerHTML;
+              selectedOption.setAttribute('data-value', email);
+            }
+          }
         }
 
         // Metode untuk mengatur filter pencarian username
