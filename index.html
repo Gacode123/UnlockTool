@@ -1837,7 +1837,7 @@
           logDebug("Merender akun, jumlah total: ", this.accounts.length);
 
           // Filter akun yang memiliki username dan password, lalu urutkan
-          let filteredAccounts = [...this.accounts].filter((account) => account.username && account.username.trim() !== "" && account.password && account.password.trim() !== "");
+          let filteredAccounts = [...this.accounts].filter((account) => account && account.username && account.username.trim() !== "" && account.password && account.password.trim() !== "");
 
           logDebug("Akun setelah filter username/password: ", filteredAccounts.length);
 
