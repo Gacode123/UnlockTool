@@ -996,7 +996,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.0</div>
+      <div class="version-badge">v2.0.1</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -1062,7 +1062,7 @@
             </div>
             <div id="passwordListContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;"></div>
 
-            <div class="account-stats"><strong>Total Akun:</strong> <span id="totalAccounts">0</span> | <strong>Not Ready:</strong> <span id="notReadyAccounts">0</span> | <strong>Available:</strong> <span id="availableAccounts">0</span></div>
+            <div class="account-stats"><strong>Total Akun:</strong> <span id="totalAccounts">0</span> <span id="notReadySection" style="display: none;">| <strong>Not Ready:</strong> <span id="notReadyAccounts">0</span></span> | <strong>Available:</strong> <span id="availableAccounts">0</span></div>
           </div>
 
           <div class="summary-row">
@@ -1868,10 +1868,20 @@
           const totalAccountsEl = document.getElementById("totalAccounts");
           const availableAccountsEl = document.getElementById("availableAccounts");
           const notReadyAccountsEl = document.getElementById("notReadyAccounts");
+          const notReadySectionEl = document.getElementById("notReadySection");
 
           if (totalAccountsEl) totalAccountsEl.textContent = filteredAccounts.length;
           if (availableAccountsEl) availableAccountsEl.textContent = availableAccounts;
           if (notReadyAccountsEl) notReadyAccountsEl.textContent = notReadyAccounts;
+          
+          // Tampilkan bagian Not Ready hanya jika ada akun dengan status Not Ready
+          if (notReadySectionEl) {
+            if (notReadyAccounts > 0) {
+              notReadySectionEl.style.display = "inline";
+            } else {
+              notReadySectionEl.style.display = "none";
+            }
+          }
 
           logDebug("Total akun available: ", availableAccounts);
 
