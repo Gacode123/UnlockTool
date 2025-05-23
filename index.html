@@ -996,7 +996,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.1</div>
+      <div class="version-badge">v2.1.1</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -2208,9 +2208,17 @@
             const sortedEmails = emailsByDomain[domain].sort();
 
             sortedEmails.forEach((email) => {
+              // Hitung total akun dengan email ini
+              const totalAccounts = this.accounts.filter((account) => account.email === email).length;
+              
+              // Hitung available akun dengan email ini
+              const availableAccounts = this.accounts.filter((account) => 
+                account.email === email && this.isAccountAvailable(account)
+              ).length;
+
               const option = document.createElement("option");
               option.value = email;
-              option.textContent = email;
+              option.textContent = `${email} (${availableAccounts}/${totalAccounts})`;
               emailFilter.appendChild(option);
             });
           });
