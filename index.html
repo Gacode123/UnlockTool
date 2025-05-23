@@ -1007,8 +1007,9 @@
       .custom-select-wrapper {
         position: relative;
         flex-grow: 1;
-        max-width: 400px;
+        max-width: none;
         min-width: 300px;
+        width: auto;
       }
 
       .custom-select {
@@ -1038,7 +1039,6 @@
         position: absolute;
         top: 100%;
         left: 0;
-        right: 0;
         background-color: white;
         border: 1px solid #ddd;
         border-top: none;
@@ -1047,6 +1047,8 @@
         display: none;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         min-width: 300px;
+        width: auto;
+        white-space: nowrap;
       }
 
       .custom-option {
@@ -1087,6 +1089,9 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        white-space: nowrap;
+        min-width: 280px;
+        width: 100%;
       }
 
       .select-trigger:hover {
@@ -1112,7 +1117,6 @@
         position: absolute;
         top: 100%;
         left: 0;
-        right: 0;
         background-color: white;
         border: 1px solid #ddd;
         border-top: none;
@@ -1134,8 +1138,6 @@
         border-bottom: 1px solid #f0f0f0;
         transition: background-color 0.2s;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
 
       .custom-option:last-child {
