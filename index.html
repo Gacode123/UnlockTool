@@ -1002,6 +1002,149 @@
         box-shadow: 0 2px 8px rgba(77, 171, 247, 0.3);
         transform: translateY(-2px);
       }
+
+      /* Custom Select Styles */
+      .custom-select-wrapper {
+        position: relative;
+        display: inline-block;
+      }
+
+      .custom-select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 8px 30px 8px 10px;
+        font-size: 16px;
+        color: #333;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path d="M12 4H4l4 4 4-4z" fill="%23333333"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 12px;
+        cursor: pointer;
+      }
+
+      .custom-select:focus {
+        outline: none;
+        border-color: #4dabf7;
+        box-shadow: 0 0 5px rgba(77, 171, 247, 0.5);
+      }
+
+      .custom-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+      }
+
+      .custom-option {
+        padding: 8px 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .custom-option:hover {
+        background-color: #f0f0f0;
+      }
+
+      .custom-option.active {
+        background-color: #4dabf7;
+        color: #fff;
+      }
+
+      /* Custom Select Dropdown Styles */
+      .custom-select-wrapper {
+        position: relative;
+        flex-grow: 1;
+        max-width: 250px;
+      }
+
+      .custom-select {
+        position: relative;
+      }
+
+      .select-trigger {
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 5px 30px 5px 10px;
+        font-family: "Poppins", sans-serif;
+        font-size: 0.9rem;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .select-trigger:hover {
+        border-color: #bbb;
+      }
+
+      .select-trigger.active {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
+      }
+
+      .arrow {
+        font-size: 12px;
+        color: #999;
+        transition: transform 0.3s;
+      }
+
+      .select-trigger.active .arrow {
+        transform: rotate(180deg);
+      }
+
+      .custom-options {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 5px 5px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .custom-options.show {
+        display: block;
+      }
+
+      .custom-option {
+        padding: 8px 10px;
+        cursor: pointer;
+        font-family: "Poppins", sans-serif;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background-color 0.2s;
+      }
+
+      .custom-option:last-child {
+        border-bottom: none;
+      }
+
+      .custom-option:hover {
+        background-color: #f8f9fa;
+      }
+
+      .custom-option.selected {
+        background-color: var(--primary-color);
+        color: white;
+      }
     </style>
   </head>
   <body>
@@ -1053,10 +1196,18 @@
         <div class="account-summary">
           <div class="filter-container">
             <label for="emailFilter"><strong>Filter Email:</strong></label>
-            <select id="emailFilter" class="email-filter">
-              <option value="">Semua Email</option>
-              <!-- Opsi email akan diisi secara dinamis -->
-            </select>
+            <div class="custom-select-wrapper">
+              <div id="emailFilter" class="custom-select">
+                <div class="select-trigger">
+                  <span>Semua Email</span>
+                  <div class="arrow">▼</div>
+                </div>
+                <div class="custom-options">
+                  <div class="custom-option active" data-value="">Semua Email</div>
+                  <!-- Opsi email akan diisi secara dinamis -->
+                </div>
+              </div>
+            </div>
 
             <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
             <div class="search-container">
@@ -1416,6 +1567,37 @@
           document.getElementById("emailFilter")?.addEventListener("change", (event) => {
             accountManager.setEmailFilter(event.target.value);
           });
+
+          // Event listeners untuk custom email dropdown
+          const emailFilter = document.getElementById("emailFilter");
+          if (emailFilter) {
+            const selectTrigger = emailFilter.querySelector(".select-trigger");
+            const customOptions = emailFilter.querySelector(".custom-options");
+
+            // Toggle dropdown
+            selectTrigger.addEventListener("click", () => {
+              selectTrigger.classList.toggle("active");
+              customOptions.classList.toggle("show");
+            });
+
+            // Handle option click
+            emailFilter.addEventListener("click", (event) => {
+              if (event.target.classList.contains("custom-option")) {
+                const value = event.target.getAttribute("data-value");
+                accountManager.setEmailFilter(value);
+                selectTrigger.classList.remove("active");
+                customOptions.classList.remove("show");
+              }
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener("click", (event) => {
+              if (!emailFilter.contains(event.target)) {
+                selectTrigger.classList.remove("active");
+                customOptions.classList.remove("show");
+              }
+            });
+          }
 
           // Event listener untuk filter password
           document.getElementById("passwordFilter")?.addEventListener("change", (event) => {
@@ -2186,10 +2368,11 @@
         // Metode untuk mengisi dropdown filter email
         populateEmailFilter() {
           const emailFilter = document.getElementById("emailFilter");
+          const customOptions = emailFilter.querySelector(".custom-options");
 
           // Hapus semua opsi kecuali opsi default
-          while (emailFilter.options.length > 1) {
-            emailFilter.remove(1);
+          while (customOptions.children.length > 1) {
+            customOptions.removeChild(customOptions.lastChild);
           }
 
           // Ambil semua email yang tidak kosong
@@ -2227,16 +2410,43 @@
                 account.email === email && this.isAccountAvailable(account)
               ).length;
 
-              const option = document.createElement("option");
-              option.value = email;
+              const option = document.createElement("div");
+              option.className = "custom-option";
+              option.setAttribute("data-value", email);
               // Gunakan innerHTML untuk styling warna berbeda
               option.innerHTML = `${email} (<span class="email-counter-available">${availableAccounts}</span>/<span class="email-counter-total">${totalAccounts}</span>)`;
-              emailFilter.appendChild(option);
+              customOptions.appendChild(option);
             });
           });
 
           // Set nilai dropdown ke email yang dipilih saat ini
-          emailFilter.value = this.selectedEmail;
+          this.updateCustomSelectValue(this.selectedEmail);
+        }
+
+        // Method helper untuk update custom select value
+        updateCustomSelectValue(value) {
+          const emailFilter = document.getElementById("emailFilter");
+          const selectTrigger = emailFilter.querySelector(".select-trigger span");
+          const customOptions = emailFilter.querySelectorAll(".custom-option");
+
+          // Update tampilan trigger
+          if (value === "") {
+            selectTrigger.textContent = "Semua Email";
+          } else {
+            const selectedOption = [...customOptions].find(opt => opt.getAttribute("data-value") === value);
+            if (selectedOption) {
+              selectTrigger.innerHTML = selectedOption.innerHTML;
+            }
+          }
+
+          // Update class selected
+          customOptions.forEach(opt => {
+            if (opt.getAttribute("data-value") === value) {
+              opt.classList.add("selected");
+            } else {
+              opt.classList.remove("selected");
+            }
+          });
         }
 
         // Metode untuk mengatur filter email
@@ -2244,9 +2454,8 @@
           this.selectedEmail = email;
           this.renderAccounts();
 
-          // Perbarui dropdown
-          const emailFilter = document.getElementById("emailFilter");
-          emailFilter.value = email;
+          // Perbarui custom dropdown
+          this.updateCustomSelectValue(email);
         }
 
         // Metode untuk mengatur filter pencarian username
