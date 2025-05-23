@@ -1006,7 +1006,9 @@
       /* Custom Select Styles */
       .custom-select-wrapper {
         position: relative;
-        display: inline-block;
+        flex-grow: 1;
+        max-width: 400px;
+        min-width: 300px;
       }
 
       .custom-select {
@@ -1044,6 +1046,7 @@
         z-index: 1000;
         display: none;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        min-width: 300px;
       }
 
       .custom-option {
@@ -1130,6 +1133,9 @@
         font-size: 0.9rem;
         border-bottom: 1px solid #f0f0f0;
         transition: background-color 0.2s;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .custom-option:last-child {
