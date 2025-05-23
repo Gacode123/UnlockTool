@@ -1049,21 +1049,42 @@
         min-width: 300px;
         width: auto;
         white-space: nowrap;
+        padding: 4px;
       }
 
       .custom-option {
         padding: 8px 10px;
         cursor: pointer;
-        transition: background-color 0.3s;
+        font-family: "Poppins", sans-serif;
+        font-size: 0.9rem;
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        border-radius: 4px;
+        margin: 2px 4px;
+      }
+
+      .custom-option:last-child {
+        border-bottom: none;
       }
 
       .custom-option:hover {
-        background-color: #f0f0f0;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        color: #1565c0;
+        transform: translateX(3px);
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+        border-radius: 6px;
       }
 
-      .custom-option.active {
-        background-color: #4dabf7;
-        color: #fff;
+      .custom-option.selected {
+        background-color: var(--primary-color);
+        color: white;
+        box-shadow: 0 2px 8px rgba(84, 105, 212, 0.3);
+      }
+
+      .custom-option.selected:hover {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #4559b3 100%);
+        transform: translateX(3px);
       }
 
       /* Custom Select Dropdown Styles */
@@ -1136,8 +1157,10 @@
         font-family: "Poppins", sans-serif;
         font-size: 0.9rem;
         border-bottom: 1px solid #f0f0f0;
-        transition: background-color 0.2s;
+        transition: all 0.3s ease;
         white-space: nowrap;
+        border-radius: 4px;
+        margin: 2px 4px;
       }
 
       .custom-option:last-child {
@@ -1145,12 +1168,22 @@
       }
 
       .custom-option:hover {
-        background-color: #f8f9fa;
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        color: #1565c0;
+        transform: translateX(3px);
+        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
+        border-radius: 6px;
       }
 
       .custom-option.selected {
         background-color: var(--primary-color);
         color: white;
+        box-shadow: 0 2px 8px rgba(84, 105, 212, 0.3);
+      }
+
+      .custom-option.selected:hover {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #4559b3 100%);
+        transform: translateX(3px);
       }
     </style>
   </head>
