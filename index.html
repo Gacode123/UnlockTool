@@ -1112,7 +1112,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.1</div>
+      <div class="version-badge">v2.0.2</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -2914,16 +2914,26 @@
 
       function applyBulkChangePwd() {
         const pwd = document.getElementById("newPassword").value.trim();
-        const emailFilter = document.getElementById("emailFilter").value;
+        const emailFilter = accountManager.selectedEmail; // Gunakan selectedEmail dari accountManager
         if (!pwd) { alert("Masukkan password baru"); return; }
 
+        let changedCount = 0;
         accountManager.accounts.forEach((acc, i) => {
           const isAvail = accountManager.isAccountAvailable(acc);
-          if (isAvail && acc.email === emailFilter) {
+          // Jika tidak ada email filter yang dipilih, ubah semua akun available
+          const emailMatch = !emailFilter || acc.email === emailFilter;
+          
+          if (isAvail && emailMatch) {
             accountManager.updateAccount(i, { password: pwd });
+            changedCount++;
           }
         });
-        accountManager.showNotification("Password diubah untuk semua Available");
+        
+        if (changedCount > 0) {
+          accountManager.showNotification(`Password diubah untuk ${changedCount} akun available`);
+        } else {
+          accountManager.showNotification("Tidak ada akun available yang sesuai filter");
+        }
         closeBulkChangePwdModal();
       }
 
