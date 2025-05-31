@@ -316,12 +316,12 @@
 
       /* Style untuk tombol copy kecil */
       .small-copy-btn {
-        background-color: var(--primary-color);
-        color: white;
+        background: none;
+        color: #666;
         border: none;
         border-radius: 4px;
         padding: 4px 6px;
-        font-size: 0.7rem;
+        font-size: 1.1rem;
         cursor: pointer;
         margin-right: 8px;
         transition: var(--transition);
@@ -334,12 +334,12 @@
       }
 
       .small-copy-btn:hover {
-        background-color: #4559b3;
-        transform: translateY(-1px);
+        color: var(--primary-color);
+        transform: scale(1.1);
       }
 
       .small-copy-btn:active {
-        transform: translateY(0);
+        transform: scale(0.95);
       }
 
       /* Container untuk input dengan tombol copy */
@@ -1800,14 +1800,14 @@
 
         // Efek visual untuk tombol kecil
         const originalText = buttonElement.textContent;
-        const originalBg = buttonElement.style.backgroundColor;
+        const originalColor = buttonElement.style.color;
         
         buttonElement.textContent = "✓";
-        buttonElement.style.backgroundColor = "#099268";
+        buttonElement.style.color = "#099268";
 
         setTimeout(() => {
           buttonElement.textContent = originalText;
-          buttonElement.style.backgroundColor = originalBg;
+          buttonElement.style.color = originalColor;
         }, 800);
       }
 
@@ -3163,8 +3163,6 @@
         }
       });
 
-
-      
       // Helper format jam:menit
       function formatHHMM(date) {
         const h = String(date.getHours()).padStart(2, '0');
