@@ -312,6 +312,46 @@
         padding: 16px;
       }
 
+      /* Style untuk tombol copy kecil */
+      .small-copy-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 4px 6px;
+        font-size: 0.7rem;
+        cursor: pointer;
+        margin-right: 8px;
+        transition: var(--transition);
+        min-width: 35px;
+        height: 24px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+      }
+
+      .small-copy-btn:hover {
+        background-color: #4559b3;
+        transform: translateY(-1px);
+      }
+
+      .small-copy-btn:active {
+        transform: translateY(0);
+      }
+
+      /* Container untuk input dengan tombol copy */
+      .input-with-copy {
+        display: flex;
+        align-items: center;
+        gap: 0;
+      }
+
+      .input-with-copy input {
+        flex: 1;
+        margin: 0;
+      }
+
       .form-group {
         margin-bottom: 15px;
       }
@@ -1112,7 +1152,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.1</div>
+      <div class="version-badge">v2.5.0</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -1722,6 +1762,53 @@
         }
       }
 
+      // Fungsi untuk copy field individual dengan efek visual
+      function copyField(text, buttonElement) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+
+        // Efek visual untuk tombol kecil
+        const originalText = buttonElement.textContent;
+        const originalBg = buttonElement.style.backgroundColor;
+        
+        buttonElement.textContent = "✓";
+        buttonElement.style.backgroundColor = "#099268";
+
+        setTimeout(() => {
+          buttonElement.textContent = originalText;
+          buttonElement.style.backgroundColor = originalBg;
+        }, 800);
+      }
+
+      // Fungsi untuk copy field dari data attribute
+      function copyFieldFromData(buttonElement) {
+        const text = buttonElement.getAttribute('data-copy-text');
+        if (!text) return;
+        
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+
+        // Efek visual untuk tombol kecil
+        const originalText = buttonElement.textContent;
+        const originalBg = buttonElement.style.backgroundColor;
+        
+        buttonElement.textContent = "✓";
+        buttonElement.style.backgroundColor = "#099268";
+
+        setTimeout(() => {
+          buttonElement.textContent = originalText;
+          buttonElement.style.backgroundColor = originalBg;
+        }, 800);
+      }
+
       // Kelas untuk mengelola setiap akun
       class AccountManager {
         constructor(accounts = []) {
@@ -2202,18 +2289,27 @@
                         <div class="account-body">
                             <div class="form-group">
                                 <label for="username-${realIndex}">Username/Login:</label>
-                                <input type="text" id="username-${realIndex}" value="${account.username}" 
-                                    onchange="accountManager.updateAccount(${realIndex}, {username: this.value})">
+                                <div class="input-with-copy">
+                                    <button class="small-copy-btn" data-copy-text="${account.username}" onclick="copyFieldFromData(this)" title="Copy Username">📋</button>
+                                    <input type="text" id="username-${realIndex}" value="${account.username}" 
+                                        onchange="accountManager.updateAccount(${realIndex}, {username: this.value})">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="password-${realIndex}">Password:</label>
-                                <input type="text" id="password-${realIndex}" value="${account.password}" 
-                                    onchange="accountManager.updateAccount(${realIndex}, {password: this.value})">
+                                <div class="input-with-copy">
+                                    <button class="small-copy-btn" data-copy-text="${account.password}" onclick="copyFieldFromData(this)" title="Copy Password">📋</button>
+                                    <input type="text" id="password-${realIndex}" value="${account.password}" 
+                                        onchange="accountManager.updateAccount(${realIndex}, {password: this.value})">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="email-${realIndex}">Email:</label>
-                                <input type="text" id="email-${realIndex}" value="${account.email || ""}" 
-                                    onchange="accountManager.updateAccount(${realIndex}, {email: this.value})">
+                                <div class="input-with-copy">
+                                    <button class="small-copy-btn" data-copy-text="${account.email || ''}" onclick="copyFieldFromData(this)" title="Copy Email">📋</button>
+                                    <input type="text" id="email-${realIndex}" value="${account.email || ""}" 
+                                        onchange="accountManager.updateAccount(${realIndex}, {email: this.value})">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="note-${realIndex}">Catatan:</label>
