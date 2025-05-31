@@ -1153,6 +1153,7 @@
             <input type="file" id="importFile" accept=".json" />
           </div>
           <button id="resetAllBtn" class="action-btn danger-btn">Reset All Available</button>
+          <button id="cleanupDataBtn" class="action-btn purple-btn">Cleanup Data</button>
           <button id="logoutBtn" class="logout-btn">Logout</button>
         </div>
         <div class="account-summary">
@@ -1645,6 +1646,16 @@
           // Event listener untuk tombol Reset All Available
           document.getElementById("resetAllBtn").addEventListener("click", () => accountManager.resetAllAvailable());
 
+          // Event listener untuk tombol Cleanup Data
+          document.getElementById("cleanupDataBtn").addEventListener("click", () => {
+            if (confirm("Apakah Anda yakin ingin membersihkan dan memperbaiki data akun?")) {
+              accountManager.cleanupAccountData();
+              accountManager.saveAccounts();
+              accountManager.renderAccounts();
+              accountManager.showNotification("Data akun berhasil dibersihkan dan diperbaiki");
+            }
+          });
+
           // Set label waktu reset awal
           document.getElementById('lastResetTime').textContent = '--:--';
           // Inisialisasi countdown reset berikutnya
@@ -1767,7 +1778,16 @@
         }
 
         addAccount() {
-          const newId = this.accounts.length > 0 ? Math.max(...this.accounts.map((account) => account.id)) + 1 : 1;
+          // Cari ID tertinggi yang valid, atau gunakan 1 jika tidak ada
+          const validIds = this.accounts.map(account => account.id).filter(id => typeof id === 'number' && !isNaN(id));
+          const newId = validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
+          
+          // Validasi bahwa newId adalah angka yang valid
+          if (typeof newId !== 'number' || isNaN(newId)) {
+            console.error("Error: newId tidak valid:", newId);
+            this.showNotification("Error: Tidak dapat menentukan ID untuk akun baru");
+            return;
+          }
 
           const newAccount = {
             id: newId,
@@ -1834,6 +1854,10 @@
                   this.accounts = this.createDefaultAccounts();
                 }
               }
+              
+              // Bersihkan dan perbaiki data akun
+              this.cleanupAccountData();
+              
               this.renderAccounts();
               this.populateEmailFilter();
               this.populatePasswordFilter();
@@ -1843,10 +1867,50 @@
               // Fallback ke localStorage jika Firebase gagal
               const savedAccounts = localStorage.getItem("unlockToolAccounts");
               this.accounts = savedAccounts ? JSON.parse(savedAccounts) : this.createDefaultAccounts();
+              
+              // Bersihkan dan perbaiki data akun
+              this.cleanupAccountData();
+              
               this.renderAccounts();
               this.populateEmailFilter();
               this.populatePasswordFilter();
             });
+        }
+
+        // Fungsi untuk membersihkan dan memperbaiki data akun
+        cleanupAccountData() {
+          console.log("Membersihkan data akun...");
+          
+          // Filter akun yang valid dan perbaiki ID yang rusak
+          this.accounts = this.accounts.filter(account => account && typeof account === 'object');
+          
+          // Perbaiki ID yang rusak atau hilang
+          let nextId = 1;
+          this.accounts.forEach((account, index) => {
+            if (typeof account.id !== 'number' || isNaN(account.id)) {
+              console.log(`Memperbaiki ID akun index ${index}, ID lama:`, account.id);
+              account.id = nextId;
+            }
+            nextId = Math.max(nextId, account.id) + 1;
+          });
+          
+          // Pastikan tidak ada ID duplikat
+          const usedIds = new Set();
+          this.accounts.forEach(account => {
+            if (usedIds.has(account.id)) {
+              console.log(`ID duplikat ditemukan: ${account.id}, mengubah ke ${nextId}`);
+              account.id = nextId++;
+            }
+            usedIds.add(account.id);
+          });
+          
+          console.log("Data akun berhasil dibersihkan");
+          
+          // Simpan data yang sudah dibersihkan jika ada perubahan
+          if (this.accounts.some(account => typeof account.id !== 'number' || isNaN(account.id))) {
+            console.log("Menyimpan data yang sudah diperbaiki...");
+            this.saveAccounts();
+          }
         }
 
         updateAccount(index, data) {
@@ -2902,8 +2966,16 @@
             const isValidEmail = email.includes('@') && email.includes('.');
             
             if (username && email && isValidEmail) {
-              // Tambahkan akun baru
-              const newId = accountManager.accounts.length > 0 ? Math.max(...accountManager.accounts.map((account) => account.id)) + 1 : 1;
+              // Tambahkan akun baru - cari ID tertinggi yang valid
+              const validIds = accountManager.accounts.map(account => account.id).filter(id => typeof id === 'number' && !isNaN(id));
+              const newId = validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
+              
+              // Validasi bahwa newId adalah angka yang valid
+              if (typeof newId !== 'number' || isNaN(newId)) {
+                console.error("Error: newId tidak valid:", newId);
+                alert("Error: Tidak dapat menentukan ID untuk akun baru");
+                return;
+              }
 
               const newAccount = {
                 id: newId,
