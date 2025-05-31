@@ -1112,7 +1112,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.2</div>
+      <div class="version-badge">v2.0.1</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
       Last All Reset at: <span id="lastResetTime">--:--</span>
@@ -1261,8 +1261,8 @@
         <h3>Bulk Add Account</h3>
 
         <div class="form-group">
-          <label for="bulkInput">Format: Username diikuti Email, pisahkan tiap akun dengan baris kosong</label>
-          <textarea id="bulkInput" class="bulk-textarea" placeholder="username&#10;email@domain.com&#10;&#10;username2&#10;email2@domain.com"></textarea>
+          <label for="bulkInput">Format: Username diikuti Email (2 format didukung)</label>
+          <textarea id="bulkInput" class="bulk-textarea" placeholder="Format 1 (dengan baris kosong):&#10;username1&#10;email1@domain.com&#10;&#10;username2&#10;email2@domain.com&#10;&#10;Format 2 (tanpa baris kosong):&#10;username1&#10;email1@domain.com&#10;username2&#10;email2@domain.com"></textarea>
         </div>
 
         <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666">Password default: wawawa666</p>
@@ -1520,7 +1520,22 @@
           document.getElementById("saveManualBtn")?.addEventListener("click", saveManualTime);
 
           // Event listener untuk proses data bulk add
-          document.getElementById("processBulkBtn")?.addEventListener("click", processBulkAccounts);
+          const processBulkBtn = document.getElementById("processBulkBtn");
+          if (processBulkBtn) {
+            processBulkBtn.addEventListener("click", function(event) {
+              event.preventDefault();
+              console.log("Tombol processBulkBtn diklik");
+              try {
+                processBulkAccounts();
+              } catch (error) {
+                console.error("Error dalam processBulkAccounts:", error);
+                alert("Terjadi error: " + error.message);
+              }
+            });
+            console.log("Event listener processBulkBtn berhasil dipasang");
+          } else {
+            console.error("Element processBulkBtn tidak ditemukan!");
+          }
 
           // Event listener untuk menutup modal bulk add
           document.getElementById("closeBulkModal")?.addEventListener("click", closeBulkModal);
@@ -2831,25 +2846,62 @@
 
       // Fungsi untuk memproses input bulk add account
       function processBulkAccounts() {
+        console.log("processBulkAccounts() dipanggil");
+        
+        // Cek apakah accountManager tersedia
+        if (!accountManager) {
+          console.error("accountManager tidak tersedia!");
+          alert("Error: Account Manager belum diinisialisasi!");
+          return;
+        }
+        
         const bulkInput = document.getElementById("bulkInput").value.trim();
+        console.log("Input bulk:", bulkInput);
+        
         if (!bulkInput) {
           alert("Silakan masukkan data akun!");
           return;
         }
 
-        // Split berdasarkan baris kosong ganda untuk mendapatkan grup akun
-        const accountGroups = bulkInput.split(/\n\s*\n+/);
+        // Coba parsing dengan berbagai format
+        let accountGroups = [];
+        
+        // Format 1: Split berdasarkan baris kosong ganda
+        if (bulkInput.includes('\n\n')) {
+          accountGroups = bulkInput.split(/\n\s*\n+/);
+          console.log("Menggunakan format baris kosong ganda, groups:", accountGroups);
+        } 
+        // Format 2: Split berdasarkan baris baru biasa (setiap 2 baris = 1 akun)
+        else {
+          const allLines = bulkInput.split('\n').map(line => line.trim()).filter(line => line);
+          console.log("Semua baris:", allLines);
+          
+          // Kelompokkan setiap 2 baris menjadi 1 akun
+          for (let i = 0; i < allLines.length; i += 2) {
+            if (i + 1 < allLines.length) {
+              accountGroups.push(allLines[i] + '\n' + allLines[i + 1]);
+            }
+          }
+          console.log("Menggunakan format 2 baris per akun, groups:", accountGroups);
+        }
+
         let addedCount = 0;
 
-        accountGroups.forEach((group) => {
+        accountGroups.forEach((group, index) => {
+          console.log(`Processing group ${index}:`, group);
           const lines = group.trim().split("\n");
+          console.log(`Lines in group ${index}:`, lines);
 
           // Setiap grup harus memiliki minimal 2 baris (username dan email)
           if (lines.length >= 2) {
             const username = lines[0].trim();
             const email = lines[1].trim();
+            console.log(`Username: "${username}", Email: "${email}"`);
 
-            if (username && email) {
+            // Validasi username dan email
+            const isValidEmail = email.includes('@') && email.includes('.');
+            
+            if (username && email && isValidEmail) {
               // Tambahkan akun baru
               const newId = accountManager.accounts.length > 0 ? Math.max(...accountManager.accounts.map((account) => account.id)) + 1 : 1;
 
@@ -2864,12 +2916,19 @@
                 isReady: false, // Akun dari bulk add belum ready
               };
 
+              console.log("Menambahkan akun:", newAccount);
               // Tambahkan akun baru ke awal array
               accountManager.accounts.unshift(newAccount);
               addedCount++;
+            } else {
+              console.log(`Akun tidak valid - username: "${username}", email: "${email}", isValidEmail: ${isValidEmail}`);
             }
+          } else {
+            console.log(`Group tidak memiliki cukup baris (${lines.length}):`, lines);
           }
         });
+
+        console.log(`Total akun ditambahkan: ${addedCount}`);
 
         if (addedCount > 0) {
           // Simpan perubahan dan render ulang
@@ -2886,7 +2945,7 @@
           // Reset form
           document.getElementById("bulkInput").value = "";
         } else {
-          alert("Tidak ada akun valid yang ditemukan. Pastikan format data benar!");
+          alert("Tidak ada akun valid yang ditemukan. Pastikan format data benar!\n\nFormat yang didukung:\n1. Username\\nEmail\\n\\nUsername2\\nEmail2\n2. Username\\nEmail\\nUsername2\\nEmail2");
         }
       }
 
