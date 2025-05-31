@@ -1153,7 +1153,6 @@
             <input type="file" id="importFile" accept=".json" />
           </div>
           <button id="resetAllBtn" class="action-btn danger-btn">Reset All Available</button>
-          <button id="cleanupDataBtn" class="action-btn purple-btn">Cleanup Data</button>
           <button id="logoutBtn" class="logout-btn">Logout</button>
         </div>
         <div class="account-summary">
@@ -1645,16 +1644,6 @@
 
           // Event listener untuk tombol Reset All Available
           document.getElementById("resetAllBtn").addEventListener("click", () => accountManager.resetAllAvailable());
-
-          // Event listener untuk tombol Cleanup Data
-          document.getElementById("cleanupDataBtn").addEventListener("click", () => {
-            if (confirm("Apakah Anda yakin ingin membersihkan dan memperbaiki data akun?")) {
-              accountManager.cleanupAccountData();
-              accountManager.saveAccounts();
-              accountManager.renderAccounts();
-              accountManager.showNotification("Data akun berhasil dibersihkan dan diperbaiki");
-            }
-          });
 
           // Set label waktu reset awal
           document.getElementById('lastResetTime').textContent = '--:--';
