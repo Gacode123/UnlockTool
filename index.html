@@ -923,8 +923,12 @@
         background-color: #c92a2a;
       }
 
-      .purple-btn { background-color: var(--purple-color); }
-      .purple-btn:hover { background-color: #845ef7; }
+      .purple-btn {
+        background-color: var(--purple-color);
+      }
+      .purple-btn:hover {
+        background-color: #845ef7;
+      }
 
       /* Tambahkan style untuk tombol quick-rent-btn-10 */
       .quick-rent-btn-9 {
@@ -1156,9 +1160,7 @@
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
       <div class="version-badge">v2.0.1</div>
     </a>
-    <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555;">
-      Last All Reset at: <span id="lastResetTime">--:--</span>
-    </div>
+    <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555">Last All Reset at: <span id="lastResetTime">--:--</span></div>
 
     <!-- Loading Screen -->
     <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: white; display: flex; justify-content: center; align-items: center; z-index: 9999">
@@ -1220,15 +1222,17 @@
             </div>
 
             <label for="passwordFilter"><strong>Filter Password:</strong></label>
-            <div style="display: flex; align-items: center; gap: 5px;">
+            <div style="display: flex; align-items: center; gap: 5px">
               <select id="passwordFilter" class="email-filter">
                 <option value="">Semua Password</option>
                 <!-- Opsi password akan diisi secara dinamis -->
               </select>
             </div>
-            <div id="passwordListContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px;"></div>
+            <div id="passwordListContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px"></div>
 
-            <div class="account-stats"><strong>Total Akun:</strong> <span id="totalAccounts">0</span> <span id="notReadySection" style="display: none;">| <strong>Not Ready:</strong> <span id="notReadyAccounts">0</span></span> | <strong>Available:</strong> <span id="availableAccounts">0</span></div>
+            <div class="account-stats">
+              <strong>Total Akun:</strong> <span id="totalAccounts">0</span> <span id="notReadySection" style="display: none">| <strong>Not Ready:</strong> <span id="notReadyAccounts">0</span></span> | <strong>Available:</strong> <span id="availableAccounts">0</span>
+            </div>
           </div>
 
           <div class="summary-row">
@@ -1304,7 +1308,11 @@
 
         <div class="form-group">
           <label for="bulkInput">Format: Username diikuti Email (2 format didukung)</label>
-          <textarea id="bulkInput" class="bulk-textarea" placeholder="Format 1 (dengan baris kosong):&#10;username1&#10;email1@domain.com&#10;&#10;username2&#10;email2@domain.com&#10;&#10;Format 2 (tanpa baris kosong):&#10;username1&#10;email1@domain.com&#10;username2&#10;email2@domain.com"></textarea>
+          <textarea
+            id="bulkInput"
+            class="bulk-textarea"
+            placeholder="Format 1 (dengan baris kosong):&#10;username1&#10;email1@domain.com&#10;&#10;username2&#10;email2@domain.com&#10;&#10;Format 2 (tanpa baris kosong):&#10;username1&#10;email1@domain.com&#10;username2&#10;email2@domain.com"
+          ></textarea>
         </div>
 
         <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666">Password default: wawawa666</p>
@@ -1397,7 +1405,7 @@
 
         const clearPwdBtn = document.getElementById("clearPasswordFilterBtn");
         if (clearPwdBtn) {
-          clearPwdBtn.addEventListener("click", function() {
+          clearPwdBtn.addEventListener("click", function () {
             if (accountManager) {
               accountManager.setPasswordFilter("");
             }
@@ -1564,7 +1572,7 @@
           // Event listener untuk proses data bulk add
           const processBulkBtn = document.getElementById("processBulkBtn");
           if (processBulkBtn) {
-            processBulkBtn.addEventListener("click", function(event) {
+            processBulkBtn.addEventListener("click", function (event) {
               event.preventDefault();
               console.log("Tombol processBulkBtn diklik");
               try {
@@ -1688,7 +1696,7 @@
           document.getElementById("resetAllBtn").addEventListener("click", () => accountManager.resetAllAvailable());
 
           // Set label waktu reset awal
-          document.getElementById('lastResetTime').textContent = '--:--';
+          document.getElementById("lastResetTime").textContent = "--:--";
           // Inisialisasi countdown reset berikutnya
           // HAPUS: scheduleNextReset();
           // HAPUS: setInterval(updateCountdown, 1000);
@@ -1776,7 +1784,7 @@
         // Efek visual untuk tombol kecil
         const originalText = buttonElement.textContent;
         const originalBg = buttonElement.style.backgroundColor;
-        
+
         buttonElement.textContent = "✓";
         buttonElement.style.backgroundColor = "#099268";
 
@@ -1788,9 +1796,9 @@
 
       // Fungsi untuk copy field dari data attribute
       function copyFieldFromData(buttonElement) {
-        const text = buttonElement.getAttribute('data-copy-text');
+        const text = buttonElement.getAttribute("data-copy-text");
         if (!text) return;
-        
+
         const textarea = document.createElement("textarea");
         textarea.value = text;
         document.body.appendChild(textarea);
@@ -1801,7 +1809,7 @@
         // Efek visual untuk tombol kecil
         const originalText = buttonElement.textContent;
         const originalColor = buttonElement.style.color;
-        
+
         buttonElement.textContent = "✓";
         buttonElement.style.color = "#099268";
 
@@ -1857,11 +1865,11 @@
 
         addAccount() {
           // Cari ID tertinggi yang valid, atau gunakan 1 jika tidak ada
-          const validIds = this.accounts.map(account => account.id).filter(id => typeof id === 'number' && !isNaN(id));
+          const validIds = this.accounts.map((account) => account.id).filter((id) => typeof id === "number" && !isNaN(id));
           const newId = validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
-          
+
           // Validasi bahwa newId adalah angka yang valid
-          if (typeof newId !== 'number' || isNaN(newId)) {
+          if (typeof newId !== "number" || isNaN(newId)) {
             console.error("Error: newId tidak valid:", newId);
             this.showNotification("Error: Tidak dapat menentukan ID untuk akun baru");
             return;
@@ -1932,10 +1940,10 @@
                   this.accounts = this.createDefaultAccounts();
                 }
               }
-              
+
               // Bersihkan dan perbaiki data akun
               this.cleanupAccountData();
-              
+
               this.renderAccounts();
               this.populateEmailFilter();
               this.populatePasswordFilter();
@@ -1945,10 +1953,10 @@
               // Fallback ke localStorage jika Firebase gagal
               const savedAccounts = localStorage.getItem("unlockToolAccounts");
               this.accounts = savedAccounts ? JSON.parse(savedAccounts) : this.createDefaultAccounts();
-              
+
               // Bersihkan dan perbaiki data akun
               this.cleanupAccountData();
-              
+
               this.renderAccounts();
               this.populateEmailFilter();
               this.populatePasswordFilter();
@@ -1958,34 +1966,34 @@
         // Fungsi untuk membersihkan dan memperbaiki data akun
         cleanupAccountData() {
           console.log("Membersihkan data akun...");
-          
+
           // Filter akun yang valid dan perbaiki ID yang rusak
-          this.accounts = this.accounts.filter(account => account && typeof account === 'object');
-          
+          this.accounts = this.accounts.filter((account) => account && typeof account === "object");
+
           // Perbaiki ID yang rusak atau hilang
           let nextId = 1;
           this.accounts.forEach((account, index) => {
-            if (typeof account.id !== 'number' || isNaN(account.id)) {
+            if (typeof account.id !== "number" || isNaN(account.id)) {
               console.log(`Memperbaiki ID akun index ${index}, ID lama:`, account.id);
               account.id = nextId;
             }
             nextId = Math.max(nextId, account.id) + 1;
           });
-          
+
           // Pastikan tidak ada ID duplikat
           const usedIds = new Set();
-          this.accounts.forEach(account => {
+          this.accounts.forEach((account) => {
             if (usedIds.has(account.id)) {
               console.log(`ID duplikat ditemukan: ${account.id}, mengubah ke ${nextId}`);
               account.id = nextId++;
             }
             usedIds.add(account.id);
           });
-          
+
           console.log("Data akun berhasil dibersihkan");
-          
+
           // Simpan data yang sudah dibersihkan jika ada perubahan
-          if (this.accounts.some(account => typeof account.id !== 'number' || isNaN(account.id))) {
+          if (this.accounts.some((account) => typeof account.id !== "number" || isNaN(account.id))) {
             console.log("Menyimpan data yang sudah diperbaiki...");
             this.saveAccounts();
           }
@@ -2109,7 +2117,7 @@
             availableAt: null,
             manuallyUpdated: wasManual, // JANGAN diubah ke false, tetap sesuai sebelumnya
           });
-          this.clearSearchBox();      // ⬅️ tambahkan
+          this.clearSearchBox(); // ⬅️ tambahkan
           this.renderAccounts();
         }
 
@@ -2132,10 +2140,10 @@
 
         clearSearchBox() {
           this.searchQuery = "";
-          const searchInput  = document.getElementById("usernameSearch");
-          const clearButton  = document.getElementById("clearSearch");
-          if (searchInput)  searchInput.value = "";
-          if (clearButton)  clearButton.style.display = "none";
+          const searchInput = document.getElementById("usernameSearch");
+          const clearButton = document.getElementById("clearSearch");
+          if (searchInput) searchInput.value = "";
+          if (clearButton) clearButton.style.display = "none";
         }
 
         renderAccounts(sort = true) {
@@ -2185,7 +2193,7 @@
           if (totalAccountsEl) totalAccountsEl.textContent = filteredAccounts.length;
           if (availableAccountsEl) availableAccountsEl.textContent = availableAccounts;
           if (notReadyAccountsEl) notReadyAccountsEl.textContent = notReadyAccounts;
-          
+
           // Tampilkan bagian Not Ready hanya jika ada akun dengan status Not Ready
           if (notReadySectionEl) {
             if (notReadyAccounts > 0) {
@@ -2227,33 +2235,35 @@
             logDebug("ERROR: Tombol quickRent24Btn tidak ditemukan!");
           }
 
-          // Implementasikan pengurutan akun jika diminta
           if (sort) {
-            logDebug("Mengurutkan akun berdasarkan status dan waktu tersisa");
+            logDebug("Mengurutkan akun (Not Ready → Available → Rented) dan waktu tersisa");
+
             filteredAccounts.sort((a, b) => {
-              // Status available
+              if (!a.isReady && b.isReady) return -1;
+              if (a.isReady && !b.isReady) return 1;
+
+              if (!a.isReady && !b.isReady) {
+                return (a.username || a.name).localeCompare(b.username || b.name);
+              }
+
               const aAvailable = this.isAccountAvailable(a);
               const bAvailable = this.isAccountAvailable(b);
 
-              // Akun available selalu tampil lebih dahulu
               if (aAvailable && !bAvailable) return -1;
               if (!aAvailable && bAvailable) return 1;
 
-              // Jika keduanya available atau keduanya tidak available
               if (aAvailable && bAvailable) {
-                // Akun ready manual ditampilkan terlebih dahulu
                 if (a.manuallyUpdated && !b.manuallyUpdated) return -1;
                 if (!a.manuallyUpdated && b.manuallyUpdated) return 1;
 
-                // Jika keduanya available, urutkan berdasarkan username
                 return a.username.localeCompare(b.username);
-              } else {
-                // Keduanya tidak available, urutkan berdasarkan waktu tersisa (paling kecil dahulu)
-                const aTime = new Date(a.availableAt).getTime();
-                const bTime = new Date(b.availableAt).getTime();
-                return aTime - bTime; // Urutan naik (waktu tersisa paling kecil dahulu)
               }
+
+              const aTime = new Date(a.availableAt).getTime();
+              const bTime = new Date(b.availableAt).getTime();
+              return aTime - bTime;
             });
+
             logDebug("Pengurutan selesai");
           }
 
@@ -2308,7 +2318,7 @@
                             <div class="form-group">
                                 <label for="email-${realIndex}">Email:</label>
                                 <div class="input-with-copy">
-                                    <button class="small-copy-btn" data-copy-text="${account.email || ''}" onclick="copyFieldFromData(this)" title="Copy Email">📋</button>
+                                    <button class="small-copy-btn" data-copy-text="${account.email || ""}" onclick="copyFieldFromData(this)" title="Copy Email">📋</button>
                                     <input type="text" id="email-${realIndex}" value="${account.email || ""}" 
                                         onchange="accountManager.updateAccount(${realIndex}, {email: this.value})">
                                 </div>
@@ -2347,15 +2357,7 @@
                                         <button class="reset-btn" onclick="accountManager.autoResetWithDelay(${realIndex})">
                                             Reset
                                         </button>
-                                        ${
-                                          !isAvailable
-                                            ? (
-                                                account.lastRentedHours === 6
-                                                  ? `<button class="update-btn" onclick="accountManager.updateRentTime(${realIndex})">Update Waktu</button>`
-                                                  : `<button class="update-btn btn-disabled" disabled>Update Waktu</button>`
-                                              )
-                                            : ""
-                                        }
+                                        ${!isAvailable ? (account.lastRentedHours === 6 ? `<button class="update-btn" onclick="accountManager.updateRentTime(${realIndex})">Update Waktu</button>` : `<button class="update-btn btn-disabled" disabled>Update Waktu</button>`) : ""}
                                     </div>
                                 `
                                 }
@@ -2365,7 +2367,7 @@
             container.appendChild(accountCard);
           });
           logDebug("Selesai render akun cards");
-          
+
           // Update email filter counter secara real-time
           this.populateEmailFilter();
         }
@@ -2535,11 +2537,9 @@
             sortedEmails.forEach((email) => {
               // Hitung total akun dengan email ini
               const totalAccounts = this.accounts.filter((account) => account.email === email).length;
-              
+
               // Hitung available akun dengan email ini
-              const availableAccounts = this.accounts.filter((account) => 
-                account.email === email && this.isAccountAvailable(account)
-              ).length;
+              const availableAccounts = this.accounts.filter((account) => account.email === email && this.isAccountAvailable(account)).length;
 
               const option = document.createElement("div");
               option.className = "custom-option";
@@ -2564,14 +2564,14 @@
           if (value === "") {
             selectTrigger.textContent = "Semua Email";
           } else {
-            const selectedOption = [...customOptions].find(opt => opt.getAttribute("data-value") === value);
+            const selectedOption = [...customOptions].find((opt) => opt.getAttribute("data-value") === value);
             if (selectedOption) {
               selectTrigger.innerHTML = selectedOption.innerHTML;
             }
           }
 
           // Update class selected
-          customOptions.forEach(opt => {
+          customOptions.forEach((opt) => {
             if (opt.getAttribute("data-value") === value) {
               opt.classList.add("selected");
             } else {
@@ -2716,23 +2716,21 @@
         // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
           // kumpulkan semua index akun yg available
-          const availableIndices = this.accounts
-              .map((acc, i) => this.isAccountAvailable(acc) ? i : null)
-              .filter(i => i !== null);
+          const availableIndices = this.accounts.map((acc, i) => (this.isAccountAvailable(acc) ? i : null)).filter((i) => i !== null);
           if (availableIndices.length === 0) {
-              this.showNotification("Tidak ada akun available untuk direset");
-              return;
+            this.showNotification("Tidak ada akun available untuk direset");
+            return;
           }
           // reset instan semua akun
-          availableIndices.forEach(idx => {
-              const wasManual = this.accounts[idx].manuallyUpdated;
-              this.updateAccount(idx, {
-                  availableAt: null,
-                  manuallyUpdated: wasManual
-              });
+          availableIndices.forEach((idx) => {
+            const wasManual = this.accounts[idx].manuallyUpdated;
+            this.updateAccount(idx, {
+              availableAt: null,
+              manuallyUpdated: wasManual,
+            });
           });
           // update label reset terakhir
-          document.getElementById('lastResetTime').textContent = formatHHMM(new Date());
+          document.getElementById("lastResetTime").textContent = formatHHMM(new Date());
           this.showNotification(`Auto-reset ${availableIndices.length} akun selesai`);
         }
 
@@ -2741,10 +2739,10 @@
           const wasManual = this.accounts[index].manuallyUpdated;
           // Reset instan tanpa delay
           this.updateAccount(index, {
-              availableAt: null,
-              manuallyUpdated: wasManual
+            availableAt: null,
+            manuallyUpdated: wasManual,
           });
-          this.clearSearchBox();      // ⬅️ tambahkan
+          this.clearSearchBox(); // ⬅️ tambahkan
           this.renderAccounts();
         }
 
@@ -2757,7 +2755,7 @@
           }
           // langsung reset tanpa sewa ulang
           this.resetAccount(index);
-          this.clearSearchBox();      // ⬅️ tambahkan
+          this.clearSearchBox(); // ⬅️ tambahkan
         }
 
         // Metode untuk mengisi dropdown filter password
@@ -2788,7 +2786,7 @@
             const passwordFilter = document.getElementById("passwordFilter");
             if (passwordFilter) passwordFilter.value = "";
             // Hilangkan highlight
-            document.querySelectorAll('.password-card').forEach(card => card.classList.remove('active'));
+            document.querySelectorAll(".password-card").forEach((card) => card.classList.remove("active"));
             this.renderAccounts();
             return;
           }
@@ -2797,12 +2795,12 @@
           const passwordFilter = document.getElementById("passwordFilter");
           if (passwordFilter) passwordFilter.value = password;
           // Highlight card yang dipilih
-          const passwordCards = document.querySelectorAll('.password-card');
-          passwordCards.forEach(card => {
-            if (card.getAttribute('data-password') === password) {
-              card.classList.add('active');
+          const passwordCards = document.querySelectorAll(".password-card");
+          passwordCards.forEach((card) => {
+            if (card.getAttribute("data-password") === password) {
+              card.classList.add("active");
             } else {
-              card.classList.remove('active');
+              card.classList.remove("active");
             }
           });
           this.renderAccounts();
@@ -2814,9 +2812,9 @@
           if (!container) return;
           container.innerHTML = "";
           // Ambil password unik
-          const passwords = Array.from(new Set(this.accounts.filter(acc => acc.password && acc.password.trim() !== "").map(acc => acc.password)));
+          const passwords = Array.from(new Set(this.accounts.filter((acc) => acc.password && acc.password.trim() !== "").map((acc) => acc.password)));
           passwords.sort();
-          passwords.forEach(pwd => {
+          passwords.forEach((pwd) => {
             const item = document.createElement("div");
             item.className = "password-card";
             // Tambahkan kelas active jika password ini adalah password yang terpilih
@@ -2828,13 +2826,13 @@
               <span title="Klik untuk filter password ini">${pwd}</span>
               <button class="delete-btn" title="Hapus password ini dari semua akun">&times;</button>
             `;
-            
+
             const span = item.querySelector("span");
             span.addEventListener("click", () => {
               // Toggle: jika sudah aktif, maka unfilter
               this.setPasswordFilter(pwd);
             });
-            
+
             const btn = item.querySelector(".delete-btn");
             btn.addEventListener("click", (e) => {
               e.stopPropagation();
@@ -2849,9 +2847,9 @@
           if (!this.passwordSortable) {
             this.passwordSortable = new Sortable(container, {
               animation: 150,
-              ghostClass: 'sortable-ghost',
-              chosenClass: 'sortable-chosen',
-              dragClass: 'sortable-drag',
+              ghostClass: "sortable-ghost",
+              chosenClass: "sortable-chosen",
+              dragClass: "sortable-drag",
               easing: "cubic-bezier(0.2, 0, 0.13, 2)",
               delay: 50, // Delay sebelum drag dimulai
               delayOnTouchOnly: true,
@@ -2859,30 +2857,30 @@
               onEnd: (evt) => {
                 // Menunjukkan notifikasi posisi password telah diubah
                 this.showNotification("Posisi password berhasil diubah");
-                
+
                 // Simpan urutan password dalam localStorage jika diperlukan
-                const passwords = Array.from(container.children).map(el => el.getAttribute('data-password'));
-                localStorage.setItem('passwordOrder', JSON.stringify(passwords));
-              }
+                const passwords = Array.from(container.children).map((el) => el.getAttribute("data-password"));
+                localStorage.setItem("passwordOrder", JSON.stringify(passwords));
+              },
             });
           }
 
           // Restore urutan password dari localStorage jika ada
-          const savedOrder = localStorage.getItem('passwordOrder');
+          const savedOrder = localStorage.getItem("passwordOrder");
           if (savedOrder) {
             try {
               const orderArray = JSON.parse(savedOrder);
               // Urutkan password card berdasarkan order yang tersimpan
               [...container.children]
                 .sort((a, b) => {
-                  const aIndex = orderArray.indexOf(a.getAttribute('data-password'));
-                  const bIndex = orderArray.indexOf(b.getAttribute('data-password'));
+                  const aIndex = orderArray.indexOf(a.getAttribute("data-password"));
+                  const bIndex = orderArray.indexOf(b.getAttribute("data-password"));
                   // Jika tidak ada dalam array, letakkan di akhir
                   if (aIndex === -1) return 1;
                   if (bIndex === -1) return -1;
                   return aIndex - bIndex;
                 })
-                .forEach(node => container.appendChild(node));
+                .forEach((node) => container.appendChild(node));
             } catch (e) {
               console.error("Error restoring password order:", e);
             }
@@ -2998,17 +2996,17 @@
       // Fungsi untuk memproses input bulk add account
       function processBulkAccounts() {
         console.log("processBulkAccounts() dipanggil");
-        
+
         // Cek apakah accountManager tersedia
         if (!accountManager) {
           console.error("accountManager tidak tersedia!");
           alert("Error: Account Manager belum diinisialisasi!");
           return;
         }
-        
+
         const bulkInput = document.getElementById("bulkInput").value.trim();
         console.log("Input bulk:", bulkInput);
-        
+
         if (!bulkInput) {
           alert("Silakan masukkan data akun!");
           return;
@@ -3016,21 +3014,24 @@
 
         // Coba parsing dengan berbagai format
         let accountGroups = [];
-        
+
         // Format 1: Split berdasarkan baris kosong ganda
-        if (bulkInput.includes('\n\n')) {
+        if (bulkInput.includes("\n\n")) {
           accountGroups = bulkInput.split(/\n\s*\n+/);
           console.log("Menggunakan format baris kosong ganda, groups:", accountGroups);
-        } 
+        }
         // Format 2: Split berdasarkan baris baru biasa (setiap 2 baris = 1 akun)
         else {
-          const allLines = bulkInput.split('\n').map(line => line.trim()).filter(line => line);
+          const allLines = bulkInput
+            .split("\n")
+            .map((line) => line.trim())
+            .filter((line) => line);
           console.log("Semua baris:", allLines);
-          
+
           // Kelompokkan setiap 2 baris menjadi 1 akun
           for (let i = 0; i < allLines.length; i += 2) {
             if (i + 1 < allLines.length) {
-              accountGroups.push(allLines[i] + '\n' + allLines[i + 1]);
+              accountGroups.push(allLines[i] + "\n" + allLines[i + 1]);
             }
           }
           console.log("Menggunakan format 2 baris per akun, groups:", accountGroups);
@@ -3050,15 +3051,15 @@
             console.log(`Username: "${username}", Email: "${email}"`);
 
             // Validasi username dan email
-            const isValidEmail = email.includes('@') && email.includes('.');
-            
+            const isValidEmail = email.includes("@") && email.includes(".");
+
             if (username && email && isValidEmail) {
               // Tambahkan akun baru - cari ID tertinggi yang valid
-              const validIds = accountManager.accounts.map(account => account.id).filter(id => typeof id === 'number' && !isNaN(id));
+              const validIds = accountManager.accounts.map((account) => account.id).filter((id) => typeof id === "number" && !isNaN(id));
               const newId = validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
-              
+
               // Validasi bahwa newId adalah angka yang valid
-              if (typeof newId !== 'number' || isNaN(newId)) {
+              if (typeof newId !== "number" || isNaN(newId)) {
                 console.error("Error: newId tidak valid:", newId);
                 alert("Error: Tidak dapat menentukan ID untuk akun baru");
                 return;
@@ -3133,20 +3134,23 @@
       function applyBulkChangePwd() {
         const pwd = document.getElementById("newPassword").value.trim();
         const emailFilter = accountManager.selectedEmail; // Gunakan selectedEmail dari accountManager
-        if (!pwd) { alert("Masukkan password baru"); return; }
+        if (!pwd) {
+          alert("Masukkan password baru");
+          return;
+        }
 
         let changedCount = 0;
         accountManager.accounts.forEach((acc, i) => {
           const isAvail = accountManager.isAccountAvailable(acc);
           // Jika tidak ada email filter yang dipilih, ubah semua akun available
           const emailMatch = !emailFilter || acc.email === emailFilter;
-          
+
           if (isAvail && emailMatch) {
             accountManager.updateAccount(i, { password: pwd });
             changedCount++;
           }
         });
-        
+
         if (changedCount > 0) {
           accountManager.showNotification(`Password diubah untuk ${changedCount} akun available`);
         } else {
@@ -3165,8 +3169,8 @@
 
       // Helper format jam:menit
       function formatHHMM(date) {
-        const h = String(date.getHours()).padStart(2, '0');
-        const m = String(date.getMinutes()).padStart(2, '0');
+        const h = String(date.getHours()).padStart(2, "0");
+        const m = String(date.getMinutes()).padStart(2, "0");
         return `${h}:${m}`;
       }
 
