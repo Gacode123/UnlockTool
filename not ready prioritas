@@ -2231,36 +2231,24 @@
           if (sort) {
             logDebug("Mengurutkan akun berdasarkan status dan waktu tersisa");
             filteredAccounts.sort((a, b) => {
-              // Prioritas 1: Not Ready accounts tampil paling atas
-              const aNotReady = !a.isReady;
-              const bNotReady = !b.isReady;
-              
-              if (aNotReady && !bNotReady) return -1;
-              if (!aNotReady && bNotReady) return 1;
-              
-              // Jika keduanya Not Ready, urutkan berdasarkan username
-              if (aNotReady && bNotReady) {
-                return a.username.localeCompare(b.username);
-              }
-
-              // Prioritas 2: Status available (keduanya sudah Ready)
+              // Status available
               const aAvailable = this.isAccountAvailable(a);
               const bAvailable = this.isAccountAvailable(b);
 
-              // Akun available selalu tampil lebih dahulu dari rented
+              // Akun available selalu tampil lebih dahulu
               if (aAvailable && !bAvailable) return -1;
               if (!aAvailable && bAvailable) return 1;
 
-              // Jika keduanya available
+              // Jika keduanya available atau keduanya tidak available
               if (aAvailable && bAvailable) {
-                // Akun Available 100% (manual) ditampilkan terlebih dahulu
+                // Akun ready manual ditampilkan terlebih dahulu
                 if (a.manuallyUpdated && !b.manuallyUpdated) return -1;
                 if (!a.manuallyUpdated && b.manuallyUpdated) return 1;
 
-                // Jika keduanya available dengan status sama, urutkan berdasarkan username
+                // Jika keduanya available, urutkan berdasarkan username
                 return a.username.localeCompare(b.username);
               } else {
-                // Keduanya rented, urutkan berdasarkan waktu tersisa (paling kecil dahulu)
+                // Keduanya tidak available, urutkan berdasarkan waktu tersisa (paling kecil dahulu)
                 const aTime = new Date(a.availableAt).getTime();
                 const bTime = new Date(b.availableAt).getTime();
                 return aTime - bTime; // Urutan naik (waktu tersisa paling kecil dahulu)
