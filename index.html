@@ -2585,8 +2585,26 @@
           this.selectedEmail = email;
           this.renderAccounts();
 
+          // Auto-copy email ke clipboard jika email dipilih (bukan "Semua Email")
+          if (email && email.trim() !== "") {
+            this.copyEmailToClipboard(email);
+          }
+
           // Perbarui custom dropdown
           this.updateCustomSelectValue(email);
+        }
+
+        // Method helper untuk copy email ke clipboard
+        copyEmailToClipboard(email) {
+          const textarea = document.createElement("textarea");
+          textarea.value = email;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textarea);
+
+          // Tampilkan notifikasi
+          this.showNotification(`📧 Email "${email}" telah disalin ke clipboard`);
         }
 
         // Metode untuk mengatur filter pencarian username
