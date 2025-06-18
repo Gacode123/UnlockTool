@@ -1095,7 +1095,7 @@
         font-size: 0.8rem;
         cursor: pointer;
         transition: var(--transition);
-        margin-left: 15px;
+        margin-right: 15px;
         font-weight: 500;
       }
 
@@ -1216,7 +1216,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.5</div>
+      <div class="version-badge">v3.0.1</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555">Last All Reset at: <span id="lastResetTime">--:--</span></div>
 
@@ -1281,8 +1281,8 @@
             </div>
 
             <div class="account-stats">
-              <strong>Total Akun:</strong> <span id="totalAccounts">0</span> <span id="notReadySection" style="display: none">| <strong>Not Ready:</strong> <span id="notReadyAccounts">0</span></span> | <strong>Available:</strong> <span id="availableAccounts">0</span>
               <button id="sortByExpirationBtn" class="sort-expiration-btn" title="Sort berdasarkan expiration date">📅 Sort Expiration</button>
+              <strong>Total Akun:</strong> <span id="totalAccounts">0</span> <span id="notReadySection" style="display: none">| <strong>Not Ready:</strong> <span id="notReadyAccounts">0</span></span> | <strong>Available:</strong> <span id="availableAccounts">0</span> | <strong>Today's Rented:</strong> <span id="todayRentedAccounts">0</span>
             </div>
 
             <div id="passwordListContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px"></div>
@@ -1882,6 +1882,7 @@
           this.searchQuery = ""; // Menyimpan kata kunci pencarian username
           this.resetTimers = {}; // Tambahkan property untuk menyimpan timer reset
           this.sortByExpiration = false; // Track apakah sedang sort by expiration
+          this.todayRentedCount = 0; // Counter untuk akun yang di-rent hari ini
 
           // Tambahkan listener Firebase untuk real-time updates
           firebase
@@ -1898,6 +1899,7 @@
             });
 
           this.loadAccounts();
+          this.initTodayRentedCounter();
         }
 
         createDefaultAccounts() {
@@ -2082,6 +2084,9 @@
             manuallyUpdated: false, // Bukan update manual
           });
 
+          // Increment today's rented counter
+          this.incrementTodayRentedCounter();
+
           // Auto copy info
           this.copyInfoWithTime(index);
 
@@ -2243,10 +2248,12 @@
           const availableAccountsEl = document.getElementById("availableAccounts");
           const notReadyAccountsEl = document.getElementById("notReadyAccounts");
           const notReadySectionEl = document.getElementById("notReadySection");
+          const todayRentedEl = document.getElementById("todayRentedAccounts");
 
           if (totalAccountsEl) totalAccountsEl.textContent = filteredAccounts.length;
           if (availableAccountsEl) availableAccountsEl.textContent = availableAccounts;
           if (notReadyAccountsEl) notReadyAccountsEl.textContent = notReadyAccounts;
+          if (todayRentedEl) todayRentedEl.textContent = this.todayRentedCount;
 
           // Tampilkan bagian Not Ready hanya jika ada akun dengan status Not Ready
           if (notReadySectionEl) {
@@ -2831,6 +2838,66 @@
           
           // Re-render dengan sorting baru
           this.renderAccounts(true);
+        }
+
+        // Method untuk inisialisasi today rented counter
+        initTodayRentedCounter() {
+          const today = new Date().toDateString();
+          const savedData = localStorage.getItem('todayRentedCounter');
+          
+          if (savedData) {
+            const data = JSON.parse(savedData);
+            if (data.date === today) {
+              // Masih hari yang sama, gunakan counter tersimpan
+              this.todayRentedCount = data.count || 0;
+            } else {
+              // Hari berbeda, reset counter
+              this.todayRentedCount = 0;
+              this.saveTodayRentedCounter();
+            }
+          } else {
+            // Pertama kali, set counter ke 0
+            this.todayRentedCount = 0;
+            this.saveTodayRentedCounter();
+          }
+
+          // Set timer untuk auto-reset di midnight
+          this.scheduleNextReset();
+        }
+
+        // Method untuk save counter ke localStorage
+        saveTodayRentedCounter() {
+          const today = new Date().toDateString();
+          const data = {
+            date: today,
+            count: this.todayRentedCount
+          };
+          localStorage.setItem('todayRentedCounter', JSON.stringify(data));
+        }
+
+        // Method untuk increment counter saat ada rental
+        incrementTodayRentedCounter() {
+          this.todayRentedCount++;
+          this.saveTodayRentedCounter();
+          this.renderAccounts(); // Update tampilan
+        }
+
+        // Method untuk schedule reset di midnight
+        scheduleNextReset() {
+          const now = new Date();
+          const tomorrow = new Date(now);
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          tomorrow.setHours(0, 0, 0, 0); // Set ke 00:00:00
+
+          const msUntilMidnight = tomorrow.getTime() - now.getTime();
+
+          setTimeout(() => {
+            this.todayRentedCount = 0;
+            this.saveTodayRentedCounter();
+            this.renderAccounts(); // Update tampilan
+            this.scheduleNextReset(); // Schedule next reset
+            this.showNotification("🕛 Counter hari ini telah direset ke 0");
+          }, msUntilMidnight);
         }
 
         // Method untuk pindah ke email berikutnya
