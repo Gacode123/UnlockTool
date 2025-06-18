@@ -368,7 +368,7 @@
 
       input[type="text"],
       input[type="password"],
-      textarea.note-input {
+      input[type="date"] {
         width: 100%;
         padding: 10px 12px;
         border: 1px solid #ddd;
@@ -380,15 +380,10 @@
 
       input[type="text"]:focus,
       input[type="password"]:focus,
-      textarea.note-input:focus {
+      input[type="date"]:focus {
         outline: none;
         border-color: var(--primary-color);
         box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
-      }
-
-      textarea.note-input {
-        resize: vertical;
-        min-height: 60px;
       }
 
       .time-info {
@@ -1881,7 +1876,7 @@
               password: "wawawa666",
               email: "",
               availableAt: null,
-              note: "",
+              expirationDate: "", // Ganti note dengan expirationDate
               isReady: true, // Akun default sudah ready
             });
           }
@@ -1907,7 +1902,7 @@
             password: "wawawa666",
             email: "",
             availableAt: null,
-            note: "",
+            expirationDate: "", // Ganti note dengan expirationDate
             isReady: false, // Akun baru belum ready
           };
 
@@ -2349,9 +2344,11 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="note-${realIndex}">Catatan:</label>
-                                <textarea class="note-input" id="note-${realIndex}" 
-                                    onchange="accountManager.updateAccount(${realIndex}, {note: this.value})">${account.note || ""}</textarea>
+                                <label for="expiration-${realIndex}">Account Expiration:</label>
+                                <input type="date" id="expiration-${realIndex}" value="${account.expirationDate || ""}" 
+                                    onchange="accountManager.updateAccount(${realIndex}, {expirationDate: this.value})"
+                                    style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+                                ${account.expirationDate ? this.getExpirationInfo(account.expirationDate) : '<div style="font-size: 0.85rem; color: #666; margin-top: 5px;">Belum diset</div>'}
                             </div>
                             <div class="time-info">
                                 <strong>Status:</strong> ${detailStatusText}
@@ -2630,6 +2627,38 @@
 
           // Tampilkan notifikasi
           this.showNotification(`📧 Email "${email}" telah disalin ke clipboard`);
+        }
+
+        // Method untuk mendapatkan informasi expiration
+        getExpirationInfo(expirationDate) {
+          if (!expirationDate) return '';
+          
+          const today = new Date();
+          const expDate = new Date(expirationDate);
+          const diffTime = expDate - today;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          let statusText = '';
+          let statusColor = '';
+          
+          if (diffDays < 0) {
+            statusText = `Expired ${Math.abs(diffDays)} hari yang lalu`;
+            statusColor = '#e03131'; // Merah
+          } else if (diffDays === 0) {
+            statusText = 'Expired hari ini';
+            statusColor = '#e03131'; // Merah
+          } else if (diffDays <= 7) {
+            statusText = `${diffDays} hari lagi (Segera expired!)`;
+            statusColor = '#f59f00'; // Orange
+          } else if (diffDays <= 30) {
+            statusText = `${diffDays} hari lagi`;
+            statusColor = '#f59f00'; // Orange
+          } else {
+            statusText = `${diffDays} hari lagi`;
+            statusColor = '#0ca678'; // Hijau
+          }
+          
+          return `<div style="font-size: 0.85rem; color: ${statusColor}; margin-top: 5px; font-weight: 600;">${statusText}</div>`;
         }
 
         // Method untuk pindah ke email berikutnya
@@ -3130,7 +3159,7 @@
                 password: "wawawa666",
                 email: email,
                 availableAt: null,
-                note: "",
+                expirationDate: "", // Ganti note dengan expirationDate
                 isReady: false, // Akun dari bulk add belum ready
               };
 
