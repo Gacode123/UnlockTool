@@ -367,8 +367,7 @@
       }
 
       input[type="text"],
-      input[type="password"],
-      input[type="date"] {
+      input[type="password"] {
         width: 100%;
         padding: 10px 12px;
         border: 1px solid #ddd;
@@ -379,8 +378,7 @@
       }
 
       input[type="text"]:focus,
-      input[type="password"]:focus,
-      input[type="date"]:focus {
+      input[type="password"]:focus {
         outline: none;
         border-color: var(--primary-color);
         box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
@@ -2345,10 +2343,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="expiration-${realIndex}">Account Expiration:</label>
-                                <input type="date" id="expiration-${realIndex}" value="${account.expirationDate || ""}" 
+                                <input type="text" id="expiration-${realIndex}" value="${account.expirationDate || ""}" 
+                                    placeholder="Copy paste: Nov. 9, 2025, 5:32 a.m."
                                     onchange="accountManager.updateAccount(${realIndex}, {expirationDate: this.value})"
                                     style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
-                                ${account.expirationDate ? this.getExpirationInfo(account.expirationDate) : '<div style="font-size: 0.85rem; color: #666; margin-top: 5px;">Belum diset</div>'}
+                                ${account.expirationDate ? this.getExpirationInfo(account.expirationDate) : '<div style="font-size: 0.85rem; color: #666; margin-top: 5px;">Belum diset - Copy paste format: Nov. 9, 2025, 5:32 a.m.</div>'}
                             </div>
                             <div class="time-info">
                                 <strong>Status:</strong> ${detailStatusText}
@@ -2634,7 +2633,27 @@
           if (!expirationDate) return '';
           
           const today = new Date();
-          const expDate = new Date(expirationDate);
+          let expDate;
+          
+          // Parse format "Nov. 9, 2025, 5:32 a.m." atau format standar
+          try {
+            // Coba parse format copy-paste
+            expDate = new Date(expirationDate);
+            
+            // Jika parsing gagal, coba beberapa format lain
+            if (isNaN(expDate.getTime())) {
+              // Handle format dengan titik setelah bulan: "Nov. 9, 2025"
+              const cleanDate = expirationDate.replace(/\./g, '').replace(/,/g, '');
+              expDate = new Date(cleanDate);
+            }
+            
+            if (isNaN(expDate.getTime())) {
+              return '<div style="font-size: 0.85rem; color: #e03131; margin-top: 5px; font-weight: 600;">Format tanggal tidak valid</div>';
+            }
+          } catch (error) {
+            return '<div style="font-size: 0.85rem; color: #e03131; margin-top: 5px; font-weight: 600;">Format tanggal tidak valid</div>';
+          }
+          
           const diffTime = expDate - today;
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
           
