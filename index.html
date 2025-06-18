@@ -1260,13 +1260,8 @@
               <button type="button" id="clearSearch" class="clear-search-btn">&times;</button>
             </div>
 
-            <label for="passwordFilter"><strong>Filter Password:</strong></label>
-            <div style="display: flex; align-items: center; gap: 5px">
-              <select id="passwordFilter" class="email-filter">
-                <option value="">Semua Password</option>
-                <!-- Opsi password akan diisi secara dinamis -->
-              </select>
-            </div>
+
+            <label><strong>Filter Password:</strong></label>
             <div id="passwordListContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px"></div>
 
             <div class="account-stats">
@@ -1442,14 +1437,7 @@
           });
         }, 300); // Kurangi delay loading menjadi 300ms
 
-        const clearPwdBtn = document.getElementById("clearPasswordFilterBtn");
-        if (clearPwdBtn) {
-          clearPwdBtn.addEventListener("click", function () {
-            if (accountManager) {
-              accountManager.setPasswordFilter("");
-            }
-          });
-        }
+
       });
 
       // Event listener untuk tombol login
@@ -1665,10 +1653,7 @@
             });
           }
 
-          // Event listener untuk filter password
-          document.getElementById("passwordFilter")?.addEventListener("change", (event) => {
-            accountManager.setPasswordFilter(event.target.value);
-          });
+
 
           // Event listener untuk filter pencarian username
           document.getElementById("usernameSearch")?.addEventListener("input", (event) => {
@@ -2853,23 +2838,9 @@
           this.clearSearchBox(); // ⬅️ tambahkan
         }
 
-        // Metode untuk mengisi dropdown filter password
+        // Metode untuk mengelola password cards
         populatePasswordFilter() {
-          const passwordFilter = document.getElementById("passwordFilter");
-          while (passwordFilter.options.length > 1) {
-            passwordFilter.remove(1);
-          }
-          const passwords = Array.from(new Set(this.accounts.filter((account) => account.password && account.password.trim() !== "").map((account) => account.password)));
-          passwords.sort();
-          passwords.forEach((pwd) => {
-            const option = document.createElement("option");
-            option.value = pwd;
-            option.textContent = pwd;
-            passwordFilter.appendChild(option);
-          });
-          const selected = this.selectedPassword || passwordFilter.value;
-          passwordFilter.value = selected;
-          this.renderAccounts();
+          // Hanya render password list cards, tidak ada dropdown lagi
           this.renderPasswordList();
         }
 
@@ -2878,8 +2849,6 @@
           // Jika password yang sama diklik lagi, lakukan unfilter
           if (this.selectedPassword === password) {
             this.selectedPassword = "";
-            const passwordFilter = document.getElementById("passwordFilter");
-            if (passwordFilter) passwordFilter.value = "";
             // Hilangkan highlight
             document.querySelectorAll(".password-card").forEach((card) => card.classList.remove("active"));
             this.renderAccounts();
@@ -2887,8 +2856,6 @@
           }
           // Jika password berbeda, lakukan filter & highlight
           this.selectedPassword = password;
-          const passwordFilter = document.getElementById("passwordFilter");
-          if (passwordFilter) passwordFilter.value = password;
           // Highlight card yang dipilih
           const passwordCards = document.querySelectorAll(".password-card");
           passwordCards.forEach((card) => {
