@@ -1056,9 +1056,6 @@
         max-width: none;
         min-width: 300px;
         width: auto;
-        display: flex;
-        align-items: center;
-        gap: 8px;
       }
 
       /* Style untuk tombol next email */
@@ -1240,6 +1237,7 @@
         <div class="account-summary">
           <div class="filter-container">
             <label for="emailFilter"><strong>Filter Email:</strong></label>
+            <button id="nextEmailBtn" class="next-email-btn" title="Pindah ke email berikutnya">▶</button>
             <div class="custom-select-wrapper">
               <div id="emailFilter" class="custom-select">
                 <div class="select-trigger">
@@ -1251,7 +1249,6 @@
                   <!-- Opsi email akan diisi secara dinamis -->
                 </div>
               </div>
-              <button id="nextEmailBtn" class="next-email-btn" title="Pindah ke email berikutnya">▶</button>
             </div>
 
             <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
@@ -1261,7 +1258,6 @@
             </div>
 
 
-            <label><strong>Filter Password:</strong></label>
             <div id="passwordListContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px"></div>
 
             <div class="account-stats">
