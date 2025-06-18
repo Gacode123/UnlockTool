@@ -1052,9 +1052,9 @@
       /* Custom Email Dropdown Styles */
       .custom-select-wrapper {
         position: relative;
-        flex-grow: 1;
+        flex-grow: 0;
         max-width: none;
-        min-width: 300px;
+        min-width: auto;
         width: auto;
       }
 
@@ -1110,8 +1110,9 @@
         align-items: center;
         justify-content: space-between;
         white-space: nowrap;
-        min-width: 280px;
-        width: 100%;
+        min-width: 120px;
+        width: auto;
+        max-width: 350px;
       }
 
       .select-trigger:hover {
@@ -1144,7 +1145,7 @@
         z-index: 1000;
         display: none;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        min-width: 300px;
+        min-width: 100%;
         width: auto;
         white-space: nowrap;
         padding: 4px;
