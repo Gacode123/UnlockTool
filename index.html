@@ -1282,7 +1282,7 @@
 
             <div class="account-stats">
               <button id="sortByExpirationBtn" class="sort-expiration-btn" title="Sort berdasarkan expiration date">📅 Sort Expiration</button>
-              <strong>Total Akun:</strong> <span id="totalAccounts">0</span> <span id="notReadySection" style="display: none">| <strong>Not Ready:</strong> <span id="notReadyAccounts">0</span></span> | <strong>Available:</strong> <span id="availableAccounts">0</span> | <strong>Today's Rented:</strong> <span id="todayRentedAccounts">0</span>
+              <strong>Total:</strong> <span id="totalAccounts">0</span> | <strong>Ready:</strong> <span id="availableAccounts">0</span> | <strong>Today:</strong> <span id="todayRentedAccounts">0</span>
             </div>
 
             <div id="passwordListContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px"></div>
@@ -2246,23 +2246,11 @@
           // Update informasi ringkasan akun
           const totalAccountsEl = document.getElementById("totalAccounts");
           const availableAccountsEl = document.getElementById("availableAccounts");
-          const notReadyAccountsEl = document.getElementById("notReadyAccounts");
-          const notReadySectionEl = document.getElementById("notReadySection");
           const todayRentedEl = document.getElementById("todayRentedAccounts");
 
           if (totalAccountsEl) totalAccountsEl.textContent = filteredAccounts.length;
           if (availableAccountsEl) availableAccountsEl.textContent = availableAccounts;
-          if (notReadyAccountsEl) notReadyAccountsEl.textContent = notReadyAccounts;
           if (todayRentedEl) todayRentedEl.textContent = this.todayRentedCount;
-
-          // Tampilkan bagian Not Ready hanya jika ada akun dengan status Not Ready
-          if (notReadySectionEl) {
-            if (notReadyAccounts > 0) {
-              notReadySectionEl.style.display = "inline";
-            } else {
-              notReadySectionEl.style.display = "none";
-            }
-          }
 
           logDebug("Total akun available: ", availableAccounts);
 
