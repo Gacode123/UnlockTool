@@ -1085,6 +1085,35 @@
         opacity: 0.6;
       }
 
+      /* Style untuk tombol sort expiration */
+      .sort-expiration-btn {
+        background-color: var(--purple-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-left: 15px;
+        font-weight: 500;
+      }
+
+      .sort-expiration-btn:hover {
+        background-color: #845ef7;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .sort-expiration-btn:active {
+        transform: translateY(0);
+      }
+
+      .sort-expiration-btn.active {
+        background-color: #7048e8;
+        box-shadow: 0 0 0 2px rgba(151, 117, 250, 0.3);
+      }
+
       .custom-select {
         position: relative;
         flex: 1;
@@ -1187,7 +1216,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v.3</div>
+      <div class="version-badge">v2.5</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555">Last All Reset at: <span id="lastResetTime">--:--</span></div>
 
@@ -1253,6 +1282,7 @@
 
             <div class="account-stats">
               <strong>Total Akun:</strong> <span id="totalAccounts">0</span> <span id="notReadySection" style="display: none">| <strong>Not Ready:</strong> <span id="notReadyAccounts">0</span></span> | <strong>Available:</strong> <span id="availableAccounts">0</span>
+              <button id="sortByExpirationBtn" class="sort-expiration-btn" title="Sort berdasarkan expiration date">📅 Sort Expiration</button>
             </div>
 
             <div id="passwordListContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px"></div>
@@ -1713,6 +1743,11 @@
             accountManager.moveToNextEmail();
           });
 
+          // Event listener untuk tombol sort expiration
+          document.getElementById("sortByExpirationBtn")?.addEventListener("click", () => {
+            accountManager.toggleSortByExpiration();
+          });
+
           // Set label waktu reset awal
           document.getElementById("lastResetTime").textContent = "--:--";
           // Inisialisasi countdown reset berikutnya
@@ -1846,6 +1881,7 @@
           this.selectedPassword = ""; // Menyimpan password yang dipilih untuk filter
           this.searchQuery = ""; // Menyimpan kata kunci pencarian username
           this.resetTimers = {}; // Tambahkan property untuk menyimpan timer reset
+          this.sortByExpiration = false; // Track apakah sedang sort by expiration
 
           // Tambahkan listener Firebase untuk real-time updates
           firebase
@@ -2254,33 +2290,41 @@
           }
 
           if (sort) {
-            logDebug("Mengurutkan akun (Not Ready → Available → Rented) dan waktu tersisa");
+            if (this.sortByExpiration) {
+              logDebug("Mengurutkan akun berdasarkan expiration date");
+              filteredAccounts.sort((a, b) => {
+                const aExpirationPriority = this.getExpirationPriority(a.expirationDate);
+                const bExpirationPriority = this.getExpirationPriority(b.expirationDate);
+                return aExpirationPriority - bExpirationPriority;
+              });
+            } else {
+              logDebug("Mengurutkan akun (Not Ready → Available → Rented) dan waktu tersisa");
+              filteredAccounts.sort((a, b) => {
+                if (!a.isReady && b.isReady) return -1;
+                if (a.isReady && !b.isReady) return 1;
 
-            filteredAccounts.sort((a, b) => {
-              if (!a.isReady && b.isReady) return -1;
-              if (a.isReady && !b.isReady) return 1;
+                if (!a.isReady && !b.isReady) {
+                  return (a.username || a.name).localeCompare(b.username || b.name);
+                }
 
-              if (!a.isReady && !b.isReady) {
-                return (a.username || a.name).localeCompare(b.username || b.name);
-              }
+                const aAvailable = this.isAccountAvailable(a);
+                const bAvailable = this.isAccountAvailable(b);
 
-              const aAvailable = this.isAccountAvailable(a);
-              const bAvailable = this.isAccountAvailable(b);
+                if (aAvailable && !bAvailable) return -1;
+                if (!aAvailable && bAvailable) return 1;
 
-              if (aAvailable && !bAvailable) return -1;
-              if (!aAvailable && bAvailable) return 1;
+                if (aAvailable && bAvailable) {
+                  if (a.manuallyUpdated && !b.manuallyUpdated) return -1;
+                  if (!a.manuallyUpdated && b.manuallyUpdated) return 1;
 
-              if (aAvailable && bAvailable) {
-                if (a.manuallyUpdated && !b.manuallyUpdated) return -1;
-                if (!a.manuallyUpdated && b.manuallyUpdated) return 1;
+                  return a.username.localeCompare(b.username);
+                }
 
-                return a.username.localeCompare(b.username);
-              }
-
-              const aTime = new Date(a.availableAt).getTime();
-              const bTime = new Date(b.availableAt).getTime();
-              return aTime - bTime;
-            });
+                const aTime = new Date(a.availableAt).getTime();
+                const bTime = new Date(b.availableAt).getTime();
+                return aTime - bTime;
+              });
+            }
 
             logDebug("Pengurutan selesai");
           }
@@ -2732,6 +2776,61 @@
           }
           
           return `<span style="font-size: 0.85rem; color: ${statusColor}; font-weight: 600; white-space: nowrap;">${statusText}</span>`;
+        }
+
+        // Method untuk mendapatkan prioritas expiration untuk sorting
+        getExpirationPriority(expirationDate) {
+          if (!expirationDate) return 999; // No expiration set = lowest priority
+          
+          const today = new Date();
+          let expDate;
+          
+          try {
+            expDate = new Date(expirationDate);
+            if (isNaN(expDate.getTime())) {
+              const cleanDate = expirationDate.replace(/\./g, '').replace(/,/g, '');
+              expDate = new Date(cleanDate);
+            }
+            
+            if (isNaN(expDate.getTime())) {
+              return 998; // Invalid format = very low priority
+            }
+          } catch (error) {
+            return 998; // Error parsing = very low priority
+          }
+          
+          const diffTime = expDate - today;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          
+          // Priority levels (lower number = higher priority):
+          if (diffDays < 0) return 1;      // Already expired - HIGHEST priority
+          if (diffDays === 0) return 2;    // Expires today - VERY HIGH priority
+          if (diffDays <= 7) return 3;     // Expires within 7 days - HIGH priority
+          if (diffDays <= 30) return 4;    // Expires within 30 days - MEDIUM priority
+          
+          // For longer periods, use the actual days as priority (inverted)
+          // So accounts expiring sooner get higher priority
+          return 100 + diffDays; // LOWER priority, but still sorted by days remaining
+        }
+
+        // Method untuk toggle sort by expiration
+        toggleSortByExpiration() {
+          this.sortByExpiration = !this.sortByExpiration;
+          
+          // Update visual state tombol
+          const sortBtn = document.getElementById("sortByExpirationBtn");
+          if (this.sortByExpiration) {
+            sortBtn.classList.add("active");
+            sortBtn.textContent = "📅 Sort Normal";
+            this.showNotification("Sorting berdasarkan expiration date");
+          } else {
+            sortBtn.classList.remove("active");
+            sortBtn.textContent = "📅 Sort Expiration";
+            this.showNotification("Sorting normal (default)");
+          }
+          
+          // Re-render dengan sorting baru
+          this.renderAccounts(true);
         }
 
         // Method untuk pindah ke email berikutnya
