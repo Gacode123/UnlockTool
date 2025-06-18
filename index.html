@@ -1056,10 +1056,48 @@
         max-width: none;
         min-width: 300px;
         width: auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* Style untuk tombol next email */
+      .next-email-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 12px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: var(--transition);
+        height: 32px;
+        min-width: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+      }
+
+      .next-email-btn:hover {
+        background-color: #4559b3;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .next-email-btn:active {
+        transform: translateY(0);
+      }
+
+      .next-email-btn:disabled {
+        background-color: #adb5bd;
+        cursor: not-allowed;
+        opacity: 0.6;
       }
 
       .custom-select {
         position: relative;
+        flex: 1;
       }
 
       .select-trigger {
@@ -1158,7 +1196,7 @@
   <body>
     <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-      <div class="version-badge">v2.0.1</div>
+      <div class="version-badge">v2.4</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555">Last All Reset at: <span id="lastResetTime">--:--</span></div>
 
@@ -1213,6 +1251,7 @@
                   <!-- Opsi email akan diisi secara dinamis -->
                 </div>
               </div>
+              <button id="nextEmailBtn" class="next-email-btn" title="Pindah ke email berikutnya">▶</button>
             </div>
 
             <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
@@ -1694,6 +1733,11 @@
 
           // Event listener untuk tombol Reset All Available
           document.getElementById("resetAllBtn").addEventListener("click", () => accountManager.resetAllAvailable());
+
+          // Event listener untuk tombol next email
+          document.getElementById("nextEmailBtn")?.addEventListener("click", () => {
+            accountManager.moveToNextEmail();
+          });
 
           // Set label waktu reset awal
           document.getElementById("lastResetTime").textContent = "--:--";
@@ -2605,6 +2649,39 @@
 
           // Tampilkan notifikasi
           this.showNotification(`📧 Email "${email}" telah disalin ke clipboard`);
+        }
+
+        // Method untuk pindah ke email berikutnya
+        moveToNextEmail() {
+          const emailFilter = document.getElementById("emailFilter");
+          const customOptions = emailFilter.querySelectorAll(".custom-option");
+          
+          // Dapatkan semua email yang tersedia (kecuali "Semua Email")
+          const availableEmails = [];
+          customOptions.forEach(option => {
+            const value = option.getAttribute("data-value");
+            if (value && value.trim() !== "") {
+              availableEmails.push(value);
+            }
+          });
+
+          if (availableEmails.length === 0) {
+            this.showNotification("Tidak ada email yang tersedia untuk dipindah");
+            return;
+          }
+
+          // Cari index email yang sedang dipilih
+          let currentIndex = -1;
+          if (this.selectedEmail) {
+            currentIndex = availableEmails.indexOf(this.selectedEmail);
+          }
+
+          // Pindah ke email berikutnya (atau ke email pertama jika sudah di akhir atau belum ada yang dipilih)
+          const nextIndex = (currentIndex + 1) % availableEmails.length;
+          const nextEmail = availableEmails[nextIndex];
+
+          // Set filter ke email berikutnya (ini akan otomatis trigger auto-copy)
+          this.setEmailFilter(nextEmail);
         }
 
         // Metode untuk mengatur filter pencarian username
