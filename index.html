@@ -428,62 +428,14 @@
       }
 
       .rent-btn {
+        background-color: var(--success-color);
         color: white;
         flex: 1;
-        min-width: 90px;
-        font-weight: 500;
-        font-size: 0.85rem;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        position: relative;
-        overflow: hidden;
+        min-width: 80px;
       }
 
       .rent-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      }
-
-      .rent-btn:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      /* Durasi 6 jam - Hijau (Quick) */
-      .rent-btn.duration-6 {
-        background: linear-gradient(135deg, #10b981, #059669);
-      }
-
-      .rent-btn.duration-6:hover {
-        background: linear-gradient(135deg, #059669, #047857);
-      }
-
-      /* Durasi 9 jam - Biru (Standard) */
-      .rent-btn.duration-9 {
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
-      }
-
-      .rent-btn.duration-9:hover {
-        background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      }
-
-      /* Durasi 12 jam - Orange (Extended) */
-      .rent-btn.duration-12 {
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-      }
-
-      .rent-btn.duration-12:hover {
-        background: linear-gradient(135deg, #d97706, #b45309);
-      }
-
-      /* Durasi 24 jam - Merah (Premium) */
-      .rent-btn.duration-24 {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-      }
-
-      .rent-btn.duration-24:hover {
-        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        background-color: #099268;
       }
 
       .copy-btn {
@@ -1338,10 +1290,10 @@
 
           <div class="summary-row">
             <div class="summary-left">
-                        <button id="quickRentBtn" class="quick-rent-btn">⚡ Quick Rent 6H</button>
-          <button id="quickRent9Btn" class="quick-rent-btn-9">🕘 Standard Rent 9H</button>
-          <button id="quickRent12Btn" class="quick-rent-btn-12">⏰ Extended Rent 12H</button>
-          <button id="quickRent24Btn" class="quick-rent-btn-24">🌙 Premium Rent 24H</button>
+              <button id="quickRentBtn" class="quick-rent-btn">⚡ 6 Jam</button>
+              <button id="quickRent9Btn" class="quick-rent-btn-9">⚡ 9 Jam</button>
+              <button id="quickRent12Btn" class="quick-rent-btn-12">⚡ 12 Jam</button>
+              <button id="quickRent24Btn" class="quick-rent-btn-24">⚡ 24 Jam</button>
             </div>
           </div>
         </div>
@@ -2471,18 +2423,10 @@
                                 `
                                     : `
                                     <div class="btn-group duration-buttons">
-                                                              <button class="rent-btn duration-6" onclick="accountManager.rentAccount(${realIndex}, 6)">
-                        <span style="font-size: 0.9em;">⚡</span> Quick 6H
-                      </button>
-                      <button class="rent-btn duration-9" onclick="accountManager.rentAccount(${realIndex}, 9)">
-                        <span style="font-size: 0.9em;">🕘</span> Standard 9H
-                      </button>
-                      <button class="rent-btn duration-12" onclick="accountManager.rentAccount(${realIndex}, 12)">
-                        <span style="font-size: 0.9em;">⏰</span> Extended 12H
-                      </button>
-                      <button class="rent-btn duration-24" onclick="accountManager.rentAccount(${realIndex}, 24)">
-                        <span style="font-size: 0.9em;">🌙</span> Premium 24H
-                      </button>
+                                        <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 6)">6 Jam</button>
+                                        <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 9)">9 Jam</button>
+                                        <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 12)">12 Jam</button>
+                                        <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 24)">24 Jam</button>
                                     </div>
                                     <div class="btn-group control-buttons">
                                         <button class="manual-btn" onclick="openManualInput(${realIndex})">Manual</button>
