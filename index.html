@@ -2300,21 +2300,32 @@
 
                 const aAvailable = this.isAccountAvailable(a);
                 const bAvailable = this.isAccountAvailable(b);
+                
+                // AVAILABLE 100% (manuallyUpdated = true) vs Available (manuallyUpdated = false)
+                const aAvailable100 = aAvailable && a.manuallyUpdated; // AVAILABLE 100%
+                const bAvailable100 = bAvailable && b.manuallyUpdated; // AVAILABLE 100%
+                const aAvailableNormal = aAvailable && !a.manuallyUpdated; // Available normal
+                const bAvailableNormal = bAvailable && !b.manuallyUpdated; // Available normal
 
+                // Prioritas: Available vs Rented
                 if (aAvailable && !bAvailable) return -1;
                 if (!aAvailable && bAvailable) return 1;
 
-                if (aAvailable && bAvailable) {
-                  // Prioritas yang sudah available paling lama
-                  const aAvailableAt = a.availableAt ? new Date(a.availableAt).getTime() : 0; // 0 = available sejak awal
-                  const bAvailableAt = b.availableAt ? new Date(b.availableAt).getTime() : 0; // 0 = available sejak awal
-                  
-                  // Yang tidak punya availableAt (available sejak awal) dapat prioritas tertinggi
-                  if (!a.availableAt && b.availableAt) return -1;
-                  if (a.availableAt && !b.availableAt) return 1;
-                  
+                // Prioritas: AVAILABLE 100% vs Available normal
+                if (aAvailable100 && bAvailableNormal) return -1;
+                if (aAvailableNormal && bAvailable100) return 1;
+
+                // Kedua-duanya AVAILABLE 100%
+                if (aAvailable100 && bAvailable100) {
+                  return a.username.localeCompare(b.username); // alphabetical
+                }
+
+                // Kedua-duanya Available normal
+                if (aAvailableNormal && bAvailableNormal) {
                   // Yang availableAt lebih lama di masa lalu (sudah available lebih lama) dapat prioritas
-                  return aAvailableAt - bAvailableAt;
+                  const aTime = a.availableAt ? new Date(a.availableAt).getTime() : 0;
+                  const bTime = b.availableAt ? new Date(b.availableAt).getTime() : 0;
+                  return aTime - bTime;
                 }
 
                 const aTime = new Date(a.availableAt).getTime();
