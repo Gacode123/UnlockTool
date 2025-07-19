@@ -2168,11 +2168,9 @@
         }
 
         resetAccount(index) {
-          // Simpan status manuallyUpdated sebelum reset
-          const wasManual = this.accounts[index].manuallyUpdated;
           this.updateAccount(index, {
             availableAt: new Date().toISOString(), // Set ke waktu sekarang (masuk antrian paling belakang)
-            manuallyUpdated: wasManual, // JANGAN diubah ke false, tetap sesuai sebelumnya
+            manuallyUpdated: false, // Reset jadi Available normal (bukan 100%)
           });
           this.clearSearchBox(); // ⬅️ tambahkan
           this.renderAccounts();
