@@ -2171,7 +2171,7 @@
           // Simpan status manuallyUpdated sebelum reset
           const wasManual = this.accounts[index].manuallyUpdated;
           this.updateAccount(index, {
-            availableAt: null,
+            availableAt: new Date().toISOString(), // Set ke waktu sekarang (masuk antrian paling belakang)
             manuallyUpdated: wasManual, // JANGAN diubah ke false, tetap sesuai sebelumnya
           });
           this.clearSearchBox(); // ⬅️ tambahkan
@@ -2317,7 +2317,10 @@
 
                 // Kedua-duanya AVAILABLE 100%
                 if (aAvailable100 && bAvailable100) {
-                  return a.username.localeCompare(b.username); // alphabetical
+                  // Yang availableAt lebih lama di masa lalu (sudah available lebih lama) dapat prioritas
+                  const aTime = a.availableAt ? new Date(a.availableAt).getTime() : 0;
+                  const bTime = b.availableAt ? new Date(b.availableAt).getTime() : 0;
+                  return aTime - bTime;
                 }
 
                 // Kedua-duanya Available normal
