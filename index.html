@@ -2305,10 +2305,16 @@
                 if (!aAvailable && bAvailable) return 1;
 
                 if (aAvailable && bAvailable) {
-                  if (a.manuallyUpdated && !b.manuallyUpdated) return -1;
-                  if (!a.manuallyUpdated && b.manuallyUpdated) return 1;
-
-                  return a.username.localeCompare(b.username);
+                  // Prioritas yang sudah available paling lama
+                  const aAvailableAt = a.availableAt ? new Date(a.availableAt).getTime() : 0; // 0 = available sejak awal
+                  const bAvailableAt = b.availableAt ? new Date(b.availableAt).getTime() : 0; // 0 = available sejak awal
+                  
+                  // Yang tidak punya availableAt (available sejak awal) dapat prioritas tertinggi
+                  if (!a.availableAt && b.availableAt) return -1;
+                  if (a.availableAt && !b.availableAt) return 1;
+                  
+                  // Yang availableAt lebih lama di masa lalu (sudah available lebih lama) dapat prioritas
+                  return aAvailableAt - bAvailableAt;
                 }
 
                 const aTime = new Date(a.availableAt).getTime();
