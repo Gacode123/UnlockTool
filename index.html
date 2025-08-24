@@ -4,20 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pengelola Akun Unlock Tool</title>
-    <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" />
-
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-
-    <!-- Tambahkan SortableJS untuk drag n drop -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-
-    <!-- Firebase Config -->
     <script>
       const firebaseConfig = {
         apiKey: "AIzaSyBzoi1KKiiXXC5kXQHoTHA8OXBq5mCM1vw",
@@ -27,13 +20,10 @@
         storageBucket: "unlocktool-5ae45.firebasestorage.app",
         messagingSenderId: "321966892442",
         appId: "1:321966892442:web:145de4877c642feac30623",
-        measurementId: "G-38Y0D6LEF7",
+        measurementId: "G-38Y0D6LEF7"
       };
-
-      // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
     </script>
-
     <style>
       :root {
         --primary-color: #5469d4;
@@ -47,1188 +37,175 @@
         --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
         --transition: all 0.3s ease;
       }
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: "Poppins", sans-serif;
-        background-color: #f5f7fb;
-        color: #333;
-        padding: 10px;
-        line-height: 1.6;
-        position: relative; /* Tambahkan ini untuk positioning versi */
-      }
-
-      /* Tambahkan style untuk versi */
-      .version-badge {
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        background-color: var(--primary-color);
-        color: white;
-        padding: 8px 15px; /* Tambah padding untuk hitbox lebih besar */
-        border-radius: 15px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        z-index: 1000;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-        transition: var(--transition);
-        display: inline-block; /* Pastikan badge mengambil ruang yang cukup */
-        min-width: 60px; /* Lebar minimum untuk badge */
-        text-align: center; /* Teks di tengah */
-      }
-
-      .version-badge:hover {
-        background-color: #4559b3;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 15px;
-      }
-
-      .account-summary {
-        text-align: left;
-        background-color: white;
-        padding: 20px;
-        border-radius: var(--border-radius);
-        margin-bottom: 20px;
-        box-shadow: var(--box-shadow);
-        font-size: 1rem;
-      }
-
-      .account-summary p {
-        margin: 0;
-        margin-bottom: 10px;
-      }
-
-      h1 {
-        text-align: center;
-        font-weight: 600;
-        color: var(--dark-color);
-        margin-bottom: 30px;
-        font-size: 2.2rem;
-      }
-
-      .add-account-btn {
-        background-color: var(--primary-color);
-        color: white;
-        padding: 12px 24px;
-        border: none;
-        border-radius: var(--border-radius);
-        font-weight: 500;
-        font-size: 1rem;
-        cursor: pointer;
-        display: block;
-        margin: 0 auto 30px auto;
-        transition: var(--transition);
-        box-shadow: var(--box-shadow);
-      }
-
-      .add-account-btn:hover {
-        background-color: #4559b3;
-        transform: translateY(-2px);
-      }
-
-      .buttons-container {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin-bottom: 30px;
-        flex-wrap: nowrap;
-      }
-
-      .action-btn {
-        flex: 1;
-        padding: 12px 15px;
-        color: white;
-        border: none;
-        border-radius: var(--border-radius);
-        font-weight: 500;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: var(--transition);
-        box-shadow: var(--box-shadow);
-        text-align: center;
-      }
-
-      .action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      }
-
-      .add-btn {
-        background-color: var(--success-color);
-      }
-
-      .add-btn:hover {
-        background-color: #099268;
-      }
-
-      .ads-btn {
-        background-color: var(--warning-color);
-      }
-
-      .ads-btn:hover {
-        background-color: #e69500;
-      }
-
-      .export-btn {
-        background-color: var(--primary-color);
-      }
-
-      .export-btn:hover {
-        background-color: #4559b3;
-      }
-
-      .import-btn {
-        background-color: var(--dark-color);
-        position: relative;
-      }
-
-      .import-btn:hover {
-        background-color: #212529;
-      }
-
-      .import-btn input[type="file"] {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-      }
-
-      .accounts-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-      }
-
-      .account-card {
-        background-color: white;
-        border-radius: var(--border-radius);
-        overflow: hidden;
-        box-shadow: var(--box-shadow);
-        transition: var(--transition);
-        border-top: 4px solid var(--primary-color);
-      }
-
-      .account-card.highlight {
-        border: 2px solid var(--success-color);
-        border-top: 4px solid var(--success-color);
-        animation: pulse 2s infinite;
-      }
-
-      @keyframes pulse {
-        0% {
-          box-shadow: 0 0 0 0 rgba(12, 166, 120, 0.4);
-        }
-        70% {
-          box-shadow: 0 0 0 10px rgba(12, 166, 120, 0);
-        }
-        100% {
-          box-shadow: 0 0 0 0 rgba(12, 166, 120, 0);
-        }
-      }
-
-      .account-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-      }
-
-      .account-header {
-        padding: 15px 20px;
-        border-bottom: 1px solid #eee;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .account-header h2 {
-        font-size: 1.32rem;
-        font-weight: 700;
-        margin: 0;
-        color: var(--dark-color);
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
-        letter-spacing: -0.02em;
-      }
-
-      .copy-info-container {
-        padding: 8px 16px;
-        background-color: rgba(84, 105, 212, 0.08);
-        border-bottom: 1px solid #eee;
-        text-align: center;
-      }
-
-      .primary-copy-btn {
-        background-color: var(--primary-color);
-        color: white;
-        padding: 10px 15px;
-        font-size: 1rem;
-        border-radius: 6px;
-        width: 100%;
-        font-weight: 500;
-        transition: var(--transition);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .primary-copy-btn:hover {
-        background-color: #4559b3;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .status {
-        font-size: 0.8rem;
-        font-weight: 500;
-        padding: 5px 10px;
-        border-radius: 20px;
-      }
-
-      .status.available {
-        background-color: rgba(12, 166, 120, 0.15);
-        color: var(--success-color);
-      }
-
-      .status.rented {
-        background-color: rgba(224, 49, 49, 0.15);
-        color: var(--danger-color);
-      }
-
-      .status.not-ready {
-        background-color: rgba(245, 159, 0, 0.15);
-        color: var(--warning-color);
-      }
-
-      .account-body {
-        padding: 16px;
-      }
-
-      /* Style untuk tombol copy kecil */
-      .small-copy-btn {
-        background: none;
-        color: #666;
-        border: none;
-        border-radius: 4px;
-        padding: 4px 6px;
-        font-size: 1.1rem;
-        cursor: pointer;
-        margin-right: 8px;
-        transition: var(--transition);
-        min-width: 35px;
-        height: 24px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 500;
-      }
-
-      .small-copy-btn:hover {
-        color: var(--primary-color);
-        transform: scale(1.1);
-      }
-
-      .small-copy-btn:active {
-        transform: scale(0.95);
-      }
-
-      /* Container untuk input dengan tombol copy */
-      .input-with-copy {
-        display: flex;
-        align-items: center;
-        gap: 0;
-      }
-
-      .input-with-copy input {
-        flex: 1;
-        margin: 0;
-      }
-
-      .form-group {
-        margin-bottom: 15px;
-      }
-
-      label {
-        display: block;
-        margin-bottom: 6px;
-        font-weight: 500;
-        font-size: 0.9rem;
-        color: #555;
-      }
-
-      input[type="text"],
-      input[type="password"] {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-family: "Poppins", sans-serif;
-        font-size: 0.9rem;
-        transition: var(--transition);
-      }
-
-      input[type="text"]:focus,
-      input[type="password"]:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
-      }
-
-      .time-info {
-        background-color: #f8f9fa;
-        padding: 10px 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        font-size: 0.85rem;
-      }
-
-      .time-info strong {
-        color: var(--dark-color);
-        font-weight: 600;
-      }
-
-      .btn-container {
-        margin-top: 20px;
-      }
-
-      .btn-group {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 10px;
-        flex-wrap: wrap;
-      }
-
-      .btn-group.duration-buttons {
-        margin-bottom: 10px;
-      }
-
-      .btn-group.control-buttons {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-      }
-
-      button {
-        padding: 8px 12px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: 500;
-        font-size: 0.85rem;
-        transition: var(--transition);
-      }
-
-      .rent-btn {
-        background-color: var(--success-color);
-        color: white;
-        flex: 1;
-        min-width: 80px;
-      }
-
-      .rent-btn:hover {
-        background-color: #099268;
-      }
-
-      .copy-btn {
-        background-color: var(--primary-color);
-        color: white;
-        flex: 1;
-      }
-
-      .copy-btn:hover {
-        background-color: #4559b3;
-      }
-
-      .reset-btn {
-        background-color: var(--danger-color);
-        color: white;
-      }
-
-      .reset-btn:hover {
-        background-color: #c92a2a;
-      }
-
-      .update-btn {
-        background-color: var(--warning-color);
-        color: white;
-      }
-
-      .update-btn:hover {
-        background-color: #e69500;
-      }
-
-      .manual-btn {
-        background-color: var(--purple-color);
-        color: white;
-      }
-
-      .manual-btn:hover {
-        background-color: #845ef7;
-      }
-
-      .ready-btn {
-        background-color: var(--warning-color);
-        color: white;
-        width: 100%;
-        padding: 12px;
-        font-size: 1rem;
-        font-weight: 500;
-        border: none;
-        border-radius: var(--border-radius);
-        cursor: pointer;
-        transition: var(--transition);
-        box-shadow: var(--box-shadow);
-      }
-
-      .ready-btn:hover {
-        background-color: #e69500;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      }
-
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 100;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(4px);
-      }
-
-      .modal-content {
-        background-color: white;
-        margin: 10% auto;
-        padding: 25px;
-        border-radius: var(--border-radius);
-        width: 350px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        animation: modalFadeIn 0.3s;
-      }
-
-      @keyframes modalFadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .modal h3 {
-        margin-bottom: 20px;
-        font-weight: 600;
-        color: var(--dark-color);
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
-      }
-
-      .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        line-height: 0.8;
-        cursor: pointer;
-        transition: var(--transition);
-      }
-
-      .close:hover {
-        color: var(--dark-color);
-      }
-
-      .modal input[type="date"],
-      .modal input[type="time"] {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-family: "Poppins", sans-serif;
-        margin-bottom: 15px;
-        font-size: 0.9rem;
-      }
-
-      .modal button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 10px;
-        font-size: 0.95rem;
-      }
-
-      .notification {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        background-color: var(--success-color);
-        color: white;
-        padding: 15px 20px;
-        border-radius: 6px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        opacity: 0;
-        transform: translateY(-20px);
-        transition: opacity 0.3s, transform 0.3s;
-      }
-
-      .notification.show {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      @media (max-width: 768px) {
-        .accounts-container {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      .filter-container {
-        display: flex;
-        align-items: center;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-
-      .filter-container label {
-        margin-right: 10px;
-        margin-bottom: 0;
-      }
-
-      .email-filter {
-        padding: 5px 10px;
-        border-radius: 5px;
-        border: 1px solid #ddd;
-        font-family: "Poppins", sans-serif;
-        font-size: 0.9rem;
-        flex-grow: 1;
-        max-width: 250px;
-        cursor: pointer;
-      }
-
-      .email-filter:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
-      }
-
-      /* Style untuk counter email dengan warna pembeda */
-      .email-counter-available {
-        color: var(--success-color);
-        font-weight: 600;
-      }
-
-      .email-counter-total {
-        color: #6c757d;
-        font-weight: 500;
-      }
-
-      .account-stats {
-        margin-left: auto;
-        white-space: nowrap;
-        font-size: 0.9rem;
-      }
-
-      .search-label {
-        margin-left: 10px;
-      }
-
-      .search-container {
-        position: relative;
-        flex-grow: 1;
-        max-width: 300px;
-      }
-
-      .clear-search-btn {
-        position: absolute;
-        right: 8px;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: #999;
-        font-size: 20px;
-        font-weight: bold;
-        cursor: pointer;
-        display: none;
-        padding: 8px 10px;
-        line-height: 1;
-        border-radius: 50%;
-        min-width: 36px;
-        min-height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .clear-search-btn:hover {
-        color: var(--danger-color);
-        background-color: rgba(224, 49, 49, 0.1);
-      }
-
-      .search-input {
-        width: 100%;
-        padding: 5px 30px 5px 10px;
-        border-radius: 5px;
-        border: 1px solid #ddd;
-        font-family: "Poppins", sans-serif;
-        font-size: 0.9rem;
-      }
-
-      .search-input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
-      }
-
-      .summary-row {
-        display: flex;
-        width: 100%;
-        justify-content: space-between;
-        margin-top: 15px;
-      }
-
-      .summary-left {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-        width: 100%;
-      }
-
-      .quick-rent-btn {
-        background-color: var(--success-color);
-        color: white;
-        border: none;
-        padding: 15px 20px;
-        border-radius: var(--border-radius);
-        font-weight: 600;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: var(--transition);
-        box-shadow: var(--box-shadow);
-      }
-
-      .quick-rent-btn:hover {
-        background-color: #099268;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      }
-
-      .quick-rent-btn-12 {
-        background-color: var(--warning-color);
-        color: white;
-        border: none;
-        padding: 15px 20px;
-        border-radius: var(--border-radius);
-        font-weight: 600;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: var(--transition);
-        box-shadow: var(--box-shadow);
-      }
-
-      .quick-rent-btn-12:hover {
-        background-color: #e69500;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      }
-
-      .quick-rent-btn-24 {
-        background-color: var(--purple-color);
-        color: white;
-        border: none;
-        padding: 15px 20px;
-        border-radius: var(--border-radius);
-        font-weight: 600;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: var(--transition);
-        box-shadow: var(--box-shadow);
-      }
-
-      .quick-rent-btn-24:hover {
-        background-color: #845ef7;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      }
-
-      @media (max-width: 768px) {
-        .summary-left {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      /* Style untuk tombol scroll to top */
-      .scroll-to-top {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background-color: var(--primary-color);
-        color: white;
-        width: 67.5px;
-        height: 67.5px;
-        border-radius: 50%;
-        display: none;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        transition: var(--transition);
-        z-index: 1000;
-        font-size: 30px;
-      }
-
-      .scroll-to-top:hover {
-        background-color: #4559b3;
-        transform: translateY(-3px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-      }
-
-      .scroll-to-top.show {
-        display: flex;
-      }
-
-      /* Style untuk modal bulk add account */
-      .modal-content.bulk-add {
-        width: 500px;
-        max-width: 90%;
-      }
-
-      .bulk-textarea {
-        width: 100%;
-        height: 300px;
-        padding: 12px;
-        font-family: "Poppins", sans-serif;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        resize: vertical;
-        margin-bottom: 15px;
-      }
-
-      .bulk-textarea:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
-      }
-
-      /* Style untuk Login Form */
-      .login-container {
-        max-width: 400px;
-        margin: 100px auto;
-        padding: 25px;
-        background-color: white;
-        border-radius: var(--border-radius);
-        box-shadow: var(--box-shadow);
-        text-align: center;
-      }
-
-      .login-container h2 {
-        margin-bottom: 25px;
-        color: var(--dark-color);
-        font-weight: 600;
-      }
-
-      .login-container input {
-        width: 100%;
-        padding: 12px 15px;
-        margin-bottom: 15px;
-        border: 1px solid #ddd;
-        border-radius: var(--border-radius);
-        font-family: "Poppins", sans-serif;
-        font-size: 0.95rem;
-      }
-
-      .login-container input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
-      }
-
-      .login-btn {
-        background-color: var(--primary-color);
-        color: white;
-        padding: 12px 20px;
-        border: none;
-        border-radius: var(--border-radius);
-        font-weight: 500;
-        font-size: 1rem;
-        cursor: pointer;
-        width: 100%;
-        transition: var(--transition);
-      }
-
-      .login-btn:hover {
-        background-color: #4559b3;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .error-message {
-        color: var(--danger-color);
-        margin-bottom: 15px;
-        font-size: 0.9rem;
-      }
-
-      .logout-btn {
-        background-color: #f8f9fa;
-        color: var(--dark-color);
-        border: 1px solid #ddd;
-        padding: 8px 15px;
-        border-radius: var(--border-radius);
-        font-size: 0.9rem;
-        cursor: pointer;
-        margin-left: 10px;
-        transition: var(--transition);
-      }
-
-      .logout-btn:hover {
-        background-color: #e9ecef;
-      }
-
-      @keyframes loadingSpin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
-      .danger-btn {
-        background-color: var(--danger-color);
-        color: white;
-      }
-
-      .danger-btn:hover {
-        background-color: #c92a2a;
-      }
-
-      .purple-btn {
-        background-color: var(--purple-color);
-      }
-      .purple-btn:hover {
-        background-color: #845ef7;
-      }
-
-      /* Tambahkan style untuk tombol quick-rent-btn-10 */
-      .quick-rent-btn-9 {
-        background-color: #20c997;
-        color: white;
-        border: none;
-        padding: 15px 20px;
-        border-radius: var(--border-radius);
-        font-weight: 600;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: var(--transition);
-        box-shadow: var(--box-shadow);
-      }
-      .quick-rent-btn-9:hover {
-        background-color: #12b886;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-      }
-
-      /* Tombol dinonaktifkan */
-      .btn-disabled {
-        background-color: #adb5bd !important; /* abu-abu */
-        cursor: not-allowed !important;
-        opacity: 0.7;
-      }
-
-      /* Style untuk Password Cards yang bisa di-drag */
-      .password-card {
-        display: flex;
-        align-items: center;
-        background: #f8f9fa;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 6px 10px;
-        margin: 4px 0;
-        font-size: 0.95em;
-        cursor: move; /* Menunjukkan item bisa di-drag */
-        user-select: none; /* Mencegah seleksi teks saat drag */
-        transition: all 0.2s ease;
-        position: relative;
-        z-index: 1;
-      }
-
-      .password-card:hover {
-        background: #e9ecef;
-        transform: translateY(-2px);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      }
-
-      .password-card.sortable-chosen {
-        background: #e7f5ff;
-        border-color: #74c0fc;
-        opacity: 0.8;
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        z-index: 10;
-      }
-
-      .password-card.sortable-ghost {
-        opacity: 0.4;
-        background: #e7f5ff;
-      }
-
-      .password-card.sortable-drag {
-        opacity: 0.9;
-        transform: rotate(2deg) scale(1.05);
-        transition: transform 0.15s cubic-bezier(0.2, 0, 0.13, 2);
-      }
-
-      .password-card span {
-        flex: 1;
-        cursor: pointer;
-        padding: 2px 4px;
-      }
-
-      .password-card .delete-btn {
-        background: none;
-        border: none;
-        color: #e03131;
-        font-size: 16px;
-        cursor: pointer;
-        opacity: 0.7;
-        transition: all 0.2s ease;
-        margin-left: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-      }
-
-      .password-card .delete-btn:hover {
-        opacity: 1;
-        background-color: rgba(224, 49, 49, 0.1);
-      }
-
-      /* Container untuk password cards */
-      #passwordListContainer {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 6px;
-        margin-top: 8px;
-        min-height: 50px;
-        padding: 5px;
-        background-color: #fff;
-        border-radius: 8px;
-        border: 1px dashed #ddd;
-      }
-
-      /* Style untuk password card yang aktif/terpilih */
-      .password-card.active {
-        background: #e7f5ff;
-        border-color: #4dabf7;
-        box-shadow: 0 2px 8px rgba(77, 171, 247, 0.3);
-        transform: translateY(-2px);
-      }
-
-      /* Custom Email Dropdown Styles */
-      .custom-select-wrapper {
-        position: relative;
-        flex-grow: 0;
-        max-width: none;
-        min-width: auto;
-        width: auto;
-      }
-
-      /* Style untuk tombol next email */
-      .next-email-btn {
-        background-color: var(--primary-color);
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 5px 12px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: var(--transition);
-        height: 32px;
-        min-width: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-      }
-
-      .next-email-btn:hover {
-        background-color: #4559b3;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .next-email-btn:active {
-        transform: translateY(0);
-      }
-
-      .next-email-btn:disabled {
-        background-color: #adb5bd;
-        cursor: not-allowed;
-        opacity: 0.6;
-      }
-
-      /* Style untuk tombol sort expiration */
-      .sort-expiration-btn {
-        background-color: var(--purple-color);
-        color: white;
-        border: none;
-        border-radius: 5px;
-        padding: 5px 10px;
-        font-size: 0.8rem;
-        cursor: pointer;
-        transition: var(--transition);
-        margin-right: 15px;
-        font-weight: 500;
-      }
-
-      .sort-expiration-btn:hover {
-        background-color: #845ef7;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .sort-expiration-btn:active {
-        transform: translateY(0);
-      }
-
-      .sort-expiration-btn.active {
-        background-color: #7048e8;
-        box-shadow: 0 0 0 2px rgba(151, 117, 250, 0.3);
-      }
-
-      .custom-select {
-        position: relative;
-        flex: 1;
-      }
-
-      .select-trigger {
-        background-color: white;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 5px 30px 5px 10px;
-        font-family: "Poppins", sans-serif;
-        font-size: 0.9rem;
-        cursor: pointer;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        white-space: nowrap;
-        min-width: 120px;
-        width: auto;
-        max-width: 350px;
-      }
-
-      .select-trigger:hover {
-        border-color: #bbb;
-      }
-
-      .select-trigger.active {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 2px rgba(84, 105, 212, 0.2);
-      }
-
-      .arrow {
-        font-size: 12px;
-        color: #999;
-        transition: transform 0.3s;
-      }
-
-      .select-trigger.active .arrow {
-        transform: rotate(180deg);
-      }
-
-      .custom-options {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        background-color: white;
-        border: 1px solid #ddd;
-        border-top: none;
-        border-radius: 0 0 5px 5px;
-        z-index: 1000;
-        display: none;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        min-width: 100%;
-        width: auto;
-        white-space: nowrap;
-        padding: 4px;
-      }
-
-      .custom-options.show {
-        display: block;
-      }
-
-      .custom-option {
-        padding: 8px 10px;
-        cursor: pointer;
-        font-family: "Poppins", sans-serif;
-        font-size: 0.9rem;
-        border-bottom: 1px solid #f0f0f0;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-        border-radius: 4px;
-        margin: 2px 4px;
-      }
-
-      .custom-option:last-child {
-        border-bottom: none;
-      }
-
-      .custom-option:hover {
-        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-        color: #1565c0;
-        transform: translateX(3px);
-        box-shadow: 0 2px 8px rgba(33, 150, 243, 0.15);
-        border-radius: 6px;
-      }
-
-      .custom-option.selected {
-        background-color: var(--primary-color);
-        color: white;
-        box-shadow: 0 2px 8px rgba(84, 105, 212, 0.3);
-      }
-
-      .custom-option.selected:hover {
-        background: linear-gradient(135deg, var(--primary-color) 0%, #4559b3 100%);
-        transform: translateX(3px);
-      }
+      *{margin:0;padding:0;box-sizing:border-box}
+      body{font-family:Poppins,sans-serif;background-color:#f5f7fb;color:#333;padding:10px;line-height:1.6;position:relative}
+      .version-badge{position:fixed;top:10px;left:10px;background-color:var(--primary-color);color:#fff;padding:8px 15px;border-radius:15px;font-size:.8rem;font-weight:500;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,.1);cursor:pointer;transition:var(--transition);display:inline-block;min-width:60px;text-align:center}
+      .version-badge:hover{background-color:#4559b3;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.1)}
+      .container{max-width:1200px;margin:0 auto;padding:15px}
+      .account-summary{text-align:left;background-color:#fff;padding:20px;border-radius:var(--border-radius);margin-bottom:20px;box-shadow:var(--box-shadow);font-size:1rem}
+      .account-summary p{margin:0 0 10px 0}
+      h1{text-align:center;font-weight:600;color:var(--dark-color);margin-bottom:30px;font-size:2.2rem}
+      .add-account-btn{background-color:var(--primary-color);color:#fff;padding:12px 24px;border:none;border-radius:var(--border-radius);font-weight:500;font-size:1rem;cursor:pointer;display:block;margin:0 auto 30px auto;transition:var(--transition);box-shadow:var(--box-shadow)}
+      .add-account-btn:hover{background-color:#4559b3;transform:translateY(-2px)}
+      .buttons-container{display:flex;justify-content:center;gap:15px;margin-bottom:30px;flex-wrap:nowrap}
+      .action-btn{flex:1;padding:12px 15px;color:#fff;border:none;border-radius:var(--border-radius);font-weight:500;font-size:1rem;cursor:pointer;transition:var(--transition);box-shadow:var(--box-shadow);text-align:center}
+      .action-btn:hover{transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.15)}
+      .add-btn{background-color:var(--success-color)}
+      .add-btn:hover{background-color:#099268}
+      .ads-btn{background-color:var(--warning-color)}
+      .ads-btn:hover{background-color:#e69500}
+      .export-btn{background-color:var(--primary-color)}
+      .export-btn:hover{background-color:#4559b3}
+      .import-btn{background-color:var(--dark-color);position:relative}
+      .import-btn:hover{background-color:#212529}
+      .import-btn input[type=file]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer}
+      .accounts-container{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+      .account-card{background-color:#fff;border-radius:var(--border-radius);overflow:hidden;box-shadow:var(--box-shadow);transition:var(--transition);border-top:4px solid var(--primary-color)}
+      .account-card.highlight{border:2px solid var(--success-color);border-top:4px solid var(--success-color);animation:pulse 2s infinite}
+      @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(12,166,120,.4)}70%{box-shadow:0 0 0 10px rgba(12,166,120,0)}100%{box-shadow:0 0 0 0 rgba(12,166,120,0)}}
+      .account-card:hover{transform:translateY(-5px);box-shadow:0 10px 20px rgba(0,0,0,.1)}
+      .account-header{padding:15px 20px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;gap:12px}
+      .account-header-left{display:flex;align-items:center;gap:12px;min-width:0}
+      .account-header h2{font-size:1.32rem;font-weight:700;margin:0;color:var(--dark-color);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .delete-account-btn{height:36px;width:36px;display:grid;place-items:center;border-radius:10px;background:#fff5f5;border:1px solid #ffe3e3;color:var(--danger-color);cursor:pointer;transition:var(--transition)}
+      .delete-account-btn:hover{background:rgba(224,49,49,.1);transform:translateY(-1px)}
+      .copy-info-container{padding:8px 16px;background-color:rgba(84,105,212,.08);border-bottom:1px solid #eee;text-align:center}
+      .primary-copy-btn{background-color:var(--primary-color);color:#fff;padding:10px 15px;font-size:1rem;border-radius:6px;width:100%;font-weight:500;transition:var(--transition);box-shadow:0 2px 4px rgba(0,0,0,.1)}
+      .primary-copy-btn:hover{background-color:#4559b3;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.1)}
+      .status{font-size:.8rem;font-weight:500;padding:5px 10px;border-radius:20px;white-space:nowrap}
+      .status.available{background-color:rgba(12,166,120,.15);color:var(--success-color)}
+      .status.rented{background-color:rgba(224,49,49,.15);color:var(--danger-color)}
+      .status.not-ready{background-color:rgba(245,159,0,.15);color:var(--warning-color)}
+      .account-body{padding:16px}
+      .small-copy-btn{background:none;color:#666;border:none;border-radius:4px;padding:4px 6px;font-size:1.1rem;cursor:pointer;margin-right:8px;transition:var(--transition);min-width:35px;height:24px;display:inline-flex;align-items:center;justify-content:center;font-weight:500}
+      .small-copy-btn:hover{color:var(--primary-color);transform:scale(1.1)}
+      .small-copy-btn:active{transform:scale(.95)}
+      .input-with-copy{display:flex;align-items:center;gap:0}
+      .input-with-copy input{flex:1;margin:0}
+      .form-group{margin-bottom:15px}
+      label{display:block;margin-bottom:6px;font-weight:500;font-size:.9rem;color:#555}
+      input[type=text],input[type=password]{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-family:Poppins,sans-serif;font-size:.9rem;transition:var(--transition)}
+      input[type=text]:focus,input[type=password]:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 2px rgba(84,105,212,.2)}
+      .time-info{background-color:#f8f9fa;padding:10px 15px;border-radius:8px;margin-bottom:15px;font-size:.85rem}
+      .time-info strong{color:var(--dark-color);font-weight:600}
+      .btn-container{margin-top:20px}
+      .btn-group{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+      .btn-group.duration-buttons{margin-bottom:10px}
+      .btn-group.control-buttons{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr))}
+      button{padding:8px 12px;border:none;border-radius:6px;cursor:pointer;font-weight:500;font-size:.85rem;transition:var(--transition)}
+      .rent-btn{background-color:var(--success-color);color:#fff;flex:1;min-width:80px}
+      .rent-btn:hover{background-color:#099268}
+      .copy-btn{background-color:var(--primary-color);color:#fff;flex:1}
+      .copy-btn:hover{background-color:#4559b3}
+      .reset-btn{background-color:var(--danger-color);color:#fff}
+      .reset-btn:hover{background-color:#c92a2a}
+      .update-btn{background-color:var(--warning-color);color:#fff}
+      .update-btn:hover{background-color:#e69500}
+      .manual-btn{background-color:var(--purple-color);color:#fff}
+      .manual-btn:hover{background-color:#845ef7}
+      .ready-btn{background-color:var(--warning-color);color:#fff;width:100%;padding:12px;font-size:1rem;font-weight:500;border:none;border-radius:var(--border-radius);cursor:pointer;transition:var(--transition);box-shadow:var(--box-shadow)}
+      .ready-btn:hover{background-color:#e69500;transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.15)}
+      .modal{display:none;position:fixed;z-index:100;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+      .modal-content{background-color:#fff;margin:10% auto;padding:25px;border-radius:var(--border-radius);width:350px;box-shadow:0 10px 25px rgba(0,0,0,.2);animation:modalFadeIn .3s}
+      @keyframes modalFadeIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+      .modal h3{margin-bottom:20px;font-weight:600;color:var(--dark-color);padding-bottom:10px;border-bottom:1px solid #eee}
+      .close{color:#aaa;float:right;font-size:28px;font-weight:700;line-height:.8;cursor:pointer;transition:var(--transition)}
+      .close:hover{color:var(--dark-color)}
+      .modal input[type=date],.modal input[type=time]{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-family:Poppins,sans-serif;margin-bottom:15px;font-size:.9rem}
+      .modal button{width:100%;padding:12px;margin-top:10px;font-size:.95rem}
+      .notification{position:fixed;top:20px;left:20px;background-color:var(--success-color);color:#fff;padding:15px 20px;border-radius:6px;box-shadow:0 4px 8px rgba(0,0,0,.1);z-index:1000;opacity:0;transform:translateY(-20px);transition:opacity .3s,transform .3s}
+      .notification.show{opacity:1;transform:translateY(0)}
+      @media (max-width:768px){.accounts-container{grid-template-columns:1fr}}
+      .filter-container{display:flex;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+      .filter-container label{margin-right:10px;margin-bottom:0}
+      .email-filter{padding:5px 10px;border-radius:5px;border:1px solid #ddd;font-family:Poppins,sans-serif;font-size:.9rem;flex-grow:1;max-width:250px;cursor:pointer}
+      .email-filter:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 2px rgba(84,105,212,.2)}
+      .email-counter-available{color:var(--success-color);font-weight:600}
+      .email-counter-total{color:#6c757d;font-weight:500}
+      .account-stats{margin-left:auto;white-space:nowrap;font-size:.9rem}
+      .search-label{margin-left:10px}
+      .search-container{position:relative;flex-grow:1;max-width:300px}
+      .clear-search-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#999;font-size:20px;font-weight:700;cursor:pointer;display:flex;padding:8px 10px;line-height:1;border-radius:50%;min-width:36px;min-height:36px;align-items:center;justify-content:center}
+      .clear-search-btn:hover{color:var(--danger-color);background-color:rgba(224,49,49,.1)}
+      .search-input{width:100%;padding:5px 30px 5px 10px;border-radius:5px;border:1px solid #ddd;font-family:Poppins,sans-serif;font-size:.9rem}
+      .search-input:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 2px rgba(84,105,212,.2)}
+      .summary-row{display:flex;width:100%;justify-content:space-between;margin-top:15px}
+      .summary-left{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%}
+      .quick-rent-btn{background-color:var(--success-color);color:#fff;border:none;padding:15px 20px;border-radius:var(--border-radius);font-weight:600;font-size:1.1rem;cursor:pointer;transition:var(--transition);box-shadow:var(--box-shadow)}
+      .quick-rent-btn:hover{background-color:#099268;transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.15)}
+      .quick-rent-btn-12{background-color:var(--warning-color);color:#fff;border:none;padding:15px 20px;border-radius:var(--border-radius);font-weight:600;font-size:1.1rem;cursor:pointer;transition:var(--transition);box-shadow:var(--box-shadow)}
+      .quick-rent-btn-12:hover{background-color:#e69500;transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.15)}
+      .quick-rent-btn-24{background-color:var(--purple-color);color:#fff;border:none;padding:15px 20px;border-radius:var(--border-radius);font-weight:600;font-size:1.1rem;cursor:pointer;transition:var(--transition);box-shadow:var(--box-shadow)}
+      .quick-rent-btn-24:hover{background-color:#845ef7;transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.15)}
+      @media (max-width:768px){.summary-left{grid-template-columns:1fr}}
+      .scroll-to-top{position:fixed;bottom:30px;right:30px;background-color:var(--primary-color);color:#fff;width:67.5px;height:67.5px;border-radius:50%;display:none;justify-content:center;align-items:center;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.2);transition:var(--transition);z-index:1000;font-size:30px}
+      .scroll-to-top:hover{background-color:#4559b3;transform:translateY(-3px);box-shadow:0 4px 15px rgba(0,0,0,.3)}
+      .scroll-to-top.show{display:flex}
+      .modal-content.bulk-add{width:500px;max-width:90%}
+      .bulk-textarea{width:100%;height:300px;padding:12px;font-family:Poppins,sans-serif;border:1px solid #ddd;border-radius:6px;resize:vertical;margin-bottom:15px}
+      .bulk-textarea:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 2px rgba(84,105,212,.2)}
+      .login-container{max-width:400px;margin:100px auto;padding:25px;background-color:#fff;border-radius:var(--border-radius);box-shadow:var(--box-shadow);text-align:center}
+      .login-container h2{margin-bottom:25px;color:var(--dark-color);font-weight:600}
+      .login-container input{width:100%;padding:12px 15px;margin-bottom:15px;border:1px solid #ddd;border-radius:var(--border-radius);font-family:Poppins,sans-serif;font-size:.95rem}
+      .login-container input:focus{outline:none;border-color:var(--primary-color);box-shadow:0 0 0 2px rgba(84,105,212,.2)}
+      .login-btn{background-color:var(--primary-color);color:#fff;padding:12px 20px;border:none;border-radius:var(--border-radius);font-weight:500;font-size:1rem;cursor:pointer;width:100%;transition:var(--transition)}
+      .login-btn:hover{background-color:#4559b3;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.1)}
+      .error-message{color:var(--danger-color);margin-bottom:15px;font-size:.9rem}
+      .logout-btn{background-color:#f8f9fa;color:var(--dark-color);border:1px solid #ddd;padding:8px 15px;border-radius:var(--border-radius);font-size:.9rem;cursor:pointer;margin-left:10px;transition:var(--transition)}
+      .logout-btn:hover{background-color:#e9ecef}
+      @keyframes loadingSpin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+      .danger-btn{background-color:var(--danger-color);color:#fff}
+      .danger-btn:hover{background-color:#c92a2a}
+      .purple-btn{background-color:var(--purple-color)}
+      .purple-btn:hover{background-color:#845ef7}
+      .quick-rent-btn-9{background-color:#20c997;color:#fff;border:none;padding:15px 20px;border-radius:var(--border-radius);font-weight:600;font-size:1.1rem;cursor:pointer;transition:var(--transition);box-shadow:var(--box-shadow)}
+      .quick-rent-btn-9:hover{background-color:#12b886;transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.15)}
+      .btn-disabled{background-color:#adb5bd!important;cursor:not-allowed!important;opacity:.7}
+      .password-card{display:flex;align-items:center;background:#f8f9fa;border:1px solid #ddd;border-radius:5px;padding:6px 10px;margin:4px 0;font-size:.95em;cursor:move;user-select:none;transition:all .2s ease;position:relative;z-index:1}
+      .password-card:hover{background:#e9ecef;transform:translateY(-2px);box-shadow:0 2px 5px rgba(0,0,0,.1)}
+      .password-card.sortable-chosen{background:#e7f5ff;border-color:#74c0fc;opacity:.8;transform:scale(1.05);box-shadow:0 5px 15px rgba(0,0,0,.1);z-index:10}
+      .password-card.sortable-ghost{opacity:.4;background:#e7f5ff}
+      .password-card.sortable-drag{opacity:.9;transform:rotate(2deg) scale(1.05);transition:transform .15s cubic-bezier(.2,0,.13,2)}
+      .password-card span{flex:1;cursor:pointer;padding:2px 4px}
+      .password-card .delete-btn{background:none;border:none;color:#e03131;font-size:16px;cursor:pointer;opacity:.7;transition:all .2s ease;margin-left:8px;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%}
+      .password-card .delete-btn:hover{opacity:1;background-color:rgba(224,49,49,.1)}
+      #passwordListContainer{display:flex;flex-direction:row;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:50px;padding:5px;background-color:#fff;border-radius:8px;border:1px dashed #ddd}
+      .password-card.active{background:#e7f5ff;border-color:#4dabf7;box-shadow:0 2px 8px rgba(77,171,247,.3);transform:translateY(-2px)}
+      .custom-select-wrapper{position:relative;flex-grow:0;max-width:none;min-width:auto;width:auto}
+      .next-email-btn{background-color:var(--primary-color);color:#fff;border:none;border-radius:5px;padding:5px 12px;font-size:.9rem;cursor:pointer;transition:var(--transition);height:32px;min-width:40px;display:flex;align-items:center;justify-content:center;font-weight:700}
+      .next-email-btn:hover{background-color:#4559b3;transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.1)}
+      .next-email-btn:active{transform:translateY(0)}
+      .next-email-btn:disabled{background-color:#adb5bd;cursor:not-allowed;opacity:.6}
+      .sort-expiration-btn{background-color:var(--purple-color);color:#fff;border:none;border-radius:5px;padding:5px 10px;font-size:.8rem;cursor:pointer;transition:var(--transition);margin-right:15px;font-weight:500}
+      .sort-expiration-btn:hover{background-color:#845ef7;transform:translateY(-1px);box-shadow:0 2px 4px rgba(0,0,0,.1)}
+      .sort-expiration-btn:active{transform:translateY(0)}
+      .sort-expiration-btn.active{background-color:#7048e8;box-shadow:0 0 0 2px rgba(151,117,250,.3)}
+      .custom-select{position:relative;flex:1}
+      .select-trigger{background-color:#fff;border:1px solid #ddd;border-radius:5px;padding:5px 30px 5px 10px;font-family:Poppins,sans-serif;font-size:.9rem;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:space-between;white-space:nowrap;min-width:120px;width:auto;max-width:350px}
+      .select-trigger:hover{border-color:#bbb}
+      .select-trigger.active{border-color:var(--primary-color);box-shadow:0 0 0 2px rgba(84,105,212,.2)}
+      .arrow{font-size:12px;color:#999;transition:transform .3s}
+      .select-trigger.active .arrow{transform:rotate(180deg)}
+      .custom-options{position:absolute;top:100%;left:0;background-color:#fff;border:1px solid #ddd;border-top:none;border-radius:0 0 5px 5px;z-index:1000;display:none;box-shadow:0 4px 6px rgba(0,0,0,.1);min-width:100%;width:auto;white-space:nowrap;padding:4px}
+      .custom-options.show{display:block}
+      .custom-option{padding:8px 10px;cursor:pointer;font-family:Poppins,sans-serif;font-size:.9rem;border-bottom:1px solid #f0f0f0;transition:all .3s ease;white-space:nowrap;border-radius:4px;margin:2px 4px}
+      .custom-option:last-child{border-bottom:none}
+      .custom-option:hover{background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);color:#1565c0;transform:translateX(3px);box-shadow:0 2px 8px rgba(33,150,243,.15);border-radius:6px}
+      .custom-option.selected{background-color:var(--primary-color);color:#fff;box-shadow:0 2px 8px rgba(84,105,212,.3)}
+      .custom-option.selected:hover{background:linear-gradient(135deg,var(--primary-color) 0%,#4559b3 100%);transform:translateX(3px)}
     </style>
   </head>
   <body>
-    <!-- Tambahkan badge versi dengan link ke GitHub -->
     <a href="https://github.com/Gacode123/UnlockTool" target="_blank" style="text-decoration: none; display: inline-block">
-              <div class="version-badge">v3.1</div>
+      <div class="version-badge">v3.1</div>
     </a>
     <div id="lastResetLabel" style="position: fixed; top: 45px; left: 10px; font-size: 0.75rem; color: #555">Last All Reset at: <span id="lastResetTime">--:--</span></div>
-
-    <!-- Loading Screen -->
     <div id="loadingScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: white; display: flex; justify-content: center; align-items: center; z-index: 9999">
       <div style="text-align: center">
         <div style="border: 4px solid #f3f3f3; border-top: 4px solid #5469d4; border-radius: 50%; width: 40px; height: 40px; margin: 0 auto 20px; animation: loadingSpin 1s linear infinite"></div>
         <p style="font-family: 'Poppins', sans-serif; color: #333; font-weight: 500">Loading...</p>
       </div>
     </div>
-
-    <!-- Login Container - sembunyikan secara default -->
     <div id="loginContainer" class="login-container" style="display: none">
       <h2>Login Unlock Tool</h2>
       <div id="errorMessage" class="error-message"></div>
@@ -1240,8 +217,6 @@
       </div>
       <button id="loginBtn" class="login-btn">Login</button>
     </div>
-
-    <!-- Main App Container - sembunyikan secara default -->
     <div id="appContainer" style="display: none">
       <div class="container">
         <div class="buttons-container">
@@ -1269,25 +244,20 @@
                 </div>
                 <div class="custom-options">
                   <div class="custom-option active" data-value="">Semua Email</div>
-                  <!-- Opsi email akan diisi secara dinamis -->
                 </div>
               </div>
             </div>
-
             <label for="usernameSearch" class="search-label"><strong>Cari Username:</strong></label>
             <div class="search-container">
               <input type="text" id="usernameSearch" class="search-input" placeholder="Ketik untuk mencari..." />
               <button type="button" id="clearSearch" class="clear-search-btn">&times;</button>
             </div>
-
             <div class="account-stats">
               <button id="sortByExpirationBtn" class="sort-expiration-btn" title="Sort berdasarkan expiration date">📅 Sort Expiration</button>
               <strong>Total:</strong> <span id="totalAccounts">0</span> | <strong>Ready:</strong> <span id="availableAccounts">0</span>
             </div>
-
             <div id="passwordListContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px"></div>
           </div>
-
           <div class="summary-row">
             <div class="summary-left">
               <button id="quickRentBtn" class="quick-rent-btn">⚡ 6 Jam</button>
@@ -1297,21 +267,14 @@
             </div>
           </div>
         </div>
-        <div class="accounts-container" id="accountsContainer">
-          <!-- Akun akan dibuat secara dinamis dengan JavaScript -->
-        </div>
+        <div class="accounts-container" id="accountsContainer"></div>
       </div>
     </div>
-
-    <!-- Tombol Scroll to Top -->
     <div class="scroll-to-top" id="scrollToTop">↑</div>
-
-    <!-- Modal Dialog untuk Input Manual -->
     <div id="manualModal" class="modal">
       <div class="modal-content">
         <span class="close">&times;</span>
         <h3>Input Manual Waktu Berakhir</h3>
-
         <div class="form-group">
           <div style="margin-bottom: 10px">
             <label style="display: inline-flex; align-items: center; margin-right: 20px">
@@ -1324,8 +287,6 @@
             </label>
           </div>
         </div>
-
-        <!-- Input Waktu Exact -->
         <div id="exactTimeInputs" style="display: none">
           <div class="form-group">
             <label for="manualDate">Tanggal:</label>
@@ -1336,8 +297,6 @@
             <input type="time" id="manualTime" required />
           </div>
         </div>
-
-        <!-- Input Durasi -->
         <div id="durationInputs">
           <div class="form-group">
             <label for="durationHours">Jam:</label>
@@ -1348,17 +307,13 @@
             <input type="number" id="durationMinutes" min="0" max="59" value="0" required style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.9rem" />
           </div>
         </div>
-
         <button id="saveManualBtn" class="rent-btn">Simpan</button>
       </div>
     </div>
-
-    <!-- Modal Dialog untuk Bulk Add Account -->
     <div id="bulkAddModal" class="modal">
       <div class="modal-content bulk-add">
         <span class="close" id="closeBulkModal">&times;</span>
         <h3>Bulk Add Account</h3>
-
         <div class="form-group">
           <label for="bulkInput">Format: Username diikuti Email (2 format didukung)</label>
           <textarea
@@ -1367,14 +322,10 @@
             placeholder="Format 1 (dengan baris kosong):&#10;username1&#10;email1@domain.com&#10;&#10;username2&#10;email2@domain.com&#10;&#10;Format 2 (tanpa baris kosong):&#10;username1&#10;email1@domain.com&#10;username2&#10;email2@domain.com"
           ></textarea>
         </div>
-
         <p style="margin-bottom: 15px; font-size: 0.9rem; color: #666">Password default: wawawa666</p>
-
         <button id="processBulkBtn" class="add-btn" style="width: 100%">Tambahkan Akun</button>
       </div>
     </div>
-
-    <!-- Modal Dialog untuk Bulk Change Password -->
     <div id="bulkChangePwdModal" class="modal">
       <div class="modal-content">
         <span class="close" onclick="closeBulkChangePwdModal()">&times;</span>
@@ -1386,62 +337,30 @@
         <button class="rent-btn" onclick="applyBulkChangePwd()">Ganti Semua</button>
       </div>
     </div>
-
-    <!-- Notifikasi -->
     <div id="notification" class="notification"></div>
-
     <script>
-      // Tambahkan variabel untuk melacak status autentikasi
       let authCheckComplete = false;
-
-      // Event listener untuk global error handling
       window.addEventListener("error", function (event) {
-        console.error("Global error:", event.error);
-        // Jika terjadi error, sembunyikan loading screen
         document.getElementById("loadingScreen").style.display = "none";
       });
-
-      // Handler untuk cek status auth dan loading screen
       document.addEventListener("DOMContentLoaded", function () {
-        logDebug("DOM telah dimuat, memeriksa status login...");
-
-        // Tampilkan loading screen terlebih dahulu
         document.getElementById("loadingScreen").style.display = "flex";
         document.getElementById("loginContainer").style.display = "none";
         document.getElementById("appContainer").style.display = "none";
-
-        // Kurangi waktu loading menjadi 300ms
         setTimeout(function () {
-          logDebug("Menjalankan pengecekan autentikasi...");
-          // Cek status login dengan Firebase auth
           firebase.auth().onAuthStateChanged(function (user) {
-            logDebug("Auth state changed, user:", user ? user.email : "tidak ada");
-            // Tandai bahwa pengecekan autentikasi sudah selesai
             authCheckComplete = true;
-
-            // Sembunyikan loading screen
             document.getElementById("loadingScreen").style.display = "none";
-
             if (user) {
-              // User sudah login
               document.getElementById("appContainer").style.display = "block";
-              // Inisialisasi app
               initializeApp();
-
-              // Tambahkan event listener untuk refresh
               window.addEventListener("beforeunload", function () {
-                // Simpan status sorting terakhir
                 localStorage.setItem("lastSortTime", new Date().getTime());
               });
-
-              // Cek apakah perlu perbaikan sorting
               const lastSortTime = localStorage.getItem("lastSortTime");
               if (lastSortTime) {
                 const timeSinceLastSort = new Date().getTime() - parseInt(lastSortTime);
-                // Jika lebih dari 1 menit sejak sort terakhir, lakukan perbaikan
                 if (timeSinceLastSort > 60000) {
-                  logDebug("Melakukan perbaikan sorting setelah refresh...");
-                  // Tunggu sebentar untuk memastikan data sudah dimuat
                   setTimeout(() => {
                     if (accountManager) {
                       accountManager.renderAccounts(true);
@@ -1450,52 +369,33 @@
                 }
               }
             } else {
-              // User belum login
               document.getElementById("loginContainer").style.display = "block";
             }
           });
-        }, 300); // Kurangi delay loading menjadi 300ms
-
-
+        }, 300);
       });
-
-      // Event listener untuk tombol login
       document.getElementById("loginBtn").addEventListener("click", () => {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
         const rememberMe = document.getElementById("rememberMe").checked;
         const errorMessage = document.getElementById("errorMessage");
-
         if (!email || !password) {
           errorMessage.textContent = "Mohon isi email dan password";
           return;
         }
-
-        // Tampilkan loading screen saat login
         document.getElementById("loadingScreen").style.display = "flex";
         document.getElementById("loginContainer").style.display = "none";
-
-        // Set persistence berdasarkan pilihan "Remember Me"
         const persistenceType = rememberMe ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
-
         firebase
           .auth()
           .setPersistence(persistenceType)
+          .then(() => firebase.auth().signInWithEmailAndPassword(email, password))
           .then(() => {
-            return firebase.auth().signInWithEmailAndPassword(email, password);
-          })
-          .then((userCredential) => {
-            // Login berhasil
             errorMessage.textContent = "";
           })
           .catch((error) => {
-            // Ada error saat login
-            console.error("Error:", error);
-
-            // Sembunyikan loading screen dan tampilkan login lagi
             document.getElementById("loadingScreen").style.display = "none";
             document.getElementById("loginContainer").style.display = "block";
-
             if (error.code === "auth/wrong-password" || error.code === "auth/user-not-found") {
               errorMessage.textContent = "Email atau password salah";
             } else {
@@ -1503,101 +403,43 @@
             }
           });
       });
-
-      // Tombol Enter untuk login
       document.getElementById("password").addEventListener("keyup", (event) => {
         if (event.key === "Enter") {
           document.getElementById("loginBtn").click();
         }
       });
-
-      // Fungsi inisialisasi app - memisahkan logik inisialisasi
       function initializeApp() {
-        logDebug("Inisialisasi app...");
         try {
-          // Inisialisasi manager akun
           accountManager = new AccountManager();
-          logDebug("AccountManager berhasil diinisialisasi");
-
-          // Set interval untuk memperbarui tampilan, tapi interval lebih panjang (30 detik)
-          // untuk mengurangi beban pada Firebase
           setInterval(() => {
             accountManager.renderAccounts(true);
           }, 30000);
-
-          // Logout handler - pindah ke sini agar tersedia hanya setelah login
           document.getElementById("logoutBtn").addEventListener("click", () => {
-            // Tampilkan loading screen saat logout
             document.getElementById("loadingScreen").style.display = "flex";
             document.getElementById("appContainer").style.display = "none";
-
             firebase
               .auth()
               .signOut()
               .then(() => {
-                // Logout berhasil
-                // Sembunyikan loading dan tampilkan login
                 document.getElementById("loadingScreen").style.display = "none";
                 document.getElementById("loginContainer").style.display = "block";
               })
-              .catch((error) => {
-                console.error("Error saat logout:", error);
-                // Jika error, tetap coba tampilkan login
+              .catch(() => {
                 document.getElementById("loadingScreen").style.display = "none";
                 document.getElementById("loginContainer").style.display = "block";
               });
           });
-
-          // Sisipkan semua event listener lain di sini
-          // Event listener untuk tombol quick renting
-          const quickRentBtn = document.getElementById("quickRentBtn");
-          if (quickRentBtn) {
-            quickRentBtn.addEventListener("click", () => {
-              logDebug("Quick Rent 6 Jam diklik");
-              accountManager.quickRent(6);
-            });
-          }
-
-          const quickRent9Btn = document.getElementById("quickRent9Btn");
-          if (quickRent9Btn) {
-            quickRent9Btn.addEventListener("click", () => {
-              logDebug("Quick Rent 9 Jam diklik");
-              accountManager.quickRent(9);
-            });
-          }
-
-          const quickRent12Btn = document.getElementById("quickRent12Btn");
-          if (quickRent12Btn) {
-            quickRent12Btn.addEventListener("click", () => {
-              logDebug("Quick Rent 12 Jam diklik");
-              accountManager.quickRent(12);
-            });
-          }
-
-          const quickRent24Btn = document.getElementById("quickRent24Btn");
-          if (quickRent24Btn) {
-            quickRent24Btn.addEventListener("click", () => {
-              logDebug("Quick Rent 24 Jam diklik");
-              accountManager.quickRent(24);
-            });
-          }
-
-          // Tambahan optional chaining (?.) untuk mencegah error jika tombol tidak ditemukan
-          document.getElementById("addAccountBtn")?.addEventListener("click", () => {
-            accountManager.addAccount();
-          });
-
+          document.getElementById("quickRentBtn")?.addEventListener("click", () => accountManager.quickRent(6));
+          document.getElementById("quickRent9Btn")?.addEventListener("click", () => accountManager.quickRent(9));
+          document.getElementById("quickRent12Btn")?.addEventListener("click", () => accountManager.quickRent(12));
+          document.getElementById("quickRent24Btn")?.addEventListener("click", () => accountManager.quickRent(24));
+          document.getElementById("addAccountBtn")?.addEventListener("click", () => accountManager.addAccount());
           document.getElementById("bulkAddBtn")?.addEventListener("click", openBulkModal);
           document.getElementById("bulkChangePwdBtn")?.addEventListener("click", openBulkChangePwdModal);
-
           document.querySelector(".ads-btn")?.addEventListener("click", () => {
             window.open("https://seller.shopee.co.id/portal/marketing/pas/product/manual/315686975?from=1742317200&to=1742403599&group=today", "_blank");
           });
-
-          document.getElementById("exportBtn")?.addEventListener("click", () => {
-            accountManager.exportData();
-          });
-
+          document.getElementById("exportBtn")?.addEventListener("click", () => accountManager.exportData());
           document.getElementById("importFile")?.addEventListener("change", (event) => {
             if (event.target.files.length > 0) {
               const file = event.target.files[0];
@@ -1606,54 +448,34 @@
               } else {
                 accountManager.showNotification("Format file tidak valid. Harap pilih file JSON.");
               }
-              // Reset input file untuk memungkinkan impor file yang sama berulang kali
               event.target.value = "";
             }
           });
-
-          // Event listeners untuk modal input manual
           document.querySelector(".close")?.addEventListener("click", closeManualModal);
           document.getElementById("saveManualBtn")?.addEventListener("click", saveManualTime);
-
-          // Event listener untuk proses data bulk add
           const processBulkBtn = document.getElementById("processBulkBtn");
           if (processBulkBtn) {
             processBulkBtn.addEventListener("click", function (event) {
               event.preventDefault();
-              console.log("Tombol processBulkBtn diklik");
               try {
                 processBulkAccounts();
               } catch (error) {
-                console.error("Error dalam processBulkAccounts:", error);
                 alert("Terjadi error: " + error.message);
               }
             });
-            console.log("Event listener processBulkBtn berhasil dipasang");
-          } else {
-            console.error("Element processBulkBtn tidak ditemukan!");
           }
-
-          // Event listener untuk menutup modal bulk add
           document.getElementById("closeBulkModal")?.addEventListener("click", closeBulkModal);
-
-          // Event listener untuk filter email
           document.getElementById("emailFilter")?.addEventListener("change", (event) => {
             accountManager.setEmailFilter(event.target.value);
           });
-
-          // Event listeners untuk custom email dropdown
           const emailFilter = document.getElementById("emailFilter");
           if (emailFilter) {
             const selectTrigger = emailFilter.querySelector(".select-trigger");
             const customOptions = emailFilter.querySelector(".custom-options");
-
-            // Toggle dropdown
             selectTrigger.addEventListener("click", () => {
               selectTrigger.classList.toggle("active");
               customOptions.classList.toggle("show");
             });
-
-            // Handle option click
             emailFilter.addEventListener("click", (event) => {
               if (event.target.classList.contains("custom-option")) {
                 const value = event.target.getAttribute("data-value");
@@ -1662,8 +484,6 @@
                 customOptions.classList.remove("show");
               }
             });
-
-            // Close dropdown when clicking outside
             document.addEventListener("click", (event) => {
               if (!emailFilter.contains(event.target)) {
                 selectTrigger.classList.remove("active");
@@ -1671,130 +491,64 @@
               }
             });
           }
-
-
-
-          // Event listener untuk filter pencarian username
           document.getElementById("usernameSearch")?.addEventListener("input", (event) => {
             accountManager.setSearchQuery(event.target.value);
-
-            // Tampilkan tombol clear jika ada teks, sembunyikan jika kosong
             const clearButton = document.getElementById("clearSearch");
             if (clearButton) {
-              if (event.target.value) {
-                clearButton.style.display = "block";
-              } else {
-                clearButton.style.display = "none";
-              }
+              clearButton.style.display = event.target.value ? "block" : "none";
             }
           });
-
-          // Event listener untuk tombol clear search
           document.getElementById("clearSearch")?.addEventListener("click", () => {
             const searchInput = document.getElementById("usernameSearch");
             if (searchInput) {
               searchInput.value = "";
               accountManager.setSearchQuery("");
               document.getElementById("clearSearch").style.display = "none";
-              searchInput.focus(); // Fokus kembali ke input pencarian
+              searchInput.focus();
             }
           });
-
-          // Event listener untuk tombol scroll to top
           const scrollToTopBtn = document.getElementById("scrollToTop");
-
           if (scrollToTopBtn) {
             window.addEventListener("scroll", () => {
               if (window.pageYOffset > 300) {
-                // Tampilkan tombol setelah scroll 300px
                 scrollToTopBtn.classList.add("show");
               } else {
                 scrollToTopBtn.classList.remove("show");
               }
             });
-
             scrollToTopBtn.addEventListener("click", () => {
-              window.scrollTo({
-                top: 0,
-                behavior: "smooth",
-              });
+              window.scrollTo({ top: 0, behavior: "smooth" });
             });
           }
-
-          // Menutup modal jika user mengklik di luar modal
           window.addEventListener("click", (event) => {
             const manualModal = document.getElementById("manualModal");
             const bulkAddModal = document.getElementById("bulkAddModal");
-
-            if (event.target == manualModal) {
-              closeManualModal();
-            }
-
-            if (event.target == bulkAddModal) {
-              closeBulkModal();
-            }
+            if (event.target == manualModal) closeManualModal();
+            if (event.target == bulkAddModal) closeBulkModal();
           });
-
-          // Event listener untuk tombol Reset All Available
           document.getElementById("resetAllBtn").addEventListener("click", () => accountManager.resetAllAvailable());
-
-          // Event listener untuk tombol next email
-          document.getElementById("nextEmailBtn")?.addEventListener("click", () => {
-            accountManager.moveToNextEmail();
-          });
-
-          // Event listener untuk tombol sort expiration
-          document.getElementById("sortByExpirationBtn")?.addEventListener("click", () => {
-            accountManager.toggleSortByExpiration();
-          });
-
-          // Set label waktu reset awal
+          document.getElementById("nextEmailBtn")?.addEventListener("click", () => accountManager.moveToNextEmail());
+          document.getElementById("sortByExpirationBtn")?.addEventListener("click", () => accountManager.toggleSortByExpiration());
           document.getElementById("lastResetTime").textContent = "--:--";
-          // Inisialisasi countdown reset berikutnya
-          // HAPUS: scheduleNextReset();
-          // HAPUS: setInterval(updateCountdown, 1000);
-        } catch (err) {
-          console.error("Error saat inisialisasi app: ", err);
-        }
+        } catch (err) {}
       }
-
-      // Fungsi untuk menghitung dan memformat waktu tersisa
       function getRemainingTime(availableAt) {
         if (!availableAt) return null;
-
         const now = new Date();
         const availableDate = new Date(availableAt);
         const diffMs = availableDate - now;
-
         if (diffMs <= 0) return "Available";
-
         const diffMinutes = Math.floor(diffMs / (1000 * 60));
         const diffHours = Math.floor(diffMinutes / 60);
         const remainingMinutes = diffMinutes % 60;
-
-        if (diffHours > 0) {
-          return `${diffHours} jam ${remainingMinutes} menit lagi`;
-        } else {
-          return `${remainingMinutes} menit lagi`;
-        }
+        if (diffHours > 0) return `${diffHours} jam ${remainingMinutes} menit lagi`;
+        else return `${remainingMinutes} menit lagi`;
       }
-
-      // Fungsi untuk format tanggal dan waktu lebih mudah dibaca
       function formatDateTime(date) {
         if (!date) return "Available";
-
-        const options = {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        };
+        const options = { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: false };
         return new Date(date).toLocaleString("id-ID", options);
       }
-
-      // Fungsi untuk menyalin teks ke clipboard
       function copyToClipboard(text, buttonElement) {
         const textarea = document.createElement("textarea");
         textarea.value = text;
@@ -1802,30 +556,22 @@
         textarea.select();
         document.execCommand("copy");
         document.body.removeChild(textarea);
-
-        // Memberikan efek visual saat tombol diklik
         const originalText = buttonElement.textContent;
         buttonElement.textContent = "Tersalin!";
-
-        // Cek kelas tombol untuk menentukan warna efek
         if (buttonElement.classList.contains("primary-copy-btn")) {
           buttonElement.style.backgroundColor = "#099268";
-
           setTimeout(() => {
             buttonElement.textContent = originalText;
             buttonElement.style.backgroundColor = "#5469d4";
           }, 1000);
         } else {
           buttonElement.style.backgroundColor = "#099268";
-
           setTimeout(() => {
             buttonElement.textContent = originalText;
             buttonElement.style.backgroundColor = "#5469d4";
           }, 1000);
         }
       }
-
-      // Fungsi untuk copy field individual dengan efek visual
       function copyField(text, buttonElement) {
         const textarea = document.createElement("textarea");
         textarea.value = text;
@@ -1833,58 +579,42 @@
         textarea.select();
         document.execCommand("copy");
         document.body.removeChild(textarea);
-
-        // Efek visual untuk tombol kecil
         const originalText = buttonElement.textContent;
         const originalBg = buttonElement.style.backgroundColor;
-
         buttonElement.textContent = "✓";
         buttonElement.style.backgroundColor = "#099268";
-
         setTimeout(() => {
           buttonElement.textContent = originalText;
           buttonElement.style.backgroundColor = originalBg;
         }, 800);
       }
-
-      // Fungsi untuk copy field dari data attribute
       function copyFieldFromData(buttonElement) {
         const text = buttonElement.getAttribute("data-copy-text");
         if (!text) return;
-
         const textarea = document.createElement("textarea");
         textarea.value = text;
         document.body.appendChild(textarea);
         textarea.select();
         document.execCommand("copy");
         document.body.removeChild(textarea);
-
-        // Efek visual untuk tombol kecil
         const originalText = buttonElement.textContent;
         const originalColor = buttonElement.style.color;
-
         buttonElement.textContent = "✓";
         buttonElement.style.color = "#099268";
-
         setTimeout(() => {
           buttonElement.textContent = originalText;
           buttonElement.style.color = originalColor;
         }, 800);
       }
-
-      // Kelas untuk mengelola setiap akun
       class AccountManager {
         constructor(accounts = []) {
           this.accounts = accounts.length ? accounts : this.createDefaultAccounts();
-          this.lastRentedIndex = -1; // Menambahkan properti untuk melacak akun yang baru disewa
-          this.selectedEmail = ""; // Menyimpan email yang dipilih untuk filter
-          this.selectedPassword = ""; // Menyimpan password yang dipilih untuk filter
-          this.searchQuery = ""; // Menyimpan kata kunci pencarian username
-          this.resetTimers = {}; // Tambahkan property untuk menyimpan timer reset
-          this.sortByExpiration = false; // Track apakah sedang sort by expiration
-
-
-          // Tambahkan listener Firebase untuk real-time updates
+          this.lastRentedIndex = -1;
+          this.selectedEmail = "";
+          this.selectedPassword = "";
+          this.searchQuery = "";
+          this.resetTimers = {};
+          this.sortByExpiration = false;
           firebase
             .database()
             .ref("accounts")
@@ -1897,10 +627,8 @@
                 this.populatePasswordFilter();
               }
             });
-
           this.loadAccounts();
         }
-
         createDefaultAccounts() {
           const defaultAccounts = [];
           for (let i = 1; i <= 6; i++) {
@@ -1911,25 +639,19 @@
               password: "wawawa666",
               email: "",
               availableAt: null,
-              expirationDate: "", // Ganti note dengan expirationDate
-              isReady: true, // Akun default sudah ready
+              expirationDate: "",
+              isReady: true
             });
           }
           return defaultAccounts;
         }
-
         addAccount() {
-          // Cari ID tertinggi yang valid, atau gunakan 1 jika tidak ada
           const validIds = this.accounts.map((account) => account.id).filter((id) => typeof id === "number" && !isNaN(id));
           const newId = validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
-
-          // Validasi bahwa newId adalah angka yang valid
           if (typeof newId !== "number" || isNaN(newId)) {
-            console.error("Error: newId tidak valid:", newId);
             this.showNotification("Error: Tidak dapat menentukan ID untuk akun baru");
             return;
           }
-
           const newAccount = {
             id: newId,
             name: `Akun ${newId}`,
@@ -1937,45 +659,29 @@
             password: "wawawa666",
             email: "",
             availableAt: null,
-            expirationDate: "", // Ganti note dengan expirationDate
-            isReady: false, // Akun baru belum ready
+            expirationDate: "",
+            isReady: false
           };
-
-          // Tambahkan akun baru ke awal array
           this.accounts.unshift(newAccount);
           this.saveAccounts();
           this.populateEmailFilter();
           this.renderAccounts();
-
-          // Scroll ke atas halaman
-          window.scrollTo({
-            top: 0,
-            behavior: "smooth",
-          });
-
-          // Tampilkan notifikasi akun baru ditambahkan
+          window.scrollTo({ top: 0, behavior: "smooth" });
           this.showNotification(`Akun baru (Akun ${newId}) telah ditambahkan`);
         }
-
         saveAccounts() {
-          // Firebase: Simpan data ke Realtime Database
           firebase
             .database()
             .ref("accounts")
             .set(this.accounts)
             .then(() => {
-              console.log("Data saved successfully to Firebase");
               this.syncWithDatabase();
             })
-            .catch((error) => {
-              console.error("Error saving data to Firebase:", error);
-              // Fallback ke localStorage jika Firebase gagal
+            .catch(() => {
               localStorage.setItem("unlockToolAccounts", JSON.stringify(this.accounts));
             });
         }
-
         loadAccounts() {
-          // Firebase: Ambil data dari Realtime Database
           firebase
             .database()
             .ref("accounts")
@@ -1985,214 +691,131 @@
               if (savedAccounts) {
                 this.accounts = savedAccounts;
               } else {
-                // Jika tidak ada data di Firebase, coba ambil dari localStorage
                 const localAccounts = localStorage.getItem("unlockToolAccounts");
                 if (localAccounts) {
                   this.accounts = JSON.parse(localAccounts);
-                  // Simpan data localStorage ke Firebase
                   this.saveAccounts();
                 } else {
                   this.accounts = this.createDefaultAccounts();
                 }
               }
-
-              // Bersihkan dan perbaiki data akun
               this.cleanupAccountData();
-
               this.renderAccounts();
               this.populateEmailFilter();
               this.populatePasswordFilter();
             })
-            .catch((error) => {
-              console.error("Error loading data from Firebase:", error);
-              // Fallback ke localStorage jika Firebase gagal
+            .catch(() => {
               const savedAccounts = localStorage.getItem("unlockToolAccounts");
               this.accounts = savedAccounts ? JSON.parse(savedAccounts) : this.createDefaultAccounts();
-
-              // Bersihkan dan perbaiki data akun
               this.cleanupAccountData();
-
               this.renderAccounts();
               this.populateEmailFilter();
               this.populatePasswordFilter();
             });
         }
-
-        // Fungsi untuk membersihkan dan memperbaiki data akun
         cleanupAccountData() {
-          console.log("Membersihkan data akun...");
-
-          // Filter akun yang valid dan perbaiki ID yang rusak
           this.accounts = this.accounts.filter((account) => account && typeof account === "object");
-
-          // Perbaiki ID yang rusak atau hilang
           let nextId = 1;
           this.accounts.forEach((account, index) => {
             if (typeof account.id !== "number" || isNaN(account.id)) {
-              console.log(`Memperbaiki ID akun index ${index}, ID lama:`, account.id);
               account.id = nextId;
             }
             nextId = Math.max(nextId, account.id) + 1;
           });
-
-          // Pastikan tidak ada ID duplikat
           const usedIds = new Set();
           this.accounts.forEach((account) => {
             if (usedIds.has(account.id)) {
-              console.log(`ID duplikat ditemukan: ${account.id}, mengubah ke ${nextId}`);
               account.id = nextId++;
             }
             usedIds.add(account.id);
           });
-
-          console.log("Data akun berhasil dibersihkan");
-
-          // Simpan data yang sudah dibersihkan jika ada perubahan
           if (this.accounts.some((account) => typeof account.id !== "number" || isNaN(account.id))) {
-            console.log("Menyimpan data yang sudah diperbaiki...");
             this.saveAccounts();
           }
         }
-
         updateAccount(index, data) {
           this.accounts[index] = { ...this.accounts[index], ...data };
           this.saveAccounts();
-          // Perbarui filter email jika ada perubahan pada properti email
-          if ("email" in data) {
-            this.populateEmailFilter();
-          }
-          // Perbarui filter password jika ada perubahan pada properti password
-          if ("password" in data) {
-            this.populatePasswordFilter();
-          }
+          if ("email" in data) this.populateEmailFilter();
+          if ("password" in data) this.populatePasswordFilter();
           this.renderAccounts();
         }
-
         rentAccount(index, hours) {
           const now = new Date();
-          // Tambahkan 15 menit buffer hanya untuk sewa 6 jam
           let additionalBuffer = 0;
-          if (hours === 6) {
-            additionalBuffer = 15 * 60 * 1000; // 15 menit dalam milidetik
-          }
-
+          if (hours === 6) additionalBuffer = 15 * 60 * 1000;
           const availableAt = new Date(now.getTime() + hours * 60 * 60 * 1000 + additionalBuffer);
           this.updateAccount(index, {
             availableAt: availableAt.toISOString(),
-            lastRentedHours: hours, // Tetap menyimpan durasi asli
-            manuallyUpdated: false, // Bukan update manual
+            lastRentedHours: hours,
+            manuallyUpdated: false
           });
-
-
-
-          // Auto copy info
           this.copyInfoWithTime(index);
-
-          // Tandai akun yang baru disewa
           this.lastRentedIndex = index;
-
-          // Render ulang dengan sorting yang benar
           setTimeout(() => {
             this.renderAccounts(true);
-            // Reset lastRentedIndex setelah render
             this.lastRentedIndex = -1;
           }, 100);
         }
-
         updateRentTime(index) {
-          // Bersihkan timer reset jika ada
           if (this.resetTimers[index]) {
             clearTimeout(this.resetTimers[index]);
             delete this.resetTimers[index];
           }
           const account = this.accounts[index];
-          if (!account.lastRentedHours) return; // Tidak ada info durasi sewa sebelumnya
-
+          if (!account.lastRentedHours) return;
           const now = new Date();
           const hours = account.lastRentedHours;
-          // Tidak ada buffer 15 menit untuk update karena pembeli sudah dikonfirmasi login
           const availableAt = new Date(now.getTime() + hours * 60 * 60 * 1000);
-
           this.updateAccount(index, {
             availableAt: availableAt.toISOString(),
-            manuallyUpdated: true, // Tandai bahwa akun diupdate secara manual
+            manuallyUpdated: true
           });
-
-          // Auto copy info
           this.copyInfoWithTime(index);
-
-          // Reset pencarian username
           this.searchQuery = "";
           const searchInput = document.getElementById("usernameSearch");
-          if (searchInput) {
-            searchInput.value = "";
-          }
-          // Sembunyikan tombol clear search
+          if (searchInput) searchInput.value = "";
           const clearButton = document.getElementById("clearSearch");
-          if (clearButton) {
-            clearButton.style.display = "none";
-          }
-          // Render ulang dengan reset pencarian
+          if (clearButton) clearButton.style.display = "none";
           this.renderAccounts();
         }
-
         setManualRentTime(index, dateTime) {
-          // Bersihkan timer reset jika ada
           if (this.resetTimers[index]) {
             clearTimeout(this.resetTimers[index]);
             delete this.resetTimers[index];
           }
-          // Tidak ada buffer 15 menit untuk input manual karena ini sudah dikonfirmasi login
           this.updateAccount(index, {
             availableAt: dateTime.toISOString(),
-            lastRentedHours: Math.round((dateTime - new Date()) / (1000 * 60 * 60)), // Default 6 jam jika tanggal yang dimasukkan sudah lewat
-            manuallyUpdated: true, // Tandai bahwa akun diupdate secara manual
+            lastRentedHours: Math.round((dateTime - new Date()) / (1000 * 60 * 60)),
+            manuallyUpdated: true
           });
-
-          // Auto copy info
           this.copyInfoWithTime(index);
-
-          // Reset pencarian username
           this.searchQuery = "";
           const searchInput = document.getElementById("usernameSearch");
-          if (searchInput) {
-            searchInput.value = "";
-          }
-          // Sembunyikan tombol clear search
+          if (searchInput) searchInput.value = "";
           const clearButton = document.getElementById("clearSearch");
-          if (clearButton) {
-            clearButton.style.display = "none";
-          }
-          // Render ulang dengan reset pencarian
+          if (clearButton) clearButton.style.display = "none";
           this.renderAccounts();
         }
-
         resetAccount(index) {
           this.updateAccount(index, {
-            availableAt: new Date().toISOString(), // Set ke waktu sekarang (masuk antrian paling belakang)
-            manuallyUpdated: false, // Reset jadi Available normal (bukan 100%)
+            availableAt: new Date().toISOString(),
+            manuallyUpdated: false
           });
-          this.clearSearchBox(); // ⬅️ tambahkan
+          this.clearSearchBox();
           this.renderAccounts();
         }
-
         markAccountAsReady(index) {
-          this.updateAccount(index, {
-            isReady: true,
-            manuallyUpdated: true, // Tandai sebagai available 100% karena baru pertama kali
-          });
+          this.updateAccount(index, { isReady: true, manuallyUpdated: true });
           this.showNotification("Akun telah siap digunakan");
         }
-
         isAccountAvailable(account) {
-          if (!account.isReady) return false; // Akun yang belum ready tidak bisa digunakan
+          if (!account.isReady) return false;
           if (!account.availableAt) return true;
-
           const now = new Date();
           const availableAt = new Date(account.availableAt);
           return now >= availableAt;
         }
-
         clearSearchBox() {
           this.searchQuery = "";
           const searchInput = document.getElementById("usernameSearch");
@@ -2200,477 +823,275 @@
           if (searchInput) searchInput.value = "";
           if (clearButton) clearButton.style.display = "none";
         }
-
         renderAccounts(sort = true) {
           const container = document.getElementById("accountsContainer");
-          if (!container) {
-            console.error("ERROR: Element accountsContainer tidak ditemukan!");
-            return;
-          }
+          if (!container) return;
           container.innerHTML = "";
-
-          logDebug("Merender akun, jumlah total: ", this.accounts.length);
-
-          // Filter akun yang memiliki username dan password, lalu urutkan
           let filteredAccounts = [...this.accounts].filter((account) => account && account.username && account.username.trim() !== "" && account.password && account.password.trim() !== "");
-
-          logDebug("Akun setelah filter username/password: ", filteredAccounts.length);
-
-          // Tambahkan filter berdasarkan email jika ada email yang dipilih
-          if (this.selectedEmail) {
-            filteredAccounts = filteredAccounts.filter((account) => account.email === this.selectedEmail);
-            logDebug("Akun setelah filter email: ", filteredAccounts.length);
-          }
-
-          // Tambahkan filter berdasarkan password jika ada password yang dipilih
-          if (this.selectedPassword) {
-            filteredAccounts = filteredAccounts.filter((account) => account.password === this.selectedPassword);
-            logDebug("Akun setelah filter password: ", filteredAccounts.length);
-          }
-
-          // Tambahkan filter berdasarkan pencarian username jika ada
+          if (this.selectedEmail) filteredAccounts = filteredAccounts.filter((account) => account.email === this.selectedEmail);
+          if (this.selectedPassword) filteredAccounts = filteredAccounts.filter((account) => account.password === this.selectedPassword);
           if (this.searchQuery) {
             const query = this.searchQuery.toLowerCase();
             filteredAccounts = filteredAccounts.filter((account) => account.username.toLowerCase().includes(query));
-            logDebug("Akun setelah filter pencarian: ", filteredAccounts.length);
           }
-
-          // Hitung jumlah akun yang available dan not ready
           const availableAccounts = filteredAccounts.filter((account) => this.isAccountAvailable(account)).length;
-          const notReadyAccounts = filteredAccounts.filter((account) => !account.isReady).length;
-
-          // Update informasi ringkasan akun
           const totalAccountsEl = document.getElementById("totalAccounts");
           const availableAccountsEl = document.getElementById("availableAccounts");
-
           if (totalAccountsEl) totalAccountsEl.textContent = filteredAccounts.length;
           if (availableAccountsEl) availableAccountsEl.textContent = availableAccounts;
-
-          logDebug("Total akun available: ", availableAccounts);
-
-          // Tampilkan/sembunyikan tombol Quick Renting
           const quickRentBtn = document.getElementById("quickRentBtn");
           const quickRent9Btn = document.getElementById("quickRent9Btn");
           const quickRent12Btn = document.getElementById("quickRent12Btn");
           const quickRent24Btn = document.getElementById("quickRent24Btn");
-
-          if (quickRentBtn) {
-            quickRentBtn.style.display = availableAccounts > 0 ? "block" : "none";
-          } else {
-            logDebug("ERROR: Tombol quickRentBtn tidak ditemukan!");
-          }
-
-          if (quickRent9Btn) {
-            quickRent9Btn.style.display = availableAccounts > 0 ? "block" : "none";
-          } else {
-            logDebug("ERROR: Tombol quickRent9Btn tidak ditemukan!");
-          }
-
-          if (quickRent12Btn) {
-            quickRent12Btn.style.display = availableAccounts > 0 ? "block" : "none";
-          } else {
-            logDebug("ERROR: Tombol quickRent12Btn tidak ditemukan!");
-          }
-
-          if (quickRent24Btn) {
-            quickRent24Btn.style.display = availableAccounts > 0 ? "block" : "none";
-          } else {
-            logDebug("ERROR: Tombol quickRent24Btn tidak ditemukan!");
-          }
-
+          if (quickRentBtn) quickRentBtn.style.display = availableAccounts > 0 ? "block" : "none";
+          if (quickRent9Btn) quickRent9Btn.style.display = availableAccounts > 0 ? "block" : "none";
+          if (quickRent12Btn) quickRent12Btn.style.display = availableAccounts > 0 ? "block" : "none";
+          if (quickRent24Btn) quickRent24Btn.style.display = availableAccounts > 0 ? "block" : "none";
           if (sort) {
             if (this.sortByExpiration) {
-              logDebug("Mengurutkan akun berdasarkan expiration date");
               filteredAccounts.sort((a, b) => {
                 const aExpirationPriority = this.getExpirationPriority(a.expirationDate);
                 const bExpirationPriority = this.getExpirationPriority(b.expirationDate);
                 return aExpirationPriority - bExpirationPriority;
               });
             } else {
-              logDebug("Mengurutkan akun (Not Ready → Available → Rented) dan waktu tersisa");
               filteredAccounts.sort((a, b) => {
                 if (!a.isReady && b.isReady) return -1;
                 if (a.isReady && !b.isReady) return 1;
-
-                if (!a.isReady && !b.isReady) {
-                  return (a.username || a.name).localeCompare(b.username || b.name);
-                }
-
+                if (!a.isReady && !b.isReady) return (a.username || a.name).localeCompare(b.username || b.name);
                 const aAvailable = this.isAccountAvailable(a);
                 const bAvailable = this.isAccountAvailable(b);
-                
-                // AVAILABLE 100% (manuallyUpdated = true) vs Available (manuallyUpdated = false)
-                const aAvailable100 = aAvailable && a.manuallyUpdated; // AVAILABLE 100%
-                const bAvailable100 = bAvailable && b.manuallyUpdated; // AVAILABLE 100%
-                const aAvailableNormal = aAvailable && !a.manuallyUpdated; // Available normal
-                const bAvailableNormal = bAvailable && !b.manuallyUpdated; // Available normal
-
-                // Prioritas: Available vs Rented
+                const aAvailable100 = aAvailable && a.manuallyUpdated;
+                const bAvailable100 = bAvailable && b.manuallyUpdated;
+                const aAvailableNormal = aAvailable && !a.manuallyUpdated;
+                const bAvailableNormal = bAvailable && !b.manuallyUpdated;
                 if (aAvailable && !bAvailable) return -1;
                 if (!aAvailable && bAvailable) return 1;
-
-                // Prioritas: AVAILABLE 100% vs Available normal
                 if (aAvailable100 && bAvailableNormal) return -1;
                 if (aAvailableNormal && bAvailable100) return 1;
-
-                // Kedua-duanya AVAILABLE 100%
                 if (aAvailable100 && bAvailable100) {
-                  // Yang availableAt lebih lama di masa lalu (sudah available lebih lama) dapat prioritas
                   const aTime = a.availableAt ? new Date(a.availableAt).getTime() : 0;
                   const bTime = b.availableAt ? new Date(b.availableAt).getTime() : 0;
                   return aTime - bTime;
                 }
-
-                // Kedua-duanya Available normal
                 if (aAvailableNormal && bAvailableNormal) {
-                  // Yang availableAt lebih lama di masa lalu (sudah available lebih lama) dapat prioritas
                   const aTime = a.availableAt ? new Date(a.availableAt).getTime() : 0;
                   const bTime = b.availableAt ? new Date(b.availableAt).getTime() : 0;
                   return aTime - bTime;
                 }
-
                 const aTime = new Date(a.availableAt).getTime();
                 const bTime = new Date(b.availableAt).getTime();
                 return aTime - bTime;
               });
             }
-
-            logDebug("Pengurutan selesai");
           }
-
-          // Render akun cards
-          logDebug("Mulai render akun cards", filteredAccounts.length);
-          filteredAccounts.forEach((account, index) => {
+          filteredAccounts.forEach((account) => {
             const realIndex = this.accounts.indexOf(account);
             const isAvailable = this.isAccountAvailable(account);
             const availableAtText = isAvailable ? "Available" : formatDateTime(account.availableAt);
-
-            // Mendapatkan waktu tersisa
             const remainingTime = !isAvailable ? getRemainingTime(account.availableAt) : null;
-
-            // Text status berbeda untuk akun yang belum ready
             const statusText = !account.isReady ? "Not Ready" : isAvailable ? (account.manuallyUpdated ? "Available 100%" : "Available") : account.manuallyUpdated ? "Rented 100%" : "Rented";
-
-            // Text status untuk info detail juga berbeda
             const detailStatusText = !account.isReady ? "Akun belum siap digunakan" : isAvailable ? (account.manuallyUpdated ? "Available 100%" : "Available") : (account.manuallyUpdated ? "Rented 100% until " : "Rented until ") + availableAtText;
-
             const accountCard = document.createElement("div");
             accountCard.className = "account-card";
-
-            // Tambahkan class highlight jika ini adalah akun yang baru disewa
-            if (realIndex === this.lastRentedIndex) {
-              accountCard.classList.add("highlight");
-            }
-
+            if (realIndex === this.lastRentedIndex) accountCard.classList.add("highlight");
             accountCard.innerHTML = `
-                        <div class="account-header">
-                            <h2>${account.username ? account.username : account.name}</h2>
-                            <span class="status ${!account.isReady ? "not-ready" : isAvailable ? "available" : "rented"}">
-                                ${statusText}
-                            </span>
+              <div class="account-header">
+                <div class="account-header-left">
+                  <button class="delete-account-btn" title="Hapus akun ini" onclick="accountManager.deleteAccount(${realIndex})">🗑️</button>
+                  <h2>${account.username ? account.username : account.name}</h2>
+                </div>
+                <span class="status ${!account.isReady ? "not-ready" : isAvailable ? "available" : "rented"}">${statusText}</span>
+              </div>
+              <div class="account-body">
+                <div class="form-group">
+                  <label for="username-${realIndex}">Username/Login:</label>
+                  <div class="input-with-copy">
+                    <button class="small-copy-btn" data-copy-text="${account.username}" onclick="copyFieldFromData(this)" title="Copy Username">📋</button>
+                    <input type="text" id="username-${realIndex}" value="${account.username}" onchange="accountManager.updateAccount(${realIndex}, {username: this.value})">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="password-${realIndex}">Password:</label>
+                  <div class="input-with-copy">
+                    <button class="small-copy-btn" data-copy-text="${account.password}" onclick="copyFieldFromData(this)" title="Copy Password">📋</button>
+                    <input type="text" id="password-${realIndex}" value="${account.password}" onchange="accountManager.updateAccount(${realIndex}, {password: this.value})">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="email-${realIndex}">Email:</label>
+                  <div class="input-with-copy">
+                    <button class="small-copy-btn" data-copy-text="${account.email || ""}" onclick="copyFieldFromData(this)" title="Copy Email">📋</button>
+                    <input type="text" id="email-${realIndex}" value="${account.email || ""}" onchange="accountManager.updateAccount(${realIndex}, {email: this.value})">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="expiration-${realIndex}">Account Expiration:</label>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="text" id="expiration-${realIndex}" value="${account.expirationDate || ""}" placeholder="Nov. 9, 2025, 5:32 a.m." onchange="accountManager.updateAccount(${realIndex}, {expirationDate: this.value})" style="flex: 1; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+                    ${account.expirationDate ? this.getExpirationInfoInline(account.expirationDate) : '<span style="font-size: 0.85rem; color: #666; white-space: nowrap;">Belum diset</span>'}
+                  </div>
+                </div>
+                <div class="time-info">
+                  <strong>Status:</strong> ${detailStatusText}
+                  ${remainingTime ? `<div><strong>Remaining:</strong> ${remainingTime}</div>` : ""}
+                </div>
+                <div class="btn-container">
+                  ${
+                    !account.isReady
+                      ? `
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                          <button class="ready-btn" style="flex: 1;" onclick="accountManager.markAccountAsReady(${realIndex})">Account is Ready</button>
+                          <button class="reset-btn" style="flex: 1;" onclick="accountManager.resetAccount(${realIndex})">Reset</button>
                         </div>
-                        <div class="account-body">
-                            <div class="form-group">
-                                <label for="username-${realIndex}">Username/Login:</label>
-                                <div class="input-with-copy">
-                                    <button class="small-copy-btn" data-copy-text="${account.username}" onclick="copyFieldFromData(this)" title="Copy Username">📋</button>
-                                    <input type="text" id="username-${realIndex}" value="${account.username}" 
-                                        onchange="accountManager.updateAccount(${realIndex}, {username: this.value})">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="password-${realIndex}">Password:</label>
-                                <div class="input-with-copy">
-                                    <button class="small-copy-btn" data-copy-text="${account.password}" onclick="copyFieldFromData(this)" title="Copy Password">📋</button>
-                                    <input type="text" id="password-${realIndex}" value="${account.password}" 
-                                        onchange="accountManager.updateAccount(${realIndex}, {password: this.value})">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="email-${realIndex}">Email:</label>
-                                <div class="input-with-copy">
-                                    <button class="small-copy-btn" data-copy-text="${account.email || ""}" onclick="copyFieldFromData(this)" title="Copy Email">📋</button>
-                                    <input type="text" id="email-${realIndex}" value="${account.email || ""}" 
-                                        onchange="accountManager.updateAccount(${realIndex}, {email: this.value})">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="expiration-${realIndex}">Account Expiration:</label>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <input type="text" id="expiration-${realIndex}" value="${account.expirationDate || ""}" 
-                                        placeholder="Nov. 9, 2025, 5:32 a.m."
-                                        onchange="accountManager.updateAccount(${realIndex}, {expirationDate: this.value})"
-                                        style="flex: 1; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
-                                    ${account.expirationDate ? this.getExpirationInfoInline(account.expirationDate) : '<span style="font-size: 0.85rem; color: #666; white-space: nowrap;">Belum diset</span>'}
-                                </div>
-                            </div>
-                            <div class="time-info">
-                                <strong>Status:</strong> ${detailStatusText}
-                                ${remainingTime ? `<div><strong>Remaining:</strong> ${remainingTime}</div>` : ""}
-                            </div>
-                            <div class="btn-container">
-                                ${
-                                  !account.isReady
-                                    ? `
-                                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                                        <button class="ready-btn" style="flex: 1;" onclick="accountManager.markAccountAsReady(${realIndex})">
-                                            Account is Ready
-                                        </button>
-                                        <button class="reset-btn" style="flex: 1;" onclick="accountManager.resetAccount(${realIndex})">
-                                            Reset
-                                        </button>
-                                    </div>
-                                `
-                                    : `
-                                    <div class="btn-group duration-buttons">
-                                        <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 6)">6 Jam</button>
-                                        <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 9)">9 Jam</button>
-                                        <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 12)">12 Jam</button>
-                                        <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 24)">24 Jam</button>
-                                    </div>
-                                    <div class="btn-group control-buttons">
-                                        <button class="manual-btn" onclick="openManualInput(${realIndex})">Manual</button>
-                                        <button class="reset-btn" onclick="accountManager.autoResetWithDelay(${realIndex})">
-                                            Reset
-                                        </button>
-                                        ${!isAvailable ? (account.lastRentedHours === 6 ? `<button class="update-btn" onclick="accountManager.updateRentTime(${realIndex})">Update Waktu</button>` : `<button class="update-btn btn-disabled" disabled>Update Waktu</button>`) : ""}
-                                    </div>
-                                `
-                                }
-                            </div>
+                      `
+                      : `
+                        <div class="btn-group duration-buttons">
+                          <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 6)">6 Jam</button>
+                          <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 9)">9 Jam</button>
+                          <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 12)">12 Jam</button>
+                          <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 24)">24 Jam</button>
                         </div>
-                    `;
+                        <div class="btn-group control-buttons">
+                          <button class="manual-btn" onclick="openManualInput(${realIndex})">Manual</button>
+                          <button class="reset-btn" onclick="accountManager.autoResetWithDelay(${realIndex})">Reset</button>
+                          ${
+                            !isAvailable
+                              ? account.lastRentedHours === 6
+                                ? `<button class="update-btn" onclick="accountManager.updateRentTime(${realIndex})">Update Waktu</button>`
+                                : `<button class="update-btn btn-disabled" disabled>Update Waktu</button>`
+                              : ""
+                          }
+                        </div>
+                      `
+                  }
+                </div>
+              </div>
+            `;
             container.appendChild(accountCard);
           });
-          logDebug("Selesai render akun cards");
-
-          // Update email filter counter secara real-time
           this.populateEmailFilter();
         }
-
-        copyInfoWithTime(accountIndex, buttonElement = null) {
+        copyInfoWithTime(accountIndex) {
           const account = this.accounts[accountIndex];
           const isAvailable = this.isAccountAvailable(account);
-
-          // Format teks yang akan disalin
           let infoText = `Username: ${account.username}\nPassword: ${account.password}`;
-
-          // Menambahkan informasi waktu sewa jika akun sedang disewa
           if (!isAvailable && account.availableAt) {
-            // Hitung waktu berdasarkan durasi asli (tanpa buffer 15 menit)
             const now = new Date();
             const hours = account.lastRentedHours || 6;
-            const actualEndTime = new Date(now.getTime() + hours * 60 * 60 * 1000); // Tanpa buffer 15 menit
-
-            // Format jam dan menit untuk waktu berakhir
+            const actualEndTime = new Date(now.getTime() + hours * 60 * 60 * 1000);
             let endHours = actualEndTime.getHours();
             let endMinutes = String(actualEndTime.getMinutes()).padStart(2, "0");
-
-            // Antisipasi pemblokiran oleh Shopee untuk angka yang mirip nomor handphone Indonesia (08xx)
-            // Jika menit berakhir dengan '08', ubah menjadi '09' untuk teks yang disalin
-            if (endMinutes === "08") {
-              endMinutes = "09";
-            }
-
-            // Format waktu yang baru sesuai permintaan dengan menambahkan WIB
+            if (endMinutes === "08") endMinutes = "09";
             infoText += `\nWaktu sewa sampai jam ${endHours}:${endMinutes} WIB (${hours} jam dari sekarang)`;
           }
-
-          // Menambahkan informasi tambahan
           infoText += `\n\n- Wajib login dalam kurun waktu 1 jam`;
-
-          // Hanya tambahkan pesan untuk mengabari jika durasi sewa adalah 6 jam
           const hours = account.lastRentedHours || 6;
-          if (hours === 6) {
-            infoText += `\n- Mohon di-infokan kepada kami jika sudah berhasil login`;
-          }
-
-          // Salin informasi ke clipboard
+          if (hours === 6) infoText += `\n- Mohon di-infokan kepada kami jika sudah berhasil login`;
           const textarea = document.createElement("textarea");
           textarea.value = infoText;
           document.body.appendChild(textarea);
           textarea.select();
           document.execCommand("copy");
           document.body.removeChild(textarea);
-
-          // Tampilkan notifikasi
           this.showNotification("Informasi akun telah disalin ke clipboard");
-
-          // Jika ini adalah akun yang baru disewa, hapus highlight
           if (accountIndex === this.lastRentedIndex) {
             this.lastRentedIndex = -1;
-            // Render ulang setelah info disalin untuk mengupdate urutan
             setTimeout(() => this.renderAccounts(), 1500);
           }
         }
-
         showNotification(message) {
           const notification = document.getElementById("notification");
           notification.textContent = message;
           notification.classList.add("show");
-
-          // Hilangkan notifikasi setelah 3 detik
           setTimeout(() => {
             notification.classList.remove("show");
           }, 3000);
         }
-
-        // Metode untuk mengekspor data akun ke file JSON
         exportData() {
-          // Membuat objek blob dari data JSON
           const dataStr = JSON.stringify(this.accounts);
           const blob = new Blob([dataStr], { type: "application/json" });
-
-          // Membuat URL untuk blob
           const url = URL.createObjectURL(blob);
-
-          // Membuat elemen anchor untuk download
           const a = document.createElement("a");
           a.href = url;
-
-          // Nama file dengan tanggal dan waktu saat ini
           const date = new Date();
           const timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}_${String(date.getHours()).padStart(2, "0")}${String(date.getMinutes()).padStart(2, "0")}`;
           a.download = `unlock-tool-accounts-${timestamp}.json`;
-
-          // Klik secara otomatis untuk memulai download
           document.body.appendChild(a);
           a.click();
-
-          // Membersihkan
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
-
           this.showNotification("Data akun berhasil diekspor ke file JSON");
         }
-
-        // Metode untuk mengimpor data akun dari file JSON
         importData(file) {
           const reader = new FileReader();
-
           reader.onload = (event) => {
             try {
               const importedAccounts = JSON.parse(event.target.result);
-
-              // Validasi data
-              if (!Array.isArray(importedAccounts)) {
-                throw new Error("Format data tidak valid");
-              }
-
-              // Impor data
+              if (!Array.isArray(importedAccounts)) throw new Error("Format data tidak valid");
               this.accounts = importedAccounts;
               this.saveAccounts();
-              // Perbarui filter email setelah impor data
               this.populateEmailFilter();
               this.renderAccounts();
-
               this.showNotification("Data akun berhasil diimpor");
             } catch (error) {
               this.showNotification("Gagal mengimpor data: " + error.message);
-              console.error("Error importing data:", error);
             }
           };
-
           reader.readAsText(file);
         }
-
-        // Metode untuk mengisi dropdown filter email
         populateEmailFilter() {
           const emailFilter = document.getElementById("emailFilter");
           const customOptions = emailFilter.querySelector(".custom-options");
-
-          // Hapus semua opsi kecuali opsi default
           while (customOptions.children.length > 1) {
             customOptions.removeChild(customOptions.lastChild);
           }
-
-          // Ambil semua email yang tidak kosong
           const emails = this.accounts.filter((account) => account.email && account.email.trim() !== "").map((account) => account.email);
-
-          // Kelompokkan email berdasarkan domain
           const emailsByDomain = {};
           emails.forEach((email) => {
             const parts = email.split("@");
             if (parts.length === 2) {
-              const domain = parts[1]; // Bagian domain (setelah @)
-              if (!emailsByDomain[domain]) {
-                emailsByDomain[domain] = [];
-              }
-              if (!emailsByDomain[domain].includes(email)) {
-                emailsByDomain[domain].push(email);
-              }
+              const domain = parts[1];
+              if (!emailsByDomain[domain]) emailsByDomain[domain] = [];
+              if (!emailsByDomain[domain].includes(email)) emailsByDomain[domain].push(email);
             }
           });
-
-          // Urutkan domain secara alfabetis
           const sortedDomains = Object.keys(emailsByDomain).sort();
-
-          // Untuk setiap domain, urutkan emailnya dan tambahkan ke dropdown
           sortedDomains.forEach((domain) => {
-            // Urutkan email dalam domain yang sama
             const sortedEmails = emailsByDomain[domain].sort();
-
             sortedEmails.forEach((email) => {
-              // Hitung total akun dengan email ini
               const totalAccounts = this.accounts.filter((account) => account.email === email).length;
-
-              // Hitung available akun dengan email ini
               const availableAccounts = this.accounts.filter((account) => account.email === email && this.isAccountAvailable(account)).length;
-
               const option = document.createElement("div");
               option.className = "custom-option";
               option.setAttribute("data-value", email);
-              // Gunakan innerHTML untuk styling warna berbeda
               option.innerHTML = `${email} (<span class="email-counter-available">${availableAccounts}</span>/<span class="email-counter-total">${totalAccounts}</span>)`;
               customOptions.appendChild(option);
             });
           });
-
-          // Set nilai dropdown ke email yang dipilih saat ini
           this.updateCustomSelectValue(this.selectedEmail);
         }
-
-        // Method helper untuk update custom select value
         updateCustomSelectValue(value) {
           const emailFilter = document.getElementById("emailFilter");
           const selectTrigger = emailFilter.querySelector(".select-trigger span");
           const customOptions = emailFilter.querySelectorAll(".custom-option");
-
-          // Update tampilan trigger
           if (value === "") {
             selectTrigger.textContent = "Semua Email";
           } else {
             const selectedOption = [...customOptions].find((opt) => opt.getAttribute("data-value") === value);
-            if (selectedOption) {
-              selectTrigger.innerHTML = selectedOption.innerHTML;
-            }
+            if (selectedOption) selectTrigger.innerHTML = selectedOption.innerHTML;
           }
-
-          // Update class selected
           customOptions.forEach((opt) => {
-            if (opt.getAttribute("data-value") === value) {
-              opt.classList.add("selected");
-            } else {
-              opt.classList.remove("selected");
-            }
+            if (opt.getAttribute("data-value") === value) opt.classList.add("selected");
+            else opt.classList.remove("selected");
           });
         }
-
-        // Metode untuk mengatur filter email
         setEmailFilter(email) {
           this.selectedEmail = email;
           this.renderAccounts();
-
-          // Auto-copy email ke clipboard jika email dipilih (bukan "Semua Email")
-          if (email && email.trim() !== "") {
-            this.copyEmailToClipboard(email);
-          }
-
-          // Perbarui custom dropdown
+          if (email && email.trim() !== "") this.copyEmailToClipboard(email);
           this.updateCustomSelectValue(email);
         }
-
-        // Method helper untuk copy email ke clipboard
         copyEmailToClipboard(email) {
           const textarea = document.createElement("textarea");
           textarea.value = email;
@@ -2678,155 +1099,108 @@
           textarea.select();
           document.execCommand("copy");
           document.body.removeChild(textarea);
-
-          // Tampilkan notifikasi
           this.showNotification(`📧 Email "${email}" telah disalin ke clipboard`);
         }
-
-        // Method untuk mendapatkan informasi expiration
         getExpirationInfo(expirationDate) {
-          if (!expirationDate) return '';
-          
+          if (!expirationDate) return "";
           const today = new Date();
           let expDate;
-          
-          // Parse format "Nov. 9, 2025, 5:32 a.m." atau format standar
           try {
-            // Coba parse format copy-paste
             expDate = new Date(expirationDate);
-            
-            // Jika parsing gagal, coba beberapa format lain
             if (isNaN(expDate.getTime())) {
-              // Handle format dengan titik setelah bulan: "Nov. 9, 2025"
-              const cleanDate = expirationDate.replace(/\./g, '').replace(/,/g, '');
+              const cleanDate = expirationDate.replace(/\./g, "").replace(/,/g, "");
               expDate = new Date(cleanDate);
             }
-            
             if (isNaN(expDate.getTime())) {
               return '<div style="font-size: 0.85rem; color: #e03131; margin-top: 5px; font-weight: 600;">Format tanggal tidak valid</div>';
             }
           } catch (error) {
             return '<div style="font-size: 0.85rem; color: #e03131; margin-top: 5px; font-weight: 600;">Format tanggal tidak valid</div>';
           }
-          
           const diffTime = expDate - today;
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          
-          let statusText = '';
-          let statusColor = '';
-          
+          let statusText = "";
+          let statusColor = "";
           if (diffDays < 0) {
             statusText = `Expired ${Math.abs(diffDays)} hari yang lalu`;
-            statusColor = '#e03131'; // Merah
+            statusColor = "#e03131";
           } else if (diffDays === 0) {
-            statusText = 'Expired hari ini';
-            statusColor = '#e03131'; // Merah
+            statusText = "Expired hari ini";
+            statusColor = "#e03131";
           } else if (diffDays <= 7) {
             statusText = `${diffDays} hari lagi (Segera expired!)`;
-            statusColor = '#f59f00'; // Orange
+            statusColor = "#f59f00";
           } else if (diffDays <= 30) {
             statusText = `${diffDays} hari lagi`;
-            statusColor = '#f59f00'; // Orange
+            statusColor = "#f59f00";
           } else {
             statusText = `${diffDays} hari lagi`;
-            statusColor = '#0ca678'; // Hijau
+            statusColor = "#0ca678";
           }
-          
           return `<div style="font-size: 0.85rem; color: ${statusColor}; margin-top: 5px; font-weight: 600;">${statusText}</div>`;
         }
-
-        // Method untuk mendapatkan informasi expiration dalam format inline (satu baris)
         getExpirationInfoInline(expirationDate) {
-          if (!expirationDate) return '';
-          
+          if (!expirationDate) return "";
           const today = new Date();
           let expDate;
-          
-          // Parse format "Nov. 9, 2025, 5:32 a.m." atau format standar
           try {
-            // Coba parse format copy-paste
             expDate = new Date(expirationDate);
-            
-            // Jika parsing gagal, coba beberapa format lain
             if (isNaN(expDate.getTime())) {
-              // Handle format dengan titik setelah bulan: "Nov. 9, 2025"
-              const cleanDate = expirationDate.replace(/\./g, '').replace(/,/g, '');
+              const cleanDate = expirationDate.replace(/\./g, "").replace(/,/g, "");
               expDate = new Date(cleanDate);
             }
-            
             if (isNaN(expDate.getTime())) {
               return '<span style="font-size: 0.85rem; color: #e03131; font-weight: 600; white-space: nowrap;">Format salah</span>';
             }
           } catch (error) {
             return '<span style="font-size: 0.85rem; color: #e03131; font-weight: 600; white-space: nowrap;">Format salah</span>';
           }
-          
           const diffTime = expDate - today;
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          
-          let statusText = '';
-          let statusColor = '';
-          
+          let statusText = "";
+          let statusColor = "";
           if (diffDays < 0) {
             statusText = `Expired ${Math.abs(diffDays)} hari lalu`;
-            statusColor = '#e03131'; // Merah
+            statusColor = "#e03131";
           } else if (diffDays === 0) {
-            statusText = 'Expired hari ini';
-            statusColor = '#e03131'; // Merah
+            statusText = "Expired hari ini";
+            statusColor = "#e03131";
           } else if (diffDays <= 7) {
             statusText = `${diffDays} hari lagi!`;
-            statusColor = '#f59f00'; // Orange
+            statusColor = "#f59f00";
           } else if (diffDays <= 30) {
             statusText = `${diffDays} hari lagi`;
-            statusColor = '#f59f00'; // Orange
+            statusColor = "#f59f00";
           } else {
             statusText = `${diffDays} hari lagi`;
-            statusColor = '#0ca678'; // Hijau
+            statusColor = "#0ca678";
           }
-          
           return `<span style="font-size: 0.85rem; color: ${statusColor}; font-weight: 600; white-space: nowrap;">${statusText}</span>`;
         }
-
-        // Method untuk mendapatkan prioritas expiration untuk sorting
         getExpirationPriority(expirationDate) {
-          if (!expirationDate) return 999; // No expiration set = lowest priority
-          
+          if (!expirationDate) return 999;
           const today = new Date();
           let expDate;
-          
           try {
             expDate = new Date(expirationDate);
             if (isNaN(expDate.getTime())) {
-              const cleanDate = expirationDate.replace(/\./g, '').replace(/,/g, '');
+              const cleanDate = expirationDate.replace(/\./g, "").replace(/,/g, "");
               expDate = new Date(cleanDate);
             }
-            
-            if (isNaN(expDate.getTime())) {
-              return 998; // Invalid format = very low priority
-            }
+            if (isNaN(expDate.getTime())) return 998;
           } catch (error) {
-            return 998; // Error parsing = very low priority
+            return 998;
           }
-          
           const diffTime = expDate - today;
           const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          
-          // Priority levels (lower number = higher priority):
-          if (diffDays < 0) return 1;      // Already expired - HIGHEST priority
-          if (diffDays === 0) return 2;    // Expires today - VERY HIGH priority
-          if (diffDays <= 7) return 3;     // Expires within 7 days - HIGH priority
-          if (diffDays <= 30) return 4;    // Expires within 30 days - MEDIUM priority
-          
-          // For longer periods, use the actual days as priority (inverted)
-          // So accounts expiring sooner get higher priority
-          return 100 + diffDays; // LOWER priority, but still sorted by days remaining
+          if (diffDays < 0) return 1;
+          if (diffDays === 0) return 2;
+          if (diffDays <= 7) return 3;
+          if (diffDays <= 30) return 4;
+          return 100 + diffDays;
         }
-
-        // Method untuk toggle sort by expiration
         toggleSortByExpiration() {
           this.sortByExpiration = !this.sortByExpiration;
-          
-          // Update visual state tombol
           const sortBtn = document.getElementById("sortByExpirationBtn");
           if (this.sortByExpiration) {
             sortBtn.classList.add("active");
@@ -2837,124 +1211,70 @@
             sortBtn.textContent = "📅 Sort Expiration";
             this.showNotification("Sorting normal (default)");
           }
-          
-          // Re-render dengan sorting baru
           this.renderAccounts(true);
         }
-
-
-
-        // Method untuk pindah ke email berikutnya
         moveToNextEmail() {
           const emailFilter = document.getElementById("emailFilter");
           const customOptions = emailFilter.querySelectorAll(".custom-option");
-          
-          // Dapatkan semua email yang tersedia (kecuali "Semua Email")
           const availableEmails = [];
-          customOptions.forEach(option => {
+          customOptions.forEach((option) => {
             const value = option.getAttribute("data-value");
-            if (value && value.trim() !== "") {
-              availableEmails.push(value);
-            }
+            if (value && value.trim() !== "") availableEmails.push(value);
           });
-
           if (availableEmails.length === 0) {
             this.showNotification("Tidak ada email yang tersedia untuk dipindah");
             return;
           }
-
-          // Cari index email yang sedang dipilih
           let currentIndex = -1;
-          if (this.selectedEmail) {
-            currentIndex = availableEmails.indexOf(this.selectedEmail);
-          }
-
-          // Pindah ke email berikutnya (atau ke email pertama jika sudah di akhir atau belum ada yang dipilih)
+          if (this.selectedEmail) currentIndex = availableEmails.indexOf(this.selectedEmail);
           const nextIndex = (currentIndex + 1) % availableEmails.length;
           const nextEmail = availableEmails[nextIndex];
-
-          // Set filter ke email berikutnya (ini akan otomatis trigger auto-copy)
           this.setEmailFilter(nextEmail);
         }
-
-        // Metode untuk mengatur filter pencarian username
         setSearchQuery(query) {
           this.searchQuery = query;
           this.renderAccounts();
         }
-
-        // Metode untuk quick renting (otomatis menyewa akun yang tersedia)
         quickRent(hours = 6) {
-          // Cek apakah tombol sedang dalam masa cooldown
           const rentBtnId = hours === 6 ? "quickRentBtn" : hours === 9 ? "quickRent9Btn" : hours === 12 ? "quickRent12Btn" : "quickRent24Btn";
           const rentBtn = document.getElementById(rentBtnId);
-          if (rentBtn.disabled) {
-            return;
-          }
-
-          // Filter untuk mendapatkan daftar akun yang tersedia
+          if (rentBtn.disabled) return;
           const availableAccounts = this.accounts.filter((account) => this.isAccountAvailable(account) && account.username && account.username.trim() !== "" && account.password && account.password.trim() !== "");
-
           if (availableAccounts.length === 0) {
             this.showNotification("Tidak ada akun yang tersedia untuk disewa!");
             return;
           }
-
-          // Prioritaskan akun yang available 100% (yang diupdate manual)
           const available100Accounts = availableAccounts.filter((account) => account.manuallyUpdated);
-
-          // Pilih akun yang akan disewa
           let accountToRent;
-
           if (available100Accounts.length > 1) {
-            // Jika ada lebih dari 1 akun available 100%, gunakan salah satu dan sisakan 1
-            accountToRent = available100Accounts[0]; // Ambil yang pertama
+            accountToRent = available100Accounts[0];
             this.showNotification(`Menyewa akun Available 100% untuk ${hours} jam: ${accountToRent.username}`);
           } else if (available100Accounts.length === 1 && availableAccounts.length > 1) {
-            // Jika hanya ada 1 akun available 100% dan ada akun lain tersedia, gunakan akun biasa
-            // Cari akun available biasa (yang bukan available 100%)
             accountToRent = availableAccounts.find((account) => !account.manuallyUpdated);
             this.showNotification(`Menyewa akun available biasa untuk ${hours} jam: ${accountToRent.username} (menyisakan 1 akun Available 100%)`);
           } else {
-            // Tidak ada akun available 100% atau hanya ada 1 akun tersedia (yang bukan 100%)
             accountToRent = availableAccounts[0];
             this.showNotification(`Menyewa akun available untuk ${hours} jam: ${accountToRent.username}`);
           }
-
-          // Dapatkan index akun di array utama dan sewa sesuai durasi
           const accountIndex = this.accounts.indexOf(accountToRent);
           if (accountIndex !== -1) {
             this.rentAccount(accountIndex, hours);
-
-            // Aktifkan proteksi double click
             this.enableClickProtection(rentBtnId);
           }
         }
-
-        // Metode untuk mengaktifkan proteksi double click
         enableClickProtection(buttonId = "quickRentBtn") {
           const quickRentBtn = document.getElementById(buttonId);
           const originalText = quickRentBtn.textContent;
-          const cooldownTime = 3; // 3 detik cooldown
-
-          // Nonaktifkan tombol
+          const cooldownTime = 3;
           quickRentBtn.disabled = true;
-
-          // Menampilkan efek visual cooldown
           quickRentBtn.style.backgroundColor = "#adb5bd";
           quickRentBtn.style.cursor = "not-allowed";
-
-          // Tampilkan hitungan mundur
           let countdown = cooldownTime;
           quickRentBtn.textContent = `Tunggu (${countdown})`;
-
-          // Update hitungan mundur setiap detik
           const timer = setInterval(() => {
             countdown--;
             quickRentBtn.textContent = `Tunggu (${countdown})`;
-
             if (countdown <= 0) {
-              // Kembalikan tombol ke keadaan semula
               clearInterval(timer);
               quickRentBtn.disabled = false;
               quickRentBtn.textContent = originalText;
@@ -2963,12 +1283,10 @@
             }
           }, 1000);
         }
-
-        // Metode untuk menghapus akun dari daftar
         deleteAccount(index) {
-          // Konfirmasi penghapusan
-          if (confirm(`Apakah Anda yakin ingin menghapus akun ${this.accounts[index].name}?`)) {
-            // Hapus akun dari array
+          const acc = this.accounts[index];
+          const title = (acc.username && acc.username.trim() !== "") ? acc.username : (acc.name || `Akun ${acc.id}`);
+          if (confirm(`Apakah Anda yakin ingin menghapus ${title}?`)) {
             this.accounts.splice(index, 1);
             this.saveAccounts();
             this.populateEmailFilter();
@@ -2976,114 +1294,68 @@
             this.showNotification("Akun berhasil dihapus");
           }
         }
-
         syncWithDatabase() {
           fetch("https://shopee.seninselasatechno.com/accounts-sync/sync-from-frontend", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ accounts: this.accounts }),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ accounts: this.accounts })
           })
             .then((response) => response.json())
             .then((data) => {
               if (data.success) {
                 this.showNotification(`✅ Sinkronisasi berhasil (${data.result.inserted} ditambahkan, ${data.result.updated} diperbarui)`);
-                console.log("Sync result:", data.result);
               } else {
                 this.showNotification("❌ Gagal menyinkronkan akun ke database");
-                console.error("Sync error:", data.message);
               }
             })
-            .catch((error) => {
+            .catch(() => {
               this.showNotification("❌ Gagal terhubung ke server");
-              console.error("Sync request failed:", error);
             });
         }
-
-        // Metode untuk reset semua akun available (bisa dipanggil manual/otomatis)
         resetAllAvailable() {
-          // kumpulkan semua index akun yg available
           const availableIndices = this.accounts.map((acc, i) => (this.isAccountAvailable(acc) ? i : null)).filter((i) => i !== null);
           if (availableIndices.length === 0) {
             this.showNotification("Tidak ada akun available untuk direset");
             return;
           }
-
-          // Hitung berapa banyak akun rented yang akan direset
           let rentedCount = 0;
           availableIndices.forEach((idx) => {
             const account = this.accounts[idx];
-            // Cek apakah account pernah di-rent hari ini (punya availableAt)
-            if (account.availableAt) {
-              rentedCount++;
-            }
+            if (account.availableAt) rentedCount++;
           });
-
-          // reset instan semua akun
           availableIndices.forEach((idx) => {
             const wasManual = this.accounts[idx].manuallyUpdated;
-            this.updateAccount(idx, {
-              availableAt: null,
-              manuallyUpdated: wasManual,
-            });
+            this.updateAccount(idx, { availableAt: null, manuallyUpdated: wasManual });
           });
-
-
-
-          // update label reset terakhir
           document.getElementById("lastResetTime").textContent = formatHHMM(new Date());
           this.showNotification(`Auto-reset ${availableIndices.length} akun selesai`);
         }
-
-        // Tambahkan method baru untuk reset dengan delay dan proteksi race condition
-        autoResetWithDelay(index, hours = 6) {
-          // Cek apakah account sedang di-rent sebelum reset
+        autoResetWithDelay(index) {
           const account = this.accounts[index];
-          const wasRented = account.availableAt && new Date(account.availableAt) > new Date();
           const wasManual = account.manuallyUpdated;
-          
-          // Reset instan tanpa delay
-          this.updateAccount(index, {
-            availableAt: null,
-            manuallyUpdated: wasManual,
-          });
-
-          this.clearSearchBox(); // ⬅️ tambahkan
+          this.updateAccount(index, { availableAt: null, manuallyUpdated: wasManual });
+          this.clearSearchBox();
           this.renderAccounts();
         }
-
-        // Tambahkan method manualReset di atas autoResetWithDelay
         manualReset(index) {
-          // batalkan timer jika ada
           if (this.resetTimers[index]) {
             clearTimeout(this.resetTimers[index]);
             delete this.resetTimers[index];
           }
-          // langsung reset tanpa sewa ulang
           this.resetAccount(index);
-          this.clearSearchBox(); // ⬅️ tambahkan
+          this.clearSearchBox();
         }
-
-        // Metode untuk mengelola password cards
         populatePasswordFilter() {
-          // Hanya render password list cards, tidak ada dropdown lagi
           this.renderPasswordList();
         }
-
-        // Metode untuk mengatur filter password
         setPasswordFilter(password) {
-          // Jika password yang sama diklik lagi, lakukan unfilter
           if (this.selectedPassword === password) {
             this.selectedPassword = "";
-            // Hilangkan highlight
             document.querySelectorAll(".password-card").forEach((card) => card.classList.remove("active"));
             this.renderAccounts();
             return;
           }
-          // Jika password berbeda, lakukan filter & highlight
           this.selectedPassword = password;
-          // Highlight card yang dipilih
           const passwordCards = document.querySelectorAll(".password-card");
           passwordCards.forEach((card) => {
             if (card.getAttribute("data-password") === password) {
@@ -3093,35 +1365,27 @@
             }
           });
           this.renderAccounts();
-          this.populatePasswordFilter(); // Pastikan UI selalu update setelah set
+          this.populatePasswordFilter();
         }
-
         renderPasswordList() {
           const container = document.getElementById("passwordListContainer");
           if (!container) return;
           container.innerHTML = "";
-          // Ambil password unik
           const passwords = Array.from(new Set(this.accounts.filter((acc) => acc.password && acc.password.trim() !== "").map((acc) => acc.password)));
           passwords.sort();
           passwords.forEach((pwd) => {
             const item = document.createElement("div");
             item.className = "password-card";
-            // Tambahkan kelas active jika password ini adalah password yang terpilih
-            if (pwd === this.selectedPassword) {
-              item.classList.add("active");
-            }
+            if (pwd === this.selectedPassword) item.classList.add("active");
             item.setAttribute("data-password", pwd);
             item.innerHTML = `
               <span title="Klik untuk filter password ini">${pwd}</span>
               <button class="delete-btn" title="Hapus password ini dari semua akun">&times;</button>
             `;
-
             const span = item.querySelector("span");
             span.addEventListener("click", () => {
-              // Toggle: jika sudah aktif, maka unfilter
               this.setPasswordFilter(pwd);
             });
-
             const btn = item.querySelector(".delete-btn");
             btn.addEventListener("click", (e) => {
               e.stopPropagation();
@@ -3131,8 +1395,6 @@
             });
             container.appendChild(item);
           });
-
-          // Inisialisasi Sortable untuk drag dan drop
           if (!this.passwordSortable) {
             this.passwordSortable = new Sortable(container, {
               animation: 150,
@@ -3140,42 +1402,32 @@
               chosenClass: "sortable-chosen",
               dragClass: "sortable-drag",
               easing: "cubic-bezier(0.2, 0, 0.13, 2)",
-              delay: 50, // Delay sebelum drag dimulai
+              delay: 50,
               delayOnTouchOnly: true,
               touchStartThreshold: 3,
-              onEnd: (evt) => {
-                // Menunjukkan notifikasi posisi password telah diubah
+              onEnd: () => {
                 this.showNotification("Posisi password berhasil diubah");
-
-                // Simpan urutan password dalam localStorage jika diperlukan
                 const passwords = Array.from(container.children).map((el) => el.getAttribute("data-password"));
                 localStorage.setItem("passwordOrder", JSON.stringify(passwords));
-              },
+              }
             });
           }
-
-          // Restore urutan password dari localStorage jika ada
           const savedOrder = localStorage.getItem("passwordOrder");
           if (savedOrder) {
             try {
               const orderArray = JSON.parse(savedOrder);
-              // Urutkan password card berdasarkan order yang tersimpan
               [...container.children]
                 .sort((a, b) => {
                   const aIndex = orderArray.indexOf(a.getAttribute("data-password"));
                   const bIndex = orderArray.indexOf(b.getAttribute("data-password"));
-                  // Jika tidak ada dalam array, letakkan di akhir
                   if (aIndex === -1) return 1;
                   if (bIndex === -1) return -1;
                   return aIndex - bIndex;
                 })
                 .forEach((node) => container.appendChild(node));
-            } catch (e) {
-              console.error("Error restoring password order:", e);
-            }
+            } catch (e) {}
           }
         }
-
         deletePasswordFromAllAccounts(pwd) {
           let changed = false;
           this.accounts.forEach((acc, i) => {
@@ -3191,49 +1443,32 @@
           }
         }
       }
-
-      // Inisialisasi manager akun ketika halaman dimuat
       let accountManager;
       let currentAccountIndex = -1;
-
-      // Fungsi untuk membuka modal input manual
       function openManualInput(accountIndex) {
         currentAccountIndex = accountIndex;
-
-        // Set tanggal dan waktu default ke hari ini
         const today = new Date();
         const dateInput = document.getElementById("manualDate");
         const timeInput = document.getElementById("manualTime");
-
-        // Format tanggal untuk input date (YYYY-MM-DD)
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, "0");
         const day = String(today.getDate()).padStart(2, "0");
         dateInput.value = `${year}-${month}-${day}`;
-
-        // Format waktu untuk input time (HH:MM)
         const hours = String(today.getHours()).padStart(2, "0");
         const minutes = String(today.getMinutes()).padStart(2, "0");
         timeInput.value = `${hours}:${minutes}`;
-
-        // Tampilkan modal
         const modal = document.getElementById("manualModal");
         modal.style.display = "block";
       }
-
-      // Fungsi untuk menutup modal
       function closeManualModal() {
         const modal = document.getElementById("manualModal");
         modal.style.display = "none";
         currentAccountIndex = -1;
       }
-
-      // Fungsi untuk mengubah jenis input waktu pada modal
       function toggleTimeInputType() {
         const exactInputs = document.getElementById("exactTimeInputs");
         const durationInputs = document.getElementById("durationInputs");
         const inputType = document.querySelector('input[name="timeInputType"]:checked').value;
-
         if (inputType === "exact") {
           exactInputs.style.display = "block";
           durationInputs.style.display = "none";
@@ -3242,118 +1477,66 @@
           durationInputs.style.display = "block";
         }
       }
-
-      // Fungsi untuk menyimpan input manual
       function saveManualTime() {
         if (currentAccountIndex === -1) return;
-
         const inputType = document.querySelector('input[name="timeInputType"]:checked').value;
         let dateTime;
-
         if (inputType === "exact") {
           const dateInput = document.getElementById("manualDate").value;
           const timeInput = document.getElementById("manualTime").value;
-
           if (!dateInput || !timeInput) {
             alert("Mohon isi tanggal dan waktu!");
             return;
           }
-
-          // Gabungkan tanggal dan waktu
           dateTime = new Date(`${dateInput}T${timeInput}`);
         } else {
           const hours = parseInt(document.getElementById("durationHours").value) || 0;
           const minutes = parseInt(document.getElementById("durationMinutes").value) || 0;
-
           if (hours === 0 && minutes === 0) {
             alert("Mohon masukkan durasi yang valid!");
             return;
           }
-
-          // Hitung waktu berdasarkan durasi
           const now = new Date();
           dateTime = new Date(now.getTime() + hours * 60 * 60 * 1000 + minutes * 60 * 1000);
         }
-
-        // Simpan ke akun
         accountManager.setManualRentTime(currentAccountIndex, dateTime);
-
-        // Tutup modal
         closeManualModal();
       }
-
-      // Fungsi untuk memproses input bulk add account
       function processBulkAccounts() {
-        console.log("processBulkAccounts() dipanggil");
-
-        // Cek apakah accountManager tersedia
         if (!accountManager) {
-          console.error("accountManager tidak tersedia!");
           alert("Error: Account Manager belum diinisialisasi!");
           return;
         }
-
         const bulkInput = document.getElementById("bulkInput").value.trim();
-        console.log("Input bulk:", bulkInput);
-
         if (!bulkInput) {
           alert("Silakan masukkan data akun!");
           return;
         }
-
-        // Coba parsing dengan berbagai format
         let accountGroups = [];
-
-        // Format 1: Split berdasarkan baris kosong ganda
         if (bulkInput.includes("\n\n")) {
           accountGroups = bulkInput.split(/\n\s*\n+/);
-          console.log("Menggunakan format baris kosong ganda, groups:", accountGroups);
-        }
-        // Format 2: Split berdasarkan baris baru biasa (setiap 2 baris = 1 akun)
-        else {
-          const allLines = bulkInput
-            .split("\n")
-            .map((line) => line.trim())
-            .filter((line) => line);
-          console.log("Semua baris:", allLines);
-
-          // Kelompokkan setiap 2 baris menjadi 1 akun
+        } else {
+          const allLines = bulkInput.split("\n").map((line) => line.trim()).filter((line) => line);
           for (let i = 0; i < allLines.length; i += 2) {
             if (i + 1 < allLines.length) {
               accountGroups.push(allLines[i] + "\n" + allLines[i + 1]);
             }
           }
-          console.log("Menggunakan format 2 baris per akun, groups:", accountGroups);
         }
-
         let addedCount = 0;
-
-        accountGroups.forEach((group, index) => {
-          console.log(`Processing group ${index}:`, group);
+        accountGroups.forEach((group) => {
           const lines = group.trim().split("\n");
-          console.log(`Lines in group ${index}:`, lines);
-
-          // Setiap grup harus memiliki minimal 2 baris (username dan email)
           if (lines.length >= 2) {
             const username = lines[0].trim();
             const email = lines[1].trim();
-            console.log(`Username: "${username}", Email: "${email}"`);
-
-            // Validasi username dan email
             const isValidEmail = email.includes("@") && email.includes(".");
-
             if (username && email && isValidEmail) {
-              // Tambahkan akun baru - cari ID tertinggi yang valid
               const validIds = accountManager.accounts.map((account) => account.id).filter((id) => typeof id === "number" && !isNaN(id));
               const newId = validIds.length > 0 ? Math.max(...validIds) + 1 : 1;
-
-              // Validasi bahwa newId adalah angka yang valid
               if (typeof newId !== "number" || isNaN(newId)) {
-                console.error("Error: newId tidak valid:", newId);
                 alert("Error: Tidak dapat menentukan ID untuk akun baru");
                 return;
               }
-
               const newAccount = {
                 id: newId,
                 name: `Akun ${newId}`,
@@ -3361,85 +1544,56 @@
                 password: "wawawa666",
                 email: email,
                 availableAt: null,
-                expirationDate: "", // Ganti note dengan expirationDate
-                isReady: false, // Akun dari bulk add belum ready
+                expirationDate: "",
+                isReady: false
               };
-
-              console.log("Menambahkan akun:", newAccount);
-              // Tambahkan akun baru ke awal array
               accountManager.accounts.unshift(newAccount);
               addedCount++;
-            } else {
-              console.log(`Akun tidak valid - username: "${username}", email: "${email}", isValidEmail: ${isValidEmail}`);
             }
-          } else {
-            console.log(`Group tidak memiliki cukup baris (${lines.length}):`, lines);
           }
         });
-
-        console.log(`Total akun ditambahkan: ${addedCount}`);
-
         if (addedCount > 0) {
-          // Simpan perubahan dan render ulang
           accountManager.saveAccounts();
           accountManager.populateEmailFilter();
           accountManager.renderAccounts();
-
-          // Tampilkan notifikasi
           accountManager.showNotification(`${addedCount} akun baru berhasil ditambahkan`);
-
-          // Tutup modal
           closeBulkModal();
-
-          // Reset form
           document.getElementById("bulkInput").value = "";
         } else {
           alert("Tidak ada akun valid yang ditemukan. Pastikan format data benar!\n\nFormat yang didukung:\n1. Username\\nEmail\\n\\nUsername2\\nEmail2\n2. Username\\nEmail\\nUsername2\\nEmail2");
         }
       }
-
-      // Fungsi untuk menampilkan modal bulk add
       function openBulkModal() {
         const modal = document.getElementById("bulkAddModal");
         modal.style.display = "block";
       }
-
-      // Fungsi untuk menutup modal bulk add
       function closeBulkModal() {
         const modal = document.getElementById("bulkAddModal");
         modal.style.display = "none";
       }
-
-      // Modal Bulk Change Password
       function openBulkChangePwdModal() {
         const modal = document.getElementById("bulkChangePwdModal");
         modal.style.display = "block";
       }
-
       function closeBulkChangePwdModal() {
         document.getElementById("bulkChangePwdModal").style.display = "none";
       }
-
       function applyBulkChangePwd() {
         const pwd = document.getElementById("newPassword").value.trim();
-        const emailFilter = accountManager.selectedEmail; // Gunakan selectedEmail dari accountManager
+        const emailFilter = accountManager.selectedEmail;
         if (!pwd) {
           alert("Masukkan password baru");
           return;
         }
-
         let changedCount = 0;
         accountManager.accounts.forEach((acc, i) => {
           const isAvail = accountManager.isAccountAvailable(acc);
-          // Jika tidak ada email filter yang dipilih, ubah semua akun available
           const emailMatch = !emailFilter || acc.email === emailFilter;
-
           if (isAvail && emailMatch) {
             accountManager.updateAccount(i, { password: pwd });
             changedCount++;
           }
         });
-
         if (changedCount > 0) {
           accountManager.showNotification(`Password diubah untuk ${changedCount} akun available`);
         } else {
@@ -3447,25 +1601,16 @@
         }
         closeBulkChangePwdModal();
       }
-
-      // Tutup modal jika klik di luar area modal
       window.addEventListener("click", (event) => {
         const bulkChangePwdModal = document.getElementById("bulkChangePwdModal");
         if (event.target == bulkChangePwdModal) {
           closeBulkChangePwdModal();
         }
       });
-
-      // Helper format jam:menit
       function formatHHMM(date) {
         const h = String(date.getHours()).padStart(2, "0");
         const m = String(date.getMinutes()).padStart(2, "0");
         return `${h}:${m}`;
-      }
-
-      // Helper untuk debug
-      function logDebug(message, data) {
-        console.log("[DEBUG] " + message, data || "");
       }
     </script>
   </body>
