@@ -606,6 +606,16 @@
           buttonElement.style.color = originalColor;
         }, 800);
       }
+
+      const TOOL_FILTER = 'unlock';
+      function deriveToolType(acc) {
+        const tag = (acc?.tool || acc?.type || acc?.category || '').toString().toLowerCase();
+        if (tag === 'unlock' || tag === 'amt') return tag;
+        const s = `${acc?.username || ''} ${acc?.email || ''}`.toLowerCase();
+        if (/\bamt\b/.test(s) || s.includes('@amt')) return 'amt';
+        return 'unlock';
+      }
+      function isUnlock(acc) { return deriveToolType(acc) === TOOL_FILTER; }
       class AccountManager {
         constructor(accounts = []) {
           this.accounts = accounts.length ? accounts : this.createDefaultAccounts();
@@ -629,6 +639,7 @@
             });
           this.loadAccounts();
         }
+        
         createDefaultAccounts() {
           const defaultAccounts = [];
           for (let i = 1; i <= 6; i++) {
@@ -824,154 +835,194 @@
           if (clearButton) clearButton.style.display = "none";
         }
         renderAccounts(sort = true) {
-          const container = document.getElementById("accountsContainer");
-          if (!container) return;
-          container.innerHTML = "";
-          let filteredAccounts = [...this.accounts].filter((account) => account && account.username && account.username.trim() !== "" && account.password && account.password.trim() !== "");
-          if (this.selectedEmail) filteredAccounts = filteredAccounts.filter((account) => account.email === this.selectedEmail);
-          if (this.selectedPassword) filteredAccounts = filteredAccounts.filter((account) => account.password === this.selectedPassword);
-          if (this.searchQuery) {
-            const query = this.searchQuery.toLowerCase();
-            filteredAccounts = filteredAccounts.filter((account) => account.username.toLowerCase().includes(query));
-          }
-          const availableAccounts = filteredAccounts.filter((account) => this.isAccountAvailable(account)).length;
-          const totalAccountsEl = document.getElementById("totalAccounts");
-          const availableAccountsEl = document.getElementById("availableAccounts");
-          if (totalAccountsEl) totalAccountsEl.textContent = filteredAccounts.length;
-          if (availableAccountsEl) availableAccountsEl.textContent = availableAccounts;
-          const quickRentBtn = document.getElementById("quickRentBtn");
-          const quickRent9Btn = document.getElementById("quickRent9Btn");
-          const quickRent12Btn = document.getElementById("quickRent12Btn");
-          const quickRent24Btn = document.getElementById("quickRent24Btn");
-          if (quickRentBtn) quickRentBtn.style.display = availableAccounts > 0 ? "block" : "none";
-          if (quickRent9Btn) quickRent9Btn.style.display = availableAccounts > 0 ? "block" : "none";
-          if (quickRent12Btn) quickRent12Btn.style.display = availableAccounts > 0 ? "block" : "none";
-          if (quickRent24Btn) quickRent24Btn.style.display = availableAccounts > 0 ? "block" : "none";
-          if (sort) {
-            if (this.sortByExpiration) {
-              filteredAccounts.sort((a, b) => {
-                const aExpirationPriority = this.getExpirationPriority(a.expirationDate);
-                const bExpirationPriority = this.getExpirationPriority(b.expirationDate);
-                return aExpirationPriority - bExpirationPriority;
-              });
-            } else {
-              filteredAccounts.sort((a, b) => {
-                if (!a.isReady && b.isReady) return -1;
-                if (a.isReady && !b.isReady) return 1;
-                if (!a.isReady && !b.isReady) return (a.username || a.name).localeCompare(b.username || b.name);
-                const aAvailable = this.isAccountAvailable(a);
-                const bAvailable = this.isAccountAvailable(b);
-                const aAvailable100 = aAvailable && a.manuallyUpdated;
-                const bAvailable100 = bAvailable && b.manuallyUpdated;
-                const aAvailableNormal = aAvailable && !a.manuallyUpdated;
-                const bAvailableNormal = bAvailable && !b.manuallyUpdated;
-                if (aAvailable && !bAvailable) return -1;
-                if (!aAvailable && bAvailable) return 1;
-                if (aAvailable100 && bAvailableNormal) return -1;
-                if (aAvailableNormal && bAvailable100) return 1;
-                if (aAvailable100 && bAvailable100) {
-                  const aTime = a.availableAt ? new Date(a.availableAt).getTime() : 0;
-                  const bTime = b.availableAt ? new Date(b.availableAt).getTime() : 0;
-                  return aTime - bTime;
-                }
-                if (aAvailableNormal && bAvailableNormal) {
-                  const aTime = a.availableAt ? new Date(a.availableAt).getTime() : 0;
-                  const bTime = b.availableAt ? new Date(b.availableAt).getTime() : 0;
-                  return aTime - bTime;
-                }
-                const aTime = new Date(a.availableAt).getTime();
-                const bTime = new Date(b.availableAt).getTime();
-                return aTime - bTime;
-              });
-            }
-          }
-          filteredAccounts.forEach((account) => {
-            const realIndex = this.accounts.indexOf(account);
-            const isAvailable = this.isAccountAvailable(account);
-            const availableAtText = isAvailable ? "Available" : formatDateTime(account.availableAt);
-            const remainingTime = !isAvailable ? getRemainingTime(account.availableAt) : null;
-            const statusText = !account.isReady ? "Not Ready" : isAvailable ? (account.manuallyUpdated ? "Available 100%" : "Available") : account.manuallyUpdated ? "Rented 100%" : "Rented";
-            const detailStatusText = !account.isReady ? "Akun belum siap digunakan" : isAvailable ? (account.manuallyUpdated ? "Available 100%" : "Available") : (account.manuallyUpdated ? "Rented 100% until " : "Rented until ") + availableAtText;
-            const accountCard = document.createElement("div");
-            accountCard.className = "account-card";
-            if (realIndex === this.lastRentedIndex) accountCard.classList.add("highlight");
-            accountCard.innerHTML = `
-              <div class="account-header">
-                <div class="account-header-left">
-                  <button class="delete-account-btn" title="Hapus akun ini" onclick="accountManager.deleteAccount(${realIndex})">🗑️</button>
-                  <h2>${account.username ? account.username : account.name}</h2>
+  const container = document.getElementById("accountsContainer");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  // Only Unlock Tool accounts + basic sanity checks
+  let filteredAccounts = this.accounts.filter((account) =>
+    account &&
+    isUnlock(account) &&
+    account.username &&
+    account.username.trim() !== "" &&
+    account.password &&
+    account.password.trim() !== ""
+  );
+
+  if (this.selectedEmail) {
+    filteredAccounts = filteredAccounts.filter((account) => account.email === this.selectedEmail);
+  }
+  if (this.selectedPassword) {
+    filteredAccounts = filteredAccounts.filter((account) => account.password === this.selectedPassword);
+  }
+  if (this.searchQuery) {
+    const query = this.searchQuery.toLowerCase();
+    filteredAccounts = filteredAccounts.filter((account) => account.username.toLowerCase().includes(query));
+  }
+
+  const availableAccounts = filteredAccounts.filter((account) => this.isAccountAvailable(account)).length;
+
+  const totalAccountsEl = document.getElementById("totalAccounts");
+  const availableAccountsEl = document.getElementById("availableAccounts");
+  if (totalAccountsEl) totalAccountsEl.textContent = filteredAccounts.length;
+  if (availableAccountsEl) availableAccountsEl.textContent = availableAccounts;
+
+  const quickRentBtn = document.getElementById("quickRentBtn");
+  const quickRent9Btn = document.getElementById("quickRent9Btn");
+  const quickRent12Btn = document.getElementById("quickRent12Btn");
+  const quickRent24Btn = document.getElementById("quickRent24Btn");
+  if (quickRentBtn) quickRentBtn.style.display = availableAccounts > 0 ? "block" : "none";
+  if (quickRent9Btn) quickRent9Btn.style.display = availableAccounts > 0 ? "block" : "none";
+  if (quickRent12Btn) quickRent12Btn.style.display = availableAccounts > 0 ? "block" : "none";
+  if (quickRent24Btn) quickRent24Btn.style.display = availableAccounts > 0 ? "block" : "none";
+
+  if (sort) {
+    if (this.sortByExpiration) {
+      filteredAccounts.sort((a, b) => {
+        const aExpirationPriority = this.getExpirationPriority(a.expirationDate);
+        const bExpirationPriority = this.getExpirationPriority(b.expirationDate);
+        return aExpirationPriority - bExpirationPriority;
+      });
+    } else {
+      filteredAccounts.sort((a, b) => {
+        if (!a.isReady && b.isReady) return -1;
+        if (a.isReady && !b.isReady) return 1;
+        if (!a.isReady && !b.isReady) return (a.username || a.name).localeCompare(b.username || b.name);
+
+        const aAvailable = this.isAccountAvailable(a);
+        const bAvailable = this.isAccountAvailable(b);
+        const aAvailable100 = aAvailable && a.manuallyUpdated;
+        const bAvailable100 = bAvailable && b.manuallyUpdated;
+        const aAvailableNormal = aAvailable && !a.manuallyUpdated;
+        const bAvailableNormal = bAvailable && !b.manuallyUpdated;
+
+        if (aAvailable && !bAvailable) return -1;
+        if (!aAvailable && bAvailable) return 1;
+
+        if (aAvailable100 && bAvailableNormal) return -1;
+        if (aAvailableNormal && bAvailable100) return 1;
+
+        if (aAvailable100 && bAvailable100) {
+          const aTime = a.availableAt ? new Date(a.availableAt).getTime() : 0;
+          const bTime = b.availableAt ? new Date(b.availableAt).getTime() : 0;
+          return aTime - bTime;
+        }
+        if (aAvailableNormal && bAvailableNormal) {
+          const aTime = a.availableAt ? new Date(a.availableAt).getTime() : 0;
+          const bTime = b.availableAt ? new Date(b.availableAt).getTime() : 0;
+          return aTime - bTime;
+        }
+
+        const aTime = new Date(a.availableAt).getTime();
+        const bTime = new Date(b.availableAt).getTime();
+        return aTime - bTime;
+      });
+    }
+  }
+
+  filteredAccounts.forEach((account) => {
+    const realIndex = this.accounts.indexOf(account);
+    const isAvailable = this.isAccountAvailable(account);
+    const availableAtText = isAvailable ? "Available" : formatDateTime(account.availableAt);
+    const remainingTime = !isAvailable ? getRemainingTime(account.availableAt) : null;
+
+    const statusText = !account.isReady
+      ? "Not Ready"
+      : isAvailable
+      ? (account.manuallyUpdated ? "Available 100%" : "Available")
+      : account.manuallyUpdated
+      ? "Rented 100%"
+      : "Rented";
+
+    const detailStatusText = !account.isReady
+      ? "Akun belum siap digunakan"
+      : isAvailable
+      ? (account.manuallyUpdated ? "Available 100%" : "Available")
+      : (account.manuallyUpdated ? "Rented 100% until " : "Rented until ") + availableAtText;
+
+    const accountCard = document.createElement("div");
+    accountCard.className = "account-card";
+    if (realIndex === this.lastRentedIndex) accountCard.classList.add("highlight");
+
+    accountCard.innerHTML = `
+      <div class="account-header">
+        <div class="account-header-left">
+          <button class="delete-account-btn" title="Hapus akun ini" onclick="accountManager.deleteAccount(${realIndex})">🗑️</button>
+          <h2>${account.username ? account.username : account.name}</h2>
+        </div>
+        <span class="status ${!account.isReady ? "not-ready" : isAvailable ? "available" : "rented"}">${statusText}</span>
+      </div>
+      <div class="account-body">
+        <div class="form-group">
+          <label for="username-${realIndex}">Username/Login:</label>
+          <div class="input-with-copy">
+            <button class="small-copy-btn" data-copy-text="${account.username}" onclick="copyFieldFromData(this)" title="Copy Username">📋</button>
+            <input type="text" id="username-${realIndex}" value="${account.username}" onchange="accountManager.updateAccount(${realIndex}, {username: this.value})">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password-${realIndex}">Password:</label>
+          <div class="input-with-copy">
+            <button class="small-copy-btn" data-copy-text="${account.password}" onclick="copyFieldFromData(this)" title="Copy Password">📋</button>
+            <input type="text" id="password-${realIndex}" value="${account.password}" onchange="accountManager.updateAccount(${realIndex}, {password: this.value})">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="email-${realIndex}">Email:</label>
+          <div class="input-with-copy">
+            <button class="small-copy-btn" data-copy-text="${account.email || ""}" onclick="copyFieldFromData(this)" title="Copy Email">📋</button>
+            <input type="text" id="email-${realIndex}" value="${account.email || ""}" onchange="accountManager.updateAccount(${realIndex}, {email: this.value})">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="expiration-${realIndex}">Account Expiration:</label>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="text" id="expiration-${realIndex}" value="${account.expirationDate || ""}" placeholder="Nov. 9, 2025, 5:32 a.m." onchange="accountManager.updateAccount(${realIndex}, {expirationDate: this.value})" style="flex: 1; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
+            ${account.expirationDate ? this.getExpirationInfoInline(account.expirationDate) : '<span style="font-size: 0.85rem; color: #666; white-space: nowrap;">Belum diset</span>'}
+          </div>
+        </div>
+        <div class="time-info">
+          <strong>Status:</strong> ${detailStatusText}
+          ${remainingTime ? `<div><strong>Remaining:</strong> ${remainingTime}</div>` : ""}
+        </div>
+        <div class="btn-container">
+          ${
+            !account.isReady
+              ? `
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                  <button class="ready-btn" style="flex: 1;" onclick="accountManager.markAccountAsReady(${realIndex})">Account is Ready</button>
+                  <button class="reset-btn" style="flex: 1;" onclick="accountManager.resetAccount(${realIndex})">Reset</button>
                 </div>
-                <span class="status ${!account.isReady ? "not-ready" : isAvailable ? "available" : "rented"}">${statusText}</span>
-              </div>
-              <div class="account-body">
-                <div class="form-group">
-                  <label for="username-${realIndex}">Username/Login:</label>
-                  <div class="input-with-copy">
-                    <button class="small-copy-btn" data-copy-text="${account.username}" onclick="copyFieldFromData(this)" title="Copy Username">📋</button>
-                    <input type="text" id="username-${realIndex}" value="${account.username}" onchange="accountManager.updateAccount(${realIndex}, {username: this.value})">
-                  </div>
+              `
+              : `
+                <div class="btn-group duration-buttons">
+                  <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 6)">6 Jam</button>
+                  <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 9)">9 Jam</button>
+                  <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 12)">12 Jam</button>
+                  <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 24)">24 Jam</button>
                 </div>
-                <div class="form-group">
-                  <label for="password-${realIndex}">Password:</label>
-                  <div class="input-with-copy">
-                    <button class="small-copy-btn" data-copy-text="${account.password}" onclick="copyFieldFromData(this)" title="Copy Password">📋</button>
-                    <input type="text" id="password-${realIndex}" value="${account.password}" onchange="accountManager.updateAccount(${realIndex}, {password: this.value})">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="email-${realIndex}">Email:</label>
-                  <div class="input-with-copy">
-                    <button class="small-copy-btn" data-copy-text="${account.email || ""}" onclick="copyFieldFromData(this)" title="Copy Email">📋</button>
-                    <input type="text" id="email-${realIndex}" value="${account.email || ""}" onchange="accountManager.updateAccount(${realIndex}, {email: this.value})">
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="expiration-${realIndex}">Account Expiration:</label>
-                  <div style="display: flex; align-items: center; gap: 8px;">
-                    <input type="text" id="expiration-${realIndex}" value="${account.expirationDate || ""}" placeholder="Nov. 9, 2025, 5:32 a.m." onchange="accountManager.updateAccount(${realIndex}, {expirationDate: this.value})" style="flex: 1; padding: 10px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.9rem;">
-                    ${account.expirationDate ? this.getExpirationInfoInline(account.expirationDate) : '<span style="font-size: 0.85rem; color: #666; white-space: nowrap;">Belum diset</span>'}
-                  </div>
-                </div>
-                <div class="time-info">
-                  <strong>Status:</strong> ${detailStatusText}
-                  ${remainingTime ? `<div><strong>Remaining:</strong> ${remainingTime}</div>` : ""}
-                </div>
-                <div class="btn-container">
+                <div class="btn-group control-buttons">
+                  <button class="manual-btn" onclick="openManualInput(${realIndex})">Manual</button>
+                  <button class="reset-btn" onclick="accountManager.autoResetWithDelay(${realIndex})">Reset</button>
                   ${
-                    !account.isReady
-                      ? `
-                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                          <button class="ready-btn" style="flex: 1;" onclick="accountManager.markAccountAsReady(${realIndex})">Account is Ready</button>
-                          <button class="reset-btn" style="flex: 1;" onclick="accountManager.resetAccount(${realIndex})">Reset</button>
-                        </div>
-                      `
-                      : `
-                        <div class="btn-group duration-buttons">
-                          <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 6)">6 Jam</button>
-                          <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 9)">9 Jam</button>
-                          <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 12)">12 Jam</button>
-                          <button class="rent-btn" onclick="accountManager.rentAccount(${realIndex}, 24)">24 Jam</button>
-                        </div>
-                        <div class="btn-group control-buttons">
-                          <button class="manual-btn" onclick="openManualInput(${realIndex})">Manual</button>
-                          <button class="reset-btn" onclick="accountManager.autoResetWithDelay(${realIndex})">Reset</button>
-                          ${
-                            !isAvailable
-                              ? account.lastRentedHours === 6
-                                ? `<button class="update-btn" onclick="accountManager.updateRentTime(${realIndex})">Update Waktu</button>`
-                                : `<button class="update-btn btn-disabled" disabled>Update Waktu</button>`
-                              : ""
-                          }
-                        </div>
-                      `
+                    !isAvailable
+                      ? account.lastRentedHours === 6
+                        ? `<button class="update-btn" onclick="accountManager.updateRentTime(${realIndex})">Update Waktu</button>`
+                        : `<button class="update-btn btn-disabled" disabled>Update Waktu</button>`
+                      : ""
                   }
                 </div>
-              </div>
-            `;
-            container.appendChild(accountCard);
-          });
-          this.populateEmailFilter();
-        }
+              `
+          }
+        </div>
+      </div>
+    `;
+    container.appendChild(accountCard);
+  });
+
+  this.populateEmailFilter();
+}
         copyInfoWithTime(accountIndex) {
           const account = this.accounts[accountIndex];
           const isAvailable = this.isAccountAvailable(account);
@@ -1043,10 +1094,18 @@
         populateEmailFilter() {
           const emailFilter = document.getElementById("emailFilter");
           const customOptions = emailFilter.querySelector(".custom-options");
+
           while (customOptions.children.length > 1) {
             customOptions.removeChild(customOptions.lastChild);
           }
-          const emails = this.accounts.filter((account) => account.email && account.email.trim() !== "").map((account) => account.email);
+
+          // Only Unlock Tool accounts
+          const base = this.accounts.filter((acc) => isUnlock(acc));
+
+          const emails = base
+            .filter((account) => account.email && account.email.trim() !== "")
+            .map((account) => account.email);
+
           const emailsByDomain = {};
           emails.forEach((email) => {
             const parts = email.split("@");
@@ -1056,12 +1115,13 @@
               if (!emailsByDomain[domain].includes(email)) emailsByDomain[domain].push(email);
             }
           });
+
           const sortedDomains = Object.keys(emailsByDomain).sort();
           sortedDomains.forEach((domain) => {
             const sortedEmails = emailsByDomain[domain].sort();
             sortedEmails.forEach((email) => {
-              const totalAccounts = this.accounts.filter((account) => account.email === email).length;
-              const availableAccounts = this.accounts.filter((account) => account.email === email && this.isAccountAvailable(account)).length;
+              const totalAccounts = base.filter((account) => account.email === email).length;
+              const availableAccounts = base.filter((account) => account.email === email && this.isAccountAvailable(account)).length;
               const option = document.createElement("div");
               option.className = "custom-option";
               option.setAttribute("data-value", email);
@@ -1069,6 +1129,7 @@
               customOptions.appendChild(option);
             });
           });
+
           this.updateCustomSelectValue(this.selectedEmail);
         }
         updateCustomSelectValue(value) {
@@ -1238,12 +1299,23 @@
         quickRent(hours = 6) {
           const rentBtnId = hours === 6 ? "quickRentBtn" : hours === 9 ? "quickRent9Btn" : hours === 12 ? "quickRent12Btn" : "quickRent24Btn";
           const rentBtn = document.getElementById(rentBtnId);
-          if (rentBtn.disabled) return;
-          const availableAccounts = this.accounts.filter((account) => this.isAccountAvailable(account) && account.username && account.username.trim() !== "" && account.password && account.password.trim() !== "");
+          if (rentBtn?.disabled) return;
+
+          // Only Unlock Tool accounts
+          const availableAccounts = this.accounts.filter((account) =>
+            isUnlock(account) &&
+            this.isAccountAvailable(account) &&
+            account.username &&
+            account.username.trim() !== "" &&
+            account.password &&
+            account.password.trim() !== ""
+          );
+
           if (availableAccounts.length === 0) {
             this.showNotification("Tidak ada akun yang tersedia untuk disewa!");
             return;
           }
+
           const available100Accounts = availableAccounts.filter((account) => account.manuallyUpdated);
           let accountToRent;
           if (available100Accounts.length > 1) {
@@ -1256,6 +1328,7 @@
             accountToRent = availableAccounts[0];
             this.showNotification(`Menyewa akun available untuk ${hours} jam: ${accountToRent.username}`);
           }
+
           const accountIndex = this.accounts.indexOf(accountToRent);
           if (accountIndex !== -1) {
             this.rentAccount(accountIndex, hours);
@@ -1313,20 +1386,27 @@
             });
         }
         resetAllAvailable() {
-          const availableIndices = this.accounts.map((acc, i) => (this.isAccountAvailable(acc) ? i : null)).filter((i) => i !== null);
+          // Only Unlock Tool accounts
+          const availableIndices = this.accounts
+            .map((acc, i) => (isUnlock(acc) && this.isAccountAvailable(acc) ? i : null))
+            .filter((i) => i !== null);
+
           if (availableIndices.length === 0) {
             this.showNotification("Tidak ada akun available untuk direset");
             return;
           }
+
           let rentedCount = 0;
           availableIndices.forEach((idx) => {
             const account = this.accounts[idx];
             if (account.availableAt) rentedCount++;
           });
+
           availableIndices.forEach((idx) => {
             const wasManual = this.accounts[idx].manuallyUpdated;
             this.updateAccount(idx, { availableAt: null, manuallyUpdated: wasManual });
           });
+
           document.getElementById("lastResetTime").textContent = formatHHMM(new Date());
           this.showNotification(`Auto-reset ${availableIndices.length} akun selesai`);
         }
@@ -1370,9 +1450,20 @@
         renderPasswordList() {
           const container = document.getElementById("passwordListContainer");
           if (!container) return;
+
           container.innerHTML = "";
-          const passwords = Array.from(new Set(this.accounts.filter((acc) => acc.password && acc.password.trim() !== "").map((acc) => acc.password)));
-          passwords.sort();
+
+          // Only Unlock Tool accounts
+          const base = this.accounts.filter((acc) => isUnlock(acc));
+
+          const passwords = Array.from(
+            new Set(
+              base
+                .filter((acc) => acc.password && acc.password.trim() !== "")
+                .map((acc) => acc.password)
+            )
+          ).sort();
+
           passwords.forEach((pwd) => {
             const item = document.createElement("div");
             item.className = "password-card";
@@ -1395,6 +1486,7 @@
             });
             container.appendChild(item);
           });
+
           if (!this.passwordSortable) {
             this.passwordSortable = new Sortable(container, {
               animation: 150,
@@ -1412,6 +1504,7 @@
               }
             });
           }
+
           const savedOrder = localStorage.getItem("passwordOrder");
           if (savedOrder) {
             try {
@@ -1428,10 +1521,11 @@
             } catch (e) {}
           }
         }
+
         deletePasswordFromAllAccounts(pwd) {
           let changed = false;
           this.accounts.forEach((acc, i) => {
-            if (acc.password === pwd) {
+            if (isUnlock(acc) && acc.password === pwd) {
               this.updateAccount(i, { password: "" });
               changed = true;
             }
@@ -1589,7 +1683,7 @@
         accountManager.accounts.forEach((acc, i) => {
           const isAvail = accountManager.isAccountAvailable(acc);
           const emailMatch = !emailFilter || acc.email === emailFilter;
-          if (isAvail && emailMatch) {
+          if (isUnlock(acc) && isAvail && emailMatch) {
             accountManager.updateAccount(i, { password: pwd });
             changedCount++;
           }
